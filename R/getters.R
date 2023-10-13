@@ -52,7 +52,8 @@ get_variable <- function(x, varname) {
   df <- expand.grid(list_dimvalue)
   colnames(df) <- unlist(list_dimname)
   matvalue <- ncvar_get(x, varname)
-  df[ , varname]<- as.vector(matvalue)
+  df[ , varname] <- as.vector(matvalue)
+  attr(df, "units") <- x$var[[varname]]$units
   df
 }
 
