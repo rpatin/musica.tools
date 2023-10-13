@@ -5,3 +5,5 @@
 .Rbuildignore
 .Rhistory
 musica.tools.Rproj
+load_data.R
+R/template.html
