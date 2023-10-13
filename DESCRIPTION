@@ -1,9 +1,31 @@
 Package: musica.tools
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: Tools to extract and plot MuSICA output
+Version: 0.0.1
 Date: 2023-10-13
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Authors@R: c(person("Remi", "Lemaire-Patin", role = c("aut", "cre"), email = "remi.lemaire-patin@inrae.fr"))
+URL: https://github.com/rpatin/musica.tools
+BugReports: https://github.com/rpatin/musica.tools/issues
+Description: Provides several function to extract MuSICA output from netcdf files. 
+             Output can then be used to produce a series of generic plots.
+License: GPL-3
+LazyData: TRUE
+RoxygenNote: 7.2.3
+Depends:
+    R (>= 4.3.0)
+Imports:
+    dplyr (>= 1.1.0),
+    ggplot2 (>= 3.4.0),
+    magrittr,
+    cli
+Suggests:
+    knitr,
+    rmarkdown,
+    dygraphs,
+    xts,
+    leaflet,
+    htmltools,
+    devtools
+VignetteBuilder: knitr
+Encoding: UTF-8
+Language: en-US

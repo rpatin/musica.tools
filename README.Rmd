@@ -1,0 +1,42 @@
+---
+title: "musica.tools: tools to extract and plot MuSICA outputs"
+output: github_document
+---
+
+
+```{r echo=FALSE, message=FALSE, results="hide"}
+options(Encoding="UTF-8")
+library(badger)
+```
+
+
+<!-- `r badger::badge_cran_release("segclust2d", "orange")` -->
+<!-- `r badger::badge_cran_download("segclust2d", "grand-total", "yellow")` -->
+`r badger::badge_github_version("rpatin/musica.tools", "blue")`
+`r badger::badge_last_commit("rpatin/musica.tools")`
+
+# Introduction
+
+`musica.tools` provides several function to extract MuSICA output from netcdf files. 
+Output can then be used to produce a series of generic plots.
+
+# Website
+
+Full documentation for segclust2d is available on this website:
+[https://rpatin.github.io/musica.tools/](https://rpatin.github.io/musica.tools/)
+
+Three topics are discussed there, and are also available as vignettes in the R package:
+
+# Installation
+
+<!-- For the `r badger::badge_cran_release("segclust2d", "orange")` version  :  -->
+<!-- ```{r, eval=FALSE} -->
+<!-- install.packages("segclust2d") -->
+<!-- ``` -->
+
+If you want the newest `r badger::badge_devel("rpatin/musica.tools", "blue")`, you
+can install `musica.tools` from github  with:
+
+```{r, eval=FALSE}
+devtools::install_github("rpatin/musica.tools")
+```
