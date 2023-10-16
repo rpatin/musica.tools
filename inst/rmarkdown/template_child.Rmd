@@ -1,0 +1,14 @@
+```{r}
+df <- get_variable(x, this_var, time_range = time_range)
+
+this_dygraph <- 
+  dygraph_variable(df,
+                   pixheight = pixheight, pixwidth = pixwidth, 
+                   axisLabelWidth = axisLabelWidth)
+if (this_var == last(list_var)) {
+  this_dygraph <-
+    this_dygraph %>% dyRangeSelector()
+}
+this_dygraph
+```
+

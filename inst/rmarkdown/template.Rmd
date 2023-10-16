@@ -1,0 +1,45 @@
+---
+title: "MuSICA Output Summary"
+output: 
+    html_document:
+      css: toc.css
+      toc: yes
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+
+```{r, results = 'asis'}
+if (!missing(template)) {
+  cat("\n\n#",template,"\n")
+}
+```
+
+
+```{r, results = 'asis'}
+res <- lapply(list_var, function(this_var) {
+  knitr::knit_child(
+    'template_child.Rmd', envir = environment(), quiet = TRUE
+  )
+})
+cat(unlist(res), sep = '\n')
+```
+
+
+```{r}
+if (add_study_site) {
+    cat("\n\n# Study Site\n")
+  
+m <- leaflet::leaflet() %>%
+  leaflet::addTiles() %>%  # Add default OpenStreetMap map tiles
+  leaflet::addMarkers(lng = list_value$longitude$longitude, 
+                      lat = list_value$latitude$latitude, 
+                      popup = "Study Site")
+m  # Print the map
+}
+```
+
