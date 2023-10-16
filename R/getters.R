@@ -34,9 +34,10 @@
 ##' 
 
 get_variable <- function(x, varname, time_range) {
-  .check_get_variable(
+  time_range <- .check_get_variable(
     x = x,
-    varname = varname
+    varname = varname,
+    time_range = time_range
   )
   dfdim <- get_dim_info(x)
   list_dimname <- 
@@ -58,7 +59,7 @@ get_variable <- function(x, varname, time_range) {
   if (length(which.NA) > 0) {
     df[which.NA, varname ] <- NA
   }
-
+  
   attr(df, "units") <- x$var[[varname]]$units
   attr(df, "longname") <- x$var[[varname]]$longname
   if (!is.null(time_range)) {
@@ -70,7 +71,7 @@ get_variable <- function(x, varname, time_range) {
   df
 }
 
-.check_get_variable <- function(x, varname) {
+.check_get_variable <- function(x, varname, time_range) {
   if (!inherits(x,"ncdf4")) {
     stop("x must be a ncdf4 object")
   }
@@ -82,7 +83,16 @@ get_variable <- function(x, varname, time_range) {
     stop("variable ", varname, " not found in x\n
 varname must be among ", paste0(names(x$var), collapes = " ; "))
   }
-  NULL
+  
+  if (missing(time_range)) {
+    time_range <- NULL
+  } else {
+    if (!is.null(time_range)) {
+      stopifnot(inherits(time_range,"POSIXct"))
+      stopifnot(length(time_range) == 2)
+    }
+  }
+  time_range
 }
 
 # get_all_var ---------------------------------------------------------
