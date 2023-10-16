@@ -123,3 +123,67 @@ format_time <- function(time, date0) {
   date0 = ymd_hms(date0)
   date0 + time*3600. # add seconds after date0
 }
+
+
+# attr_legend ---------------------------------------------------------
+##' @name attr_legend
+##' @author Remi Lemaire-Patin
+##' 
+##' @title Extract legend from \code{data.frame} attributes
+##' 
+##' @description Extract a proper formatted legend from the attributes stored
+##' in a \code{data.frame} 
+##' 
+##' @param df a \code{data.frame}, output of \code{\link{get_variable}}
+##' 
+##' @return
+##' 
+##' A \code{POSIXct} vector
+##' 
+##' @family Tools
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+##' @importFrom lubridate ymd_hms
+##' @export
+
+
+attr_legend <- function(df) {
+  paste0(attr(df, "longname"), " (", attr(df,"units"),")")
+}
+
+# .fun_testIfIn ---------------------------------------------------------
+##' @name .fun_testIfIn
+##' 
+##' @title Check that value is within a range of option
+##' 
+##' @description Generic function to check wether a value is within a range of
+##' option or not. Output appropriate error message if the check failed. Original
+##' code from \code{biomod2} package
+##' 
+##' @param x a scalar value, \code{character} or \code{numeric}
+##' 
+##' @return
+##' 
+##' A \code{boolean}
+##' 
+##' @family Tools
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+
+
+.fun_testIfIn <- function(x, values)
+{
+  x.name <- deparse(substitute(x))
+  if (any(!(x %in% values))) {
+    stop(paste0("\n", x.name, " must be '", 
+                ifelse(length(values) > 1, 
+                       paste0(paste0(values[1:(length(values) - 1)], collapse = "', '"),
+                              "' or '", values[length(values)])
+                       , paste0(values,"'"))))
+  }
+  TRUE
+}
