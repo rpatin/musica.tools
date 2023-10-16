@@ -21,7 +21,7 @@
 ##' 
 ##' @importFrom ggplot2 ggplot aes geom_line geom_step xlab ylab facet_wrap 
 ##' scale_color_brewer scale_color_viridis_d theme element_blank theme_dark
-##' guide_legend guides
+##' guide_legend guides element_rect
 ##' @importFrom stringr str_wrap
 ##' @importFrom dplyr last
 ##' @export
