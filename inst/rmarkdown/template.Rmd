@@ -34,10 +34,12 @@ cat(unlist(res), sep = '\n')
 if (add_study_site) {
     cat("\n\n# Study Site\n")
   
+dflat <- get_variable(x, "latitude")
+dflon <- get_variable(x, "longitude")
 m <- leaflet::leaflet() %>%
   leaflet::addTiles() %>%  # Add default OpenStreetMap map tiles
-  leaflet::addMarkers(lng = list_value$longitude$longitude, 
-                      lat = list_value$latitude$latitude, 
+  leaflet::addMarkers(lng = dflon$longitude, 
+                      lat = dflat$latitude, 
                       popup = "Study Site")
 m  # Print the map
 }
