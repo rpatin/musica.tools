@@ -28,11 +28,12 @@
 ##' @examples
 ##' library(ncdf4)
 ##' 
+##' @importFrom dplyr filter
 ##' @export
 ##' 
 ##' 
 
-get_variable <- function(x, varname) {
+get_variable <- function(x, varname, time_range) {
   .check_get_variable(
     x = x,
     varname = varname
@@ -53,7 +54,19 @@ get_variable <- function(x, varname) {
   colnames(df) <- unlist(list_dimname)
   matvalue <- ncvar_get(x, varname)
   df[ , varname] <- as.vector(matvalue)
+  which.NA <- which(df[ , varname] == -9999)
+  if (length(which.NA) > 0) {
+    df[which.NA, varname ] <- NA
+  }
+
   attr(df, "units") <- x$var[[varname]]$units
+  attr(df, "longname") <- x$var[[varname]]$longname
+  if (!is.null(time_range)) {
+    df <- 
+      df %>% 
+      filter(time >= time_range[1],
+             time <= time_range[2])
+  }
   df
 }
 
