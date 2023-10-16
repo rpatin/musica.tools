@@ -15,16 +15,20 @@ Depends:
     R (>= 4.3.0)
 Imports:
     dplyr (>= 1.1.0),
-    ggplot2 (>= 3.4.0),
+    tidyr,
+    stringr,
     magrittr,
-    ncdf4,
     cli,
-    lubridate
+    ncdf4,
+    xts,
+    lubridate,
+    dygraphs,
+    ggplot2 (>= 3.4.0),
+    gridExtra,
+    cowplot
 Suggests:
     knitr,
     rmarkdown,
-    dygraphs,
-    xts,
     leaflet,
     htmltools,
     devtools
