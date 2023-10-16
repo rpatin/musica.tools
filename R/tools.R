@@ -68,8 +68,14 @@ get_dim_value <- function(x, dimname) {
   
   if (dimname == "time") {
     return_values <- format_time(return_values, date0 = x$dim$time$units)
-  } 
-
+  }
+  
+  if (dimname == "nspecies") {
+    list_species <- ncatt_get(x, varid = 0)
+    return_values <- factor(return_values, 
+                            levels = return_values, 
+                            labels = unlist(list_species))
+  }
   return_values
 }
 
