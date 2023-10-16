@@ -21,6 +21,8 @@ library(ncdf4)
 }
 \seealso{
 Other Tools: 
+\code{\link{.fun_testIfIn}()},
+\code{\link{attr_legend}()},
 \code{\link{format_time}()},
 \code{\link{get_dim_value}()}
 }
