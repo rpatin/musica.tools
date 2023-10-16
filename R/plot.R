@@ -23,6 +23,7 @@
 ##' scale_color_brewer scale_color_viridis_d theme element_blank theme_dark
 ##' guide_legend guides
 ##' @importFrom stringr str_wrap
+##' @importFrom dplyr last
 ##' @export
 ##' 
 ##' 
@@ -156,6 +157,7 @@ ggplot_list_var <- function(x, list_var, time_range) {
 ##' @importFrom dygraphs dygraph dyAxis dyHighlight dyLegend dyRangeSelector
 ##' @importFrom xts xts
 ##' @importFrom tidyr pivot_wider
+##' @importFrom dplyr last
 ##' @export
 ##' 
 ##' 
