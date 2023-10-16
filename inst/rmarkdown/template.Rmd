@@ -30,7 +30,7 @@ cat(unlist(res), sep = '\n')
 ```
 
 
-```{r}
+```{r, results = 'asis'}
 if (add_study_site) {
     cat("\n\n# Study Site\n")
   
