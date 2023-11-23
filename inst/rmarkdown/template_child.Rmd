@@ -1,7 +1,16 @@
 ```{r}
 df.try <- try({ 
   df <- get_variable(x, this_var, time_range = time_range)
-
+if (any(colnames(df) == "nsoil") & !is.null(n.soil.level)) {
+  list_soil <- unique(df$nsoil)
+  n_list_soil <- length(list_soil)
+  if (n_list_soil > 5) {
+    list_soil <- c(list_soil[floor(seq(1, n_list_soil, length.out = 5))])
+    df <- 
+      df %>% 
+      filter(nsoil %in% list_soil)
+  }
+}
 this_dygraph <- 
   dygraph_variable(df,
                    pixheight = pixheight, pixwidth = pixwidth, 
@@ -13,7 +22,7 @@ if (this_var == last(list_var)) {
 }
 })
 if (!inherits(df.try, "try-error")) {
- show(this_dygraph)
+ this_dygraph
 }
 ```
 

@@ -32,7 +32,8 @@
 ##' 
 
 summary_markdown <- function(x, filename, template, list_var, 
-                             add_study_site = FALSE, time_range, ...) {
+                             add_study_site = FALSE, time_range, 
+                             n.soil.level = 5, ...) {
   args <- .check_summary(x = x, 
                          type = "markdown",
                          filename = filename,
