@@ -4,7 +4,7 @@
 \alias{ggplot_list_var}
 \title{plot for a single variable}
 \usage{
-ggplot_list_var(x, list_var, time_range)
+ggplot_list_var(x, list_var, time_range, daily_heatmap = TRUE)
 }
 \arguments{
 \item{df}{a \code{data.frame} object}

@@ -13,6 +13,7 @@ summary_pdf(
   time_range,
   file.width,
   file.height,
+  daily_heatmap = TRUE,
   ...
 )
 }

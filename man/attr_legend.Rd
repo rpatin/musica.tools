@@ -23,9 +23,13 @@ library(ncdf4)
 \seealso{
 Other Tools: 
 \code{\link{.fun_testIfIn}()},
+\code{\link{e_air_sat}()},
+\code{\link{e_air}()},
 \code{\link{format_time}()},
 \code{\link{get_dim_info}()},
-\code{\link{get_dim_value}()}
+\code{\link{get_dim_value}()},
+\code{\link{lat_heat_vap}()},
+\code{\link{mol2kg_water_ratio}()}
 }
 \author{
 Remi Lemaire-Patin

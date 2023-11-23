@@ -10,7 +10,8 @@ dygraph_variable(
   pixheight = 150,
   pixwidth = 1500,
   axisLabelWidth = 75,
-  group = "Overview"
+  group = "Overview",
+  time_range
 )
 }
 \arguments{
