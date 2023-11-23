@@ -25,7 +25,8 @@ Imports:
     dygraphs,
     ggplot2 (>= 3.4.0),
     gridExtra,
-    cowplot
+    cowplot,
+    scales
 Suggests:
     knitr,
     rmarkdown,

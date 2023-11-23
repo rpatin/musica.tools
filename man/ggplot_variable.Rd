@@ -4,7 +4,7 @@
 \alias{ggplot_variable}
 \title{plot for a single variable}
 \usage{
-ggplot_variable(df)
+ggplot_variable(df, soil_plot = "filled")
 }
 \arguments{
 \item{df}{a \code{data.frame} object}

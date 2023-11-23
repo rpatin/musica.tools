@@ -21,14 +21,16 @@
 ##' 
 ##' @importFrom ggplot2 ggplot aes geom_line geom_step xlab ylab facet_wrap 
 ##' scale_color_brewer scale_color_viridis_d theme element_blank theme_dark
-##' guide_legend guides element_rect
+##' guide_legend guides element_rect scale_fill_viridis_c scale_y_reverse
+##' geom_raster
 ##' @importFrom stringr str_wrap
+##' @importFrom scales breaks_pretty
 ##' @importFrom dplyr last
 ##' @export
 ##' 
 ##' 
 
-ggplot_variable <- function(df) {
+ggplot_variable <- function(df, soil_plot = "filled") {
   # df <- list_value$relative_height
   this_variable <- last(colnames(df))
   this_ylab <- attr_legend(df)
@@ -76,18 +78,38 @@ ggplot_variable <- function(df) {
   ## variable with [nsoil,time] -----------------------------------------------
   if (this_variable %in% c("w_soil", "h_soil", "d_w_soil_ox18", "d_w_soil_deut",
                            "q_h2o_soil_liq", "q_h2o_soil_vap")) {
-    g <- 
-      ggplot(df) +
-      geom_line(aes(x = time, y = .data[[this_variable]],
-                    color = factor(nsoil))) +
-      scale_color_viridis_d("Soil Layer", option = "C", direction = -1) +
-      guides(color = guide_legend(ncol=2)) +
-      xlab(NULL) +
-      theme_dark() +
-      theme(plot.background = element_rect(fill = "grey80"),
-            legend.background =  element_rect(fill = "grey80"))
+    if (soil_plot != "filled") {
+      g <-
+        ggplot(df) +
+        geom_line(aes(x = time, y = .data[[this_variable]],
+                      color = factor(nsoil))) +
+        scale_color_viridis_d("Soil Layer", option = "C", direction = -1) +
+        guides(color = guide_legend(ncol = 2)) +
+        xlab(NULL) +
+        theme_dark() +
+        theme(plot.background = element_rect(fill = "grey80"),
+              legend.background =  element_rect(fill = "grey80"))
+    } else {
+      g <-
+        ggplot(df) +
+        geom_raster(aes(x = time, y = nsoil, fill = .data[[this_variable]])) +
+        scale_y_reverse(breaks = breaks_pretty(n = 10)) +
+        scale_fill_viridis_c(str_wrap(this_ylab, width = 15),
+                             option = "D", direction = -1) +
+        # geom_hline(yintercept = seq(0.5, 10.5), color = "darkgreen", linetype = 2) + # not nice
+        ylab("Soil Layer") +
+        xlab(NULL)
+    }
   }
-  g + ylab(str_wrap(this_ylab, width = 30))
+  
+  if ( !(this_variable %in% c("w_soil", "h_soil",
+                              "d_w_soil_ox18", "d_w_soil_deut",
+                              "q_h2o_soil_liq", "q_h2o_soil_vap")) ||
+       soil_plot != "filled" ) {
+    
+    g <- g + ylab(str_wrap(this_ylab, width = 25))
+  }
+  g
 }
 
 
@@ -154,10 +176,12 @@ ggplot_list_var <- function(x, list_var, time_range) {
 ##' library(ncdf4)
 ##' 
 ##' 
-##' @importFrom dygraphs dygraph dyAxis dyHighlight dyLegend dyRangeSelector
+##' @importFrom dygraphs dygraph dyAxis dyHighlight dyLegend
+##'  dyRangeSelector dyOptions
 ##' @importFrom xts xts
 ##' @importFrom tidyr pivot_wider
 ##' @importFrom dplyr last
+##' @importFrom scales viridis_pal brewer_pal
 ##' @export
 ##' 
 ##' 
@@ -182,15 +206,26 @@ dygraph_variable <- function(df,
   }
   this.xts <- xts(df[, -which(colnames(df) == "time")],
                   order.by = df$time)
-  this_dygraph <- dygraph(this.xts, 
-          group = group,
-          height = pixheight,
-          width = pixwidth) %>% 
+  this_dygraph <-
+    dygraph(this.xts, 
+            # group = group,
+            height = pixheight,
+            width = pixwidth) %>% 
     dyAxis("y", label = this_ylab,
            axisLabelWidth = axisLabelWidth) %>%
     dyLegend(hideOnMouseOut = TRUE,
              show = "onmouseover")
+
   if (set_hover) {
+    if (any(grepl("nsoil", colnames(this.xts)))) {
+      this_dygraph <- 
+        this_dygraph %>% 
+        dyOptions(colors = rev(viridis_pal()(ncol(this.xts))))
+    } else {
+      this_dygraph <- 
+        this_dygraph %>% 
+        dyOptions(colors = brewer_pal(palette = "Set2")(ncol(this.xts)))
+    }
     this_dygraph <- 
       this_dygraph %>% 
       dyHighlight(highlightSeriesOpts = list(strokeWidth = 2),
