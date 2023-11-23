@@ -45,12 +45,13 @@ summary_markdown <- function(x, filename, template, list_var,
     assign(x = argi, value = args[[argi]]) 
   }
   rm(args)
+  
+  markdown.file <- "template.Rmd"
   render(
-    input = paste0(system.file(package = "musica.tools"), "/rmarkdown/template.Rmd"),
+    input = paste0(system.file(package = "musica.tools"),
+                   "/rmarkdown/", markdown.file),
     output_file = paste0(filename,".html"),
     output_dir = "./",
-    # knit.root.dir = "./",
-    # output_format = "html",
     encoding     = 'UTF-8'
   )
 }
@@ -83,7 +84,8 @@ summary_markdown <- function(x, filename, template, list_var,
 ##' 
 
 summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE, 
-                        time_range, file.width, file.height, ...) {
+                        time_range, file.width, file.height, 
+                        daily_heatmap = TRUE, ...) {
   args <- .check_summary(x = x, 
                          type = "pdf",
                          filename = filename,
@@ -101,7 +103,7 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
       width = file.width,
       height = file.height)
   grid.arrange(
-    ggplot_list_var(x, list_var, time_range)
+    ggplot_list_var(x, list_var, time_range, daily_heatmap = daily_heatmap)
   )
   dev.off()
 }
@@ -129,12 +131,15 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
     
     list_var <-   switch(
       template,
-      "Overview"  = c("NEE","Qle","Qh","Qg","h_soil"),
+      "Overview"  = c("NEE","Qle","Qh","Qg","w_soil"),
       "Heat flux" = c("Qle","Qh","NEE","Qg"),
-      "Water"     = c("runoff","q_h2o_soil_liq","q_h2o_soil_vap"),
+      "Water"     = c("runoff","q_h2o_soil_liq","q_h2o_soil_vap", "transpir",
+                      "w_soil","Evap"),
       "Soil"      = c("w_soil","h_soil"),
-      "Plants"    = c("h_canopy","gpp","transpir","fh_xylem"), 
-      "Isotope"   = c("d_w_xylem_ox18","d_w_xylem_deut","d_w_soil_ox18","d_w_soil_deut")
+      "Plants"    = c("h_canopy","gpp","transpir","fh_xylem",
+                      "w_soil","h_soil","root_uptake"), 
+      "Isotope"   = c("d_w_xylem_ox18","d_w_xylem_deut",
+                      "d_w_soil_ox18","d_w_soil_deut")
     )
     
   } else if ( missing(list_var)) {
@@ -151,8 +156,8 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
     stopifnot(length(time_range) == 2)
   }
   dot.args <- list(...)
-
-## Markdown/dygraph specific argument ------------------------------------------
+  
+  ## Markdown/dygraph specific argument ------------------------------------------
   if (type == "markdown") {
     if (!"pixheight" %in% names(dot.args)) {
       pixheight <- 145

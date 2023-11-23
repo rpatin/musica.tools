@@ -173,10 +173,14 @@ ggplot_variable <- function(df, heatmap = TRUE, daily_heatmap = TRUE,
 ggplot_list_var <- function(x, list_var, time_range, daily_heatmap = TRUE) {
   list_plot <- list()
   for (this_var in list_var) {
-    df <- get_variable(x, this_var, time_range = time_range)
-    this_ggplot <- 
-      ggplot_variable(df, daily_heatmap = daily_heatmap)
-    list_plot[[this_var]] <- this_ggplot
+    df.try <- try({ 
+      df <- get_variable(x, this_var, time_range = time_range)
+      this_ggplot <- 
+        ggplot_variable(df, daily_heatmap = daily_heatmap) 
+    })
+    if (!inherits(df.try, "try-error")) {
+      list_plot[[this_var]] <- this_ggplot
+    }
   }
   plot_grid(plotlist = list_plot, ncol = 1, align = "v", axis = "lr")
 }
