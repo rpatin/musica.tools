@@ -66,11 +66,11 @@ get_dim_value <- function(x, dimname) {
   )
   return_values <- x$dim[[dimname]]$vals
   
-  if (dimname == "time") {
-    return_values <- format_time(return_values, date0 = x$dim$time$units)
+  if (dimname %in% c("time")) {
+    return_values <- format_time(return_values, date0 = x$dim[[dimname]]$units)
   }
   
-  if (dimname == "nspecies") {
+  if (dimname %in% c("nspecies", "n_species_max")) {
     list_species <- ncatt_get(x, varid = 0)
     return_values <- factor(return_values, 
                             levels = return_values, 
