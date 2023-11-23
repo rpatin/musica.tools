@@ -22,19 +22,34 @@
 ##' @importFrom ggplot2 ggplot aes geom_line geom_step xlab ylab facet_wrap 
 ##' scale_color_brewer scale_color_viridis_d theme element_blank theme_dark
 ##' guide_legend guides element_rect scale_fill_viridis_c scale_y_reverse
-##' geom_raster
+##' geom_raster scale_y_continuous
 ##' @importFrom stringr str_wrap
 ##' @importFrom scales breaks_pretty
-##' @importFrom dplyr last
+##' @importFrom dplyr last mutate
+##' @importFrom lubridate hour minute second
 ##' @export
 ##' 
 ##' 
 
-ggplot_variable <- function(df, soil_plot = "filled") {
+ggplot_variable <- function(df, heatmap = TRUE, daily_heatmap = TRUE, 
+                            time_range) {
   # df <- list_value$relative_height
   this_variable <- last(colnames(df))
   this_ylab <- attr_legend(df)
+  skip_ylab <- FALSE
   
+  stopifnot(is.logical(heatmap))
+  stopifnot(is.logical(daily_heatmap))
+  if (daily_heatmap & ncol(df) > 3) {
+    stop("daily heatmap can only be produced for 1 dimension variables")
+  }
+  
+  if (!missing(time_range)) {
+    df <-
+      df %>% 
+      filter(time >= time_range[1],
+             time <= time_range[2])
+  }
   
   ## relative_height (nair) ---------------------------------------------------------
   if (this_variable %in% c("relative_height")) {
@@ -56,10 +71,28 @@ ggplot_variable <- function(df, soil_plot = "filled") {
   ## variable with [time] ------------------------------------------------------
   if (this_variable %in% c("veget_height_top", "Qle", "Qh", "NEE",
                            "Qg", "runoff")) {
-    g <- 
-      ggplot(df) +
-      geom_line(aes(x = time, y = .data[[this_variable]])) +
-      xlab(NULL)
+    if(!daily_heatmap) {
+      g <- 
+        ggplot(df) +
+        geom_line(aes(x = time, y = .data[[this_variable]])) +
+        xlab(NULL)
+    } else {
+      skip_ylab <- TRUE
+      df_timed <- 
+        df %>% 
+        mutate(date = as.Date(time)) %>% 
+        mutate(hour = hour(time) + minute(time)/60 + second(time)/3600)
+      
+      g <-
+        ggplot(df_timed) +
+        geom_raster(aes(x = date, y = hour, fill = .data[[this_variable]])) +
+        scale_y_continuous(breaks = breaks_pretty(n = 24), expand = c(0,0)) +
+        scale_fill_viridis_c(str_wrap(this_ylab, width = 15),
+                             option = "D", direction = 1) +
+        ylab("Time of the day") +
+        xlab(NULL)
+      
+    }
   }
   
   ## variable with [nspecies,time]   -------------------------------------------
@@ -78,7 +111,7 @@ ggplot_variable <- function(df, soil_plot = "filled") {
   ## variable with [nsoil,time] -----------------------------------------------
   if (this_variable %in% c("w_soil", "h_soil", "d_w_soil_ox18", "d_w_soil_deut",
                            "q_h2o_soil_liq", "q_h2o_soil_vap")) {
-    if (soil_plot != "filled") {
+    if (!heatmap) {
       g <-
         ggplot(df) +
         geom_line(aes(x = time, y = .data[[this_variable]],
@@ -90,6 +123,7 @@ ggplot_variable <- function(df, soil_plot = "filled") {
         theme(plot.background = element_rect(fill = "grey80"),
               legend.background =  element_rect(fill = "grey80"))
     } else {
+      skip_ylab <- TRUE
       g <-
         ggplot(df) +
         geom_raster(aes(x = time, y = nsoil, fill = .data[[this_variable]])) +
@@ -102,10 +136,7 @@ ggplot_variable <- function(df, soil_plot = "filled") {
     }
   }
   
-  if ( !(this_variable %in% c("w_soil", "h_soil",
-                              "d_w_soil_ox18", "d_w_soil_deut",
-                              "q_h2o_soil_liq", "q_h2o_soil_vap")) ||
-       soil_plot != "filled" ) {
+  if ( !skip_ylab ) {
     
     g <- g + ylab(str_wrap(this_ylab, width = 25))
   }
@@ -139,12 +170,12 @@ ggplot_variable <- function(df, soil_plot = "filled") {
 ##' 
 ##' 
 
-ggplot_list_var <- function(x, list_var, time_range) {
+ggplot_list_var <- function(x, list_var, time_range, daily_heatmap = TRUE) {
   list_plot <- list()
   for (this_var in list_var) {
     df <- get_variable(x, this_var, time_range = time_range)
     this_ggplot <- 
-      ggplot_variable(df)
+      ggplot_variable(df, daily_heatmap = daily_heatmap)
     list_plot[[this_var]] <- this_ggplot
   }
   plot_grid(plotlist = list_plot, ncol = 1, align = "v", axis = "lr")
@@ -189,7 +220,16 @@ ggplot_list_var <- function(x, list_var, time_range) {
 dygraph_variable <- function(df,
                              pixheight = 150, pixwidth = 1500,
                              axisLabelWidth = 75,
-                             group = "Overview") {
+                             group = "Overview",
+                             time_range) {
+  
+  if (!missing(time_range)) {
+    df <-
+      df %>% 
+      filter(time >= time_range[1],
+             time <= time_range[2])
+  }
+  
   this_variable <- last(colnames(df))
   this_ylab <- attr_legend(df)
   set_hover <- FALSE
@@ -208,14 +248,14 @@ dygraph_variable <- function(df,
                   order.by = df$time)
   this_dygraph <-
     dygraph(this.xts, 
-            # group = group,
+            group = group,
             height = pixheight,
             width = pixwidth) %>% 
     dyAxis("y", label = this_ylab,
            axisLabelWidth = axisLabelWidth) %>%
     dyLegend(hideOnMouseOut = TRUE,
              show = "onmouseover")
-
+  
   if (set_hover) {
     if (any(grepl("nsoil", colnames(this.xts)))) {
       this_dygraph <- 
