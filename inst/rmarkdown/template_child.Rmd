@@ -4,8 +4,8 @@ df.try <- try({
 if (any(colnames(df) == "nsoil") & !is.null(n.soil.level)) {
   list_soil <- unique(df$nsoil)
   n_list_soil <- length(list_soil)
-  if (n_list_soil > 5) {
-    list_soil <- c(list_soil[floor(seq(1, n_list_soil, length.out = 5))])
+  if (n_list_soil > n.soil.level) {
+    list_soil <- c(list_soil[floor(seq(1, n_list_soil, length.out = n.soil.level))])
     df <- 
       df %>% 
       filter(nsoil %in% list_soil)

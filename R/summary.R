@@ -125,7 +125,7 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
   }
   if (!missing(template)) {
     .fun_testIfIn(template, c("Overview","Heat flux","Water",
-                              "Soil", "Plants", "Isotope"))
+                              "Soil", "Plants", "Isotope","Ox18","Deut"))
     if (!missing(list_var)) {
       cli_alert_warning("`list_var` argument will be ignored as `template` was provided")
     }
@@ -140,8 +140,23 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
       "Plants"    = c("h_canopy","gpp","transpir","fh_xylem",
                       "w_soil","h_soil","root_uptake"), 
       "Isotope"   = c("d_w_xylem_ox18","d_w_xylem_deut",
-                      "d_w_soil_ox18","d_w_soil_deut")
+                      "d_w_soil_ox18","d_w_soil_deut",
+                      "d_w_inleaf_sunlit_dry_ox18","d_w_inleaf_sunlit_dry_deut",
+                      "d_w_inleaf_shaded_dry_ox18","d_w_inleaf_shaded_dry_ox18",
+                      "d_vapour_ox18_ref","d_vapour_deut_ref"), 
+      "Ox18"   = c("d_w_xylem_ox18",
+                   "d_w_soil_ox18",
+                   "d_w_inleaf_sunlit_dry_ox18",
+                   "d_w_inleaf_shaded_dry_ox18",
+                   "d_vapour_ox18_ref"), 
+      "Deut"   = c("d_w_xylem_deut",
+                   "d_w_soil_deut",
+                   "d_w_inleaf_sunlit_dry_deut",
+                   "d_w_inleaf_shaded_dry_deut",
+                   "d_vapour_deut_ref")
     )
+    
+    list_var <- list_var[list_var %in% names(x$var)]
     
   } else if ( missing(list_var)) {
     stop("`list_var` required when `template is not provided`")
