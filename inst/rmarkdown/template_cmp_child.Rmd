@@ -1,7 +1,9 @@
 ```{r}
 dygraph.try <- try({ 
   
-  df <- get_variable_comparison(x, this_var, time_range)
+  df <- get_variable_comparison(x, this_var, time_range,
+                                n.soil.level = n.soil.level,
+                                n.air.level = n.air.level)
   ndim <- attr(df,'ndim')
   this_dygraph <- 
     dygraph_comparison(df,

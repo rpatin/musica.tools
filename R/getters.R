@@ -183,7 +183,7 @@ get_all_var <- function(x) {
 ##' 
 ##' 
 
-get_variable_comparison <- function(x, this_var, time_range) {
+get_variable_comparison <- function(x, this_var, time_range, n.soil.level, n.air.level) {
   list.df <- lapply(seq_along(x), function(i){
     tmp.try <- try({
       tmp <- get_variable(x[[i]], this_var, time_range = time_range) %>% 
