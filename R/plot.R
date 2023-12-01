@@ -187,8 +187,8 @@ ggplot_list_var <- function(x, list_var, time_range, daily_heatmap = TRUE) {
 
 
 
-# dygraph_var ---------------------------------------------------------
-##' @name dygraph_var
+# dygraph_variable ---------------------------------------------------------
+##' @name dygraph_variable
 ##' @author Remi Lemaire-Patin
 ##' 
 ##' @title produce \code{dygraph} for a single variable
@@ -278,3 +278,103 @@ dygraph_variable <- function(df,
   this_dygraph
 }
 
+
+# dygraph_comparison ---------------------------------------------------------
+##' @name dygraph_comparison
+##' @author Remi Lemaire-Patin
+##' 
+##' @title produce \code{dygraph} for a single variable
+##' 
+##' @description This function plot the output of \code{\link{get_variable}}
+##' with an interactive dygraph app
+##' 
+##' 
+##' @param df a \code{data.frame} object
+##' @param pixheight height of the \code{dygraph} object in pixel
+##' @param pixwidth width of the \code{dygraph} object in pixel
+##' @param axisLabelWidth height of the y axis label
+##' @return
+##' 
+##' A \code{dygraph} object
+##' 
+##' @family plot
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+##' 
+##' @importFrom dygraphs dygraph dyAxis dyHighlight dyLegend
+##'  dyRangeSelector dyOptions
+##' @importFrom xts xts
+##' @importFrom tidyr pivot_wider
+##' @importFrom dplyr last
+##' @importFrom scales viridis_pal brewer_pal
+##' @export
+##' 
+##' 
+
+dygraph_comparison <- function(df,
+                               pixheight = 150, pixwidth = 1500,
+                               axisLabelWidth = 75,
+                               group = "Overview",
+                               time_range) {
+  
+  if (!missing(time_range)) {
+    df <-
+      df %>% 
+      filter(time >= time_range[1],
+             time <= time_range[2])
+  }
+  
+  this_variable <- attr(df, "var")
+  this_ylab <- attr_legend(df)
+  ndim <- attr(df,"ndim")
+  set_hover <- TRUE
+  if (ndim == 1) {
+    df.in <- list(df)
+  } else if (ndim == 2) {
+    df.in <- split(df, factor(as.data.frame(df)[,1]))
+  } else {
+    stop("unsupported dimension number")
+  }
+  
+  dygraph.list <- lapply(df.in, function(this.df){
+    if (ndim == 1) {
+      this.xts <- xts(this.df[, -which(colnames(this.df) == "time")],
+                      order.by = this.df$time)
+      this.main = NULL
+    } else {
+      this.main = paste0(first(colnames(this.df)), " = ", first(this.df[,1]))
+      this.df <- this.df[,-1]
+      this.xts <- xts(this.df[, -which(colnames(this.df) == "time")],
+                      order.by = this.df$time)
+    }
+    this_dygraph <-
+      dygraph(this.xts, 
+              group = group,
+              height = pixheight,
+              width = pixwidth, 
+              main = this.main) %>% 
+      dyAxis("y", label = this_ylab,
+             axisLabelWidth = axisLabelWidth) %>%
+      dyLegend(hideOnMouseOut = TRUE,
+               show = "onmouseover")
+    
+    this_dygraph <- 
+      this_dygraph %>% 
+      dyOptions(colors = brewer_pal(palette = "Set2")(ncol(this.xts)))
+    
+    this_dygraph <- 
+      this_dygraph %>% 
+      dyHighlight(highlightSeriesOpts = list(strokeWidth = 2,
+                                             strokePattern = "dashed"),
+                  hideOnMouseOut = TRUE)
+  this_dygraph
+  })
+  
+  if (ndim == 1) {
+    return(dygraph.list[[1]])
+  } else {
+    return(dygraph.list)
+  }
+}

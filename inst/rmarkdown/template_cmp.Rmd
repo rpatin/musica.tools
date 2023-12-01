@@ -1,5 +1,5 @@
 ---
-title: "MuSICA Output Summary"
+title: "MuSICA Output Comparison Summary"
 output: 
     html_document:
       css: toc.css
@@ -23,7 +23,7 @@ if (!missing(template)) {
 ```{r, results = 'asis'}
 res <- lapply(list_var, function(this_var) {
   knitr::knit_child(
-    'template_child.Rmd', envir = environment(), quiet = TRUE
+    'template_cmp_child.Rmd', envir = environment(), quiet = TRUE
   )
 })
 cat(unlist(res), sep = '\n')
@@ -34,13 +34,14 @@ cat(unlist(res), sep = '\n')
 if (add_study_site) {
     cat("\n\n# Study Site\n")
   
-dflat <- get_variable(x, "latitude")
-dflon <- get_variable(x, "longitude")
+dflat <- sapply(x, function(dx) (get_variable(dx, "latitude"))$latitude)
+dflon <- sapply(x, function(dx) (get_variable(dx, "longitude"))$longitude)
 m <- leaflet::leaflet() %>%
   leaflet::addTiles() %>%  # Add default OpenStreetMap map tiles
-  leaflet::addMarkers(lng = dflon$longitude, 
-                      lat = dflat$latitude, 
-                      popup = "Study Site")
+  leaflet::addMarkers(lng = dflon, 
+                      lat = dflat, 
+                      popup = names(x),
+                      clusterOptions = leaflet::markerClusterOptions())
 m  # Print the map
 }
 ```

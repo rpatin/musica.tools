@@ -1,28 +1,22 @@
 ```{r}
 df.try <- try({ 
-  df <- get_variable(x, this_var, time_range = time_range)
-if (any(colnames(df) == "nsoil") & !is.null(n.soil.level)) {
-  list_soil <- unique(df$nsoil)
-  n_list_soil <- length(list_soil)
-  if (n_list_soil > n.soil.level) {
-    list_soil <- c(list_soil[floor(seq(1, n_list_soil, length.out = n.soil.level))])
-    df <- 
-      df %>% 
-      filter(nsoil %in% list_soil)
+  df <-
+    get_variable(x, this_var, time_range = time_range) %>% 
+    filter_dim("nsoil", n.soil.level) %>% 
+    filter_dim("nair", n.air.level) 
+  
+  this_dygraph <- 
+    dygraph_variable(df,
+                     pixheight = pixheight, pixwidth = pixwidth, 
+                     axisLabelWidth = axisLabelWidth,
+                     group = "templateGroup")
+  if (this_var == last(list_var)) {
+    this_dygraph <-
+      this_dygraph %>% dyRangeSelector()
   }
-}
-this_dygraph <- 
-  dygraph_variable(df,
-                   pixheight = pixheight, pixwidth = pixwidth, 
-                   axisLabelWidth = axisLabelWidth,
-                   group = "templateGroup")
-if (this_var == last(list_var)) {
-  this_dygraph <-
-    this_dygraph %>% dyRangeSelector()
-}
 })
 if (!inherits(df.try, "try-error")) {
- this_dygraph
+  this_dygraph
 }
 ```
 

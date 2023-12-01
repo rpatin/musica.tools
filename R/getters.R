@@ -146,3 +146,66 @@ get_all_var <- function(x) {
     stop("x must be a ncdf4 object")
   }
 }
+
+
+# get_variable_comparison ---------------------------------------------------------
+##' @name get_variable_comparison
+##' @author Remi Lemaire-Patin
+##' 
+##' @title Get a variable from a list of \code{ncdf4} object
+##' 
+##' @description This function extract a variable from a \code{ncdf4} object and
+##' format it in a nice \code{data.frame}.
+##' 
+##' 
+##' @param x a \code{ncdf4} object
+##' 
+##' @return
+##' 
+##' A \code{data.frame}
+##' 
+##' 
+##' @details 
+##' 
+##' \describe{
+##' Additional Description
+##' }
+##' 
+##' 
+##' @family getters
+##' 
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+##' @importFrom dplyr filter
+##' @export
+##' 
+##' 
+
+get_variable_comparison <- function(x, this_var, time_range) {
+  list.df <- lapply(seq_along(x), function(i){
+    tmp.try <- try({
+      tmp <- get_variable(x[[i]], this_var, time_range = time_range) %>% 
+        filter_dim("nsoil", n.soil.level) %>% 
+        filter_dim("nair",  n.air.level) 
+    })
+    if (!inherits(tmp.try, "try-error")) {
+      tmp$run <- names(x)[i]
+      return(tmp)
+    } else {
+      return(NULL)
+    }
+  }) 
+  
+  df <- list.df %>% 
+    do.call('rbind', .) %>% 
+    pivot_wider(names_from = "run",
+                values_from = sym(this_var))
+  attr(df, "var") <- this_var
+  attr(df, "units") <- attr(list.df[[1]], "units")
+  attr(df, "longname") <- attr(list.df[[1]], "longname")
+  attr(df, "ndim") <- ncol(list.df[[1]]) - 2
+  attr(df, "nvar") <- ncol(df) - attr(df, "ndim")
+  df
+}

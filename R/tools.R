@@ -187,3 +187,45 @@ attr_legend <- function(df) {
   }
   TRUE
 }
+
+
+# filter_dim ---------------------------------------------------------
+##' @name filter_dim
+##' @author Remi Lemaire-Patin
+##' 
+##' @title Filter a \code{data.frame} dimension
+##' 
+##' @description Extract a proper formatted legend from the attributes stored
+##' in a \code{data.frame} 
+##' 
+##' @param df a \code{data.frame}
+##' @param this.dim a \code{character}, the dimension to filter
+##' @param n.dim.level a \code{numeric}, the max. number of level to keep. If 
+##' \code{NULL}, no filtering occur
+##' 
+##' @return
+##' 
+##' A \code{data.frame}
+##' 
+##' @family Tools
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+##' @importFrom rlang sym `!!`
+##' @export
+
+
+filter_dim <- function(df, this.dim, n.dim.level) {
+  if (any(colnames(df) == this.dim) & !is.null(n.dim.level)) {
+    list_dim <- unique(df[, this.dim])
+    n_list_dim <- length(list_dim)
+    if (n_list_dim > n.dim.level) {
+      list_dim <- c(list_dim[floor(seq(1, n_list_dim, length.out = n.dim.level))])
+      df <- 
+        df %>% 
+        filter(!!sym(this.dim) %in% list_dim)
+    }
+  }
+  df
+}

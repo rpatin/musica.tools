@@ -1,0 +1,31 @@
+```{r}
+dygraph.try <- try({ 
+  
+  df <- get_variable_comparison(x, this_var, time_range)
+  ndim <- attr(df,'ndim')
+  this_dygraph <- 
+    dygraph_comparison(df,
+                       pixheight = pixheight, pixwidth = pixwidth, 
+                       axisLabelWidth = axisLabelWidth,
+                       group = "templateGroup")
+  if (this_var == last(list_var)) {
+    if (ndim == 1) {
+      this_dygraph <-
+        this_dygraph %>% 
+        dyRangeSelector()
+    } else {
+      this_dygraph[[length(this_dygraph)]] <-
+        this_dygraph[[length(this_dygraph)]] %>% 
+        dyRangeSelector()
+    }
+  }
+})
+if (!inherits(dygraph.try, "try-error")) {
+  if (ndim == 1) {
+    this_dygraph
+  } else {
+    tagList(this_dygraph)
+  }
+}
+```
+

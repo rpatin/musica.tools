@@ -27,13 +27,16 @@
 ##' 
 ##' @importFrom cli cli_alert_warning
 ##' @importFrom rmarkdown render
+##' @importFrom dplyr first
+##' @importFrom htmltools tagList
 ##' @export
 ##' 
 ##' 
 
 summary_markdown <- function(x, filename, template, list_var, 
                              add_study_site = FALSE, time_range, 
-                             n.soil.level = 5, ...) {
+                             n.soil.level = 5, n.air.level = 5,
+                             out.dir = "./", ...) {
   args <- .check_summary(x = x, 
                          type = "markdown",
                          filename = filename,
@@ -47,12 +50,17 @@ summary_markdown <- function(x, filename, template, list_var,
   }
   rm(args)
   
-  markdown.file <- "template.Rmd"
+  if (inherits(x, "ncdf4")) {
+    markdown.file <- "template.Rmd"
+  } else {
+    markdown.file <- "template_cmp.Rmd"
+  }
+  
   render(
     input = paste0(system.file(package = "musica.tools"),
                    "/rmarkdown/", markdown.file),
     output_file = paste0(filename,".html"),
-    output_dir = "./",
+    output_dir = out.dir,
     encoding     = 'UTF-8'
   )
 }
@@ -115,7 +123,8 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
 
 .check_summary <- function(x, filename, template, list_var,
                            add_study_site, type, time_range, ...) {
-  stopifnot(inherits(x, "ncdf4"))
+  
+  stopifnot(inherits(x, "ncdf4") | all(sapply(x, function(dx) inherits(dx, "ncdf4"))))
   .fun_testIfIn(type, c("markdown","pdf"))
   
   if (missing(filename)) {
@@ -123,6 +132,12 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
   } else if (!file.access(filename, mode = 2)) {
     stop("Invalid path provided, `filename` could not be written")
   }
+  if (inherits(x, "ncdf4")) {
+    list_var_potential <-  names(x$var)
+  } else {
+    list_var_potential <- unique(unlist(sapply(x, function(dx) names(dx$var))))
+  }
+  
   if (!missing(template)) {
     .fun_testIfIn(template, c("Overview","Heat flux","Water",
                               "Soil", "Plants", "Isotope","Ox18","Deut"))
@@ -133,10 +148,10 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
     list_var <-   switch(
       template,
       "Overview"  = c("NEE","Qle","Qh","Qg","w_soil"),
-      "Heat flux" = c("Qle","Qh","NEE","Qg"),
+      "Heat flux" = c("Rnet", "Qle","Qh","Qg"),
       "Water"     = c("runoff","q_h2o_soil_liq","q_h2o_soil_vap", "transpir",
-                      "w_soil","Evap"),
-      "Soil"      = c("w_soil","h_soil"),
+                      "w_soil","h_soil","Evap"),
+      "Soil"      = c("w_soil","h_soil", "dt_soil", "Qco2_soil", "Qco2_soil_SS", "Qg"),
       "Plants"    = c("h_canopy","gpp","transpir","fh_xylem",
                       "w_soil","h_soil","root_uptake"), 
       "Isotope"   = c("d_w_xylem_ox18","d_w_xylem_deut",
@@ -156,12 +171,12 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
                    "d_vapour_deut_ref")
     )
     
-    list_var <- list_var[list_var %in% names(x$var)]
-    
+      list_var <- list_var[list_var %in% list_var_potential]
+
   } else if ( missing(list_var)) {
     stop("`list_var` required when `template is not provided`")
   } else {
-    .fun_testIfIn(list_var, names(x$var))
+    .fun_testIfIn(list_var, list_var_potential)
   }
   stopifnot(inherits(add_study_site, "logical"))
   
