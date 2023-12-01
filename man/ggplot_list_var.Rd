@@ -22,7 +22,8 @@ library(ncdf4)
 }
 \seealso{
 Other plot: 
-\code{\link{dygraph_var}},
+\code{\link{dygraph_comparison}()},
+\code{\link{dygraph_variable}()},
 \code{\link{ggplot_variable}()}
 }
 \author{

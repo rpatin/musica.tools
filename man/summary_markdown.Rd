@@ -11,6 +11,9 @@ summary_markdown(
   list_var,
   add_study_site = FALSE,
   time_range,
+  n.soil.level = 5,
+  n.air.level = 5,
+  out.dir = "./",
   ...
 )
 }

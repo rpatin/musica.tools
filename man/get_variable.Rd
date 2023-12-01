@@ -27,7 +27,8 @@ library(ncdf4)
 }
 \seealso{
 Other getters: 
-\code{\link{get_all_var}()}
+\code{\link{get_all_var}()},
+\code{\link{get_variable_comparison}()}
 }
 \author{
 Remi Lemaire-Patin

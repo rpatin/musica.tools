@@ -27,6 +27,7 @@ Other Tools:
 \code{\link{attr_legend}()},
 \code{\link{e_air_sat}()},
 \code{\link{e_air}()},
+\code{\link{filter_dim}()},
 \code{\link{format_time}()},
 \code{\link{get_dim_info}()},
 \code{\link{get_dim_value}()},
