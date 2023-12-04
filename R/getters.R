@@ -60,6 +60,22 @@ get_variable <- function(x, varname, time_range) {
     df[which.NA, varname ] <- NA
   }
   
+  # rename dev_jerome column names
+  old_conversion <- 
+    c("n_time" = "time",
+      "n_pts_terre" = "nland",
+      "n_air_layer" = "nair",
+      "n_soil_layer" = "nsoil",
+      "n_veg_layer" = "nveg",
+      "n_species_max" = "nspecies",
+      "n_leaf_age" = "nleafage")
+  for (this.old in names(old_conversion)) {
+    if (any(colnames(df) == this.old)) {
+      df <- 
+        rename(df, !!sym(old_conversion[this.old]) := sym(this.old))
+    }
+  }
+
   attr(df, "units") <- x$var[[varname]]$units
   attr(df, "longname") <- x$var[[varname]]$longname
   if (!is.null(time_range)) {

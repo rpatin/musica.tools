@@ -70,6 +70,11 @@ get_dim_value <- function(x, dimname) {
     return_values <- format_time(return_values, date0 = x$dim[[dimname]]$units)
   }
   
+  if (dimname %in% c("n_time")) { #then it is dev_jerome
+    return_values <- ncvar_get(x, "time")
+    return_values <- format_time(return_values, date0 = x$var[["time"]]$units)
+  }
+
   if (dimname %in% c("nspecies", "n_species_max")) {
     list_species <- ncatt_get(x, varid = 0)
     return_values <- factor(return_values, 
@@ -88,7 +93,7 @@ get_dim_value <- function(x, dimname) {
   }
   dfdim <- get_dim_info(x)
   if (!dimname %in% dfdim$dimname) {
-    stop("dimension ", dimname, " not found in x")
+      stop("dimension ", dimname, " not found in x")
   }
   NULL
 }
@@ -116,10 +121,14 @@ get_dim_value <- function(x, dimname) {
 ##' library(ncdf4)
 ##' 
 ##' @importFrom lubridate ymd_hms
+##' @importFrom stringi stri_split_fixed
 ##' @export
 
 
 format_time <- function(time, date0) {
+  if (grepl("(GMT", date0, fixed = TRUE)) {
+    date0 <- stri_split_fixed(str = date0, pattern = " (GMT+")[[1]][1]
+  }
   date0 = ymd_hms(date0)
   date0 + time*3600. # add seconds after date0
 }
