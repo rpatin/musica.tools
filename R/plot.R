@@ -317,7 +317,8 @@ dygraph_comparison <- function(df,
                                pixheight = 150, pixwidth = 1500,
                                axisLabelWidth = 75,
                                group = "Overview",
-                               time_range) {
+                               time_range,
+                               main.title = NULL) {
   
   if (!missing(time_range)) {
     df <-
@@ -338,13 +339,15 @@ dygraph_comparison <- function(df,
     stop("unsupported dimension number")
   }
   
+  this.main <- main.title
   dygraph.list <- lapply(df.in, function(this.df){
     if (ndim == 1) {
       this.xts <- xts(this.df[, -which(colnames(this.df) == "time")],
                       order.by = this.df$time)
-      this.main = NULL
     } else {
-      this.main = paste0(first(colnames(this.df)), " = ", first(this.df[,1]))
+      if (is.null(main.title)) {
+        this.main = paste0(first(colnames(this.df)), " = ", first(this.df[,1]))
+      }
       this.df <- this.df[,-1]
       this.xts <- xts(this.df[, -which(colnames(this.df) == "time")],
                       order.by = this.df$time)
@@ -369,10 +372,10 @@ dygraph_comparison <- function(df,
       dyHighlight(highlightSeriesOpts = list(strokeWidth = 2,
                                              strokePattern = "dashed"),
                   hideOnMouseOut = TRUE)
-  this_dygraph
+    this_dygraph
   })
   
-  if (ndim == 1) {
+  if (ndim == 1 || length(dygraph.list) == 1) {
     return(dygraph.list[[1]])
   } else {
     return(dygraph.list)
