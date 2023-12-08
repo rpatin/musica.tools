@@ -4,7 +4,7 @@
 \alias{filter_dim}
 \title{Filter a \code{data.frame} dimension}
 \usage{
-filter_dim(df, this.dim, n.dim.level)
+filter_dim(df, this.dim, n.dim.level, list_dim = NULL)
 }
 \arguments{
 \item{df}{a \code{data.frame}}
@@ -35,7 +35,8 @@ Other Tools:
 \code{\link{get_dim_info}()},
 \code{\link{get_dim_value}()},
 \code{\link{lat_heat_vap}()},
-\code{\link{mol2kg_water_ratio}()}
+\code{\link{mol2kg_water_ratio}()},
+\code{\link{var_with_dim}()}
 }
 \author{
 Remi Lemaire-Patin

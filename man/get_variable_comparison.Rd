@@ -4,7 +4,21 @@
 \alias{get_variable_comparison}
 \title{Get a variable from a list of \code{ncdf4} object}
 \usage{
-get_variable_comparison(x, this_var, time_range, n.soil.level, n.air.level)
+get_variable_comparison(
+  x,
+  this_var,
+  time_range,
+  n.soil.level = NULL,
+  list.soil.level = NULL,
+  n.air.level = NULL,
+  list.air.level = NULL,
+  n.species.level = NULL,
+  list.species.level = NULL,
+  n.veg.level = NULL,
+  list.veg.level = NULL,
+  n.leafage.level = NULL,
+  list.leafage.level = NULL
+)
 }
 \arguments{
 \item{x}{a \code{ncdf4} object}

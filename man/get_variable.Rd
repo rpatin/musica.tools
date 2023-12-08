@@ -4,7 +4,7 @@
 \alias{get_variable}
 \title{Get a variable from a \code{ncdf4} object}
 \usage{
-get_variable(x, varname, time_range)
+get_variable(x, varname, time_range, return.colnames = FALSE)
 }
 \arguments{
 \item{x}{a \code{ncdf4} object}

@@ -30,7 +30,8 @@ Other Tools:
 \code{\link{get_dim_info}()},
 \code{\link{get_dim_value}()},
 \code{\link{lat_heat_vap}()},
-\code{\link{mol2kg_water_ratio}()}
+\code{\link{mol2kg_water_ratio}()},
+\code{\link{var_with_dim}()}
 }
 \author{
 Remi Lemaire-Patin

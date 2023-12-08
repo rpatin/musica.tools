@@ -12,6 +12,14 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
-### 1.x.x
-
-  * development phase
+### 0.0.4
+  * Added Shiny App
+  
+### 0.0.3
+  * added comparison function
+  
+### 0.0.2 
+  * bugfix
+  
+### 0.0.1 
+  * alpha version

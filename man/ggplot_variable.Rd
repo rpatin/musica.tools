@@ -24,7 +24,14 @@ library(ncdf4)
 Other plot: 
 \code{\link{dygraph_comparison}()},
 \code{\link{dygraph_variable}()},
-\code{\link{ggplot_list_var}()}
+\code{\link{get_6month}()},
+\code{\link{get_air_level}()},
+\code{\link{get_soil_level}()},
+\code{\link{get_time_range}()},
+\code{\link{ggplot_list_var}()},
+\code{\link{musica_server}()},
+\code{\link{musica_ui}()},
+\code{\link{shinymusica}()}
 }
 \author{
 Remi Lemaire-Patin
