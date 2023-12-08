@@ -47,7 +47,7 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
            })
   
   if (return.colnames) {
-    return(list_dimname)
+    return(unlist(list_dimname))
   }
   
   list_dimvalue <-
@@ -83,6 +83,11 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
 
   attr(df, "units") <- x$var[[varname]]$units
   attr(df, "longname") <- x$var[[varname]]$longname
+  attr(df, "var") <- varname
+  attr(df, "ndim") <- ncol(df) - 1
+  attr(df, "dimname") <- unlist(list_dimname)
+  attr(df, "nvar") <- 1
+  attr(df, "models") <- NULL
   if (!is.null(time_range)) {
     df <- 
       df %>% 
@@ -199,7 +204,7 @@ get_all_var <- function(x) {
 ##' @examples
 ##' library(ncdf4)
 ##' 
-##' @importFrom dplyr filter
+##' @importFrom dplyr filter select
 ##' @export
 ##' 
 ##' 
@@ -210,8 +215,16 @@ get_variable_comparison <- function(x, this_var, time_range,
                                     n.species.level = NULL,  list.species.level = NULL, 
                                     n.veg.level = NULL,  list.veg.level = NULL, 
                                     n.leafage.level = NULL,  list.leafage.level = NULL) {
+  dfdim <- get_dim_info(x[[1]])
+  list_dimname <- 
+    sapply(x[[1]]$var[[this_var]]$dimids,           
+           function(thisid) {
+             dfdim$dimname[which(dfdim$id == thisid)]
+           })
+  
   list.df <- lapply(seq_along(x), function(i){
     tmp.try <- try({
+      
       tmp <- get_variable(x[[i]], this_var, time_range = time_range) %>% 
         filter_dim("nsoil", n.soil.level, list_dim = list.soil.level) %>% 
         filter_dim("nair",  n.air.level, list_dim = list.air.level)  %>% 
@@ -234,7 +247,9 @@ get_variable_comparison <- function(x, this_var, time_range,
   attr(df, "var") <- this_var
   attr(df, "units") <- attr(list.df[[1]], "units")
   attr(df, "longname") <- attr(list.df[[1]], "longname")
+  attr(df, "dimname") <- list_dimname
   attr(df, "ndim") <- ncol(list.df[[1]]) - 2
   attr(df, "nvar") <- ncol(df) - attr(df, "ndim")
+  attr(df, "models") <- names(x)
   df
 }
