@@ -18,276 +18,193 @@
 ##' @examples
 ##' library(ncdf4)
 ##' 
-##' @importFrom shiny shinyServer renderUI selectInput eventReactive
+##' @importFrom shiny shinyServer renderUI selectInput eventReactive reactive
 ##' @importFrom dygraphs renderDygraph
 ##' @importFrom htmltools div
+##' @importFrom lubridate `year<-` year `day<-` day `month<-` month
 ##' @export
 ##' 
 ##' 
 
 musica_server <- function(x) {
-  server <- shinyServer(function(input, output) {
+  server <- shinyServer(function(input, output, session) {
     soil_var <- var_with_dim(x[[1]],"nsoil")
     air_var <- var_with_dim(x[[1]],"nair")
     species_var <- var_with_dim(x[[1]],"nspecies")
     veg_var <- var_with_dim(x[[1]],"nveg")
     leafage_var <- var_with_dim(x[[1]],"nleafage")
     
-    # input -------------------------------------------------------------------
+    list.values <- reactiveValues(tab2_time_range = get_6month(x))
     
-    ## soil --------------------------------------------------------------------
+    # Tab1 ---------------------------------------------------------------
+    ## input Tab1 ------------------------------------------------------------
     
-    output$tab1_dynamic_nsoil1 <- renderUI({
-      if (input$tab1_var1 %in% soil_var) {
-        selectInput("tab1_nsoil1", label = div(style = "font-size:10px", "Soil layer"),
-                    choices = get_dim_value(x[[1]], "nsoil"),
-                    selected = 1,
-                    width = "50%")
-      } else {
-        return(NULL)
-      }
+
+    ### time Tab1 ------------------------------------------------------------
+
+    observeEvent(input$tab1_datemax_left, {
+      updateSliderInput(session, "tab1_time_range",
+                        value = input$tab1_time_range - 24*3600*c(0,1),
+                        timeFormat = "%F")
     })
-    
-    output$tab1_dynamic_nsoil2 <- renderUI({
-      if (input$tab1_var2 %in% soil_var) {
-        selectInput("tab1_nsoil2", label = div(style = "font-size:10px", "Soil layer"),
-                    choices = get_dim_value(x[[1]], "nsoil"),
-                    selected = 1,
-                    width = "50%")
-      } else {
-        return(NULL)
-      }
+    observeEvent(input$tab1_datemax_right, {
+      updateSliderInput(session, "tab1_time_range",
+                        value = input$tab1_time_range + 24*3600*c(0,1),
+                        timeFormat = "%F")
     })
-    output$tab1_dynamic_nsoil3 <- renderUI({
-      if (input$tab1_var3 %in% soil_var) {
-        selectInput("tab1_nsoil3", label = div(style = "font-size:10px", "Soil layer"),
-                    choices = get_dim_value(x[[1]], "nsoil"),
-                    selected = 1,
-                    width = "50%")
-      } else {
-        return(NULL)
-      }
+    observeEvent(input$tab1_datemin_left, {
+      updateSliderInput(session, "tab1_time_range", 
+                        value = input$tab1_time_range - 24*3600*c(1,0),
+                        timeFormat = "%F")
     })
-    
-    ## air --------------------------------------------------------------------
-    
-    output$tab1_dynamic_nair1 <- renderUI({
-      if (input$tab1_var1 %in% air_var) {
-        selectInput("tab1_nair1", label = div(style = "font-size:10px", "Air layer"),
-                    choices = get_dim_value(x[[1]], "nair"),
-                    selected = 1,
-                    width = "50%")
-      } else {
-        return(NULL)
-      }
+    observeEvent(input$tab1_datemin_right, {
+      updateSliderInput(session, "tab1_time_range", 
+                        value = input$tab1_time_range + 24*3600*c(1,0),
+                        timeFormat = "%F")
+    })    
+    observeEvent(input$tab1_time_range, {
+      list.values$tab2_time_range <- input$tab1_time_range
     })
-    
-    output$tab1_dynamic_nair2 <- renderUI({
-      if (input$tab1_var2 %in% air_var) {
-        selectInput("tab1_nair2", label = div(style = "font-size:10px", "Air layer"),
-                    choices = get_dim_value(x[[1]], "nair"),
-                    selected = 1,
-                    width = "50%")
-      } else {
-        return(NULL)
-      }
-    })
-    output$tab1_dynamic_nair3 <- renderUI({
-      if (input$tab1_var3 %in% air_var) {
-        selectInput("tab1_nair3", label = div(style = "font-size:10px", "Air layer"),
-                    choices = get_dim_value(x[[1]], "nair"),
-                    selected = 1,
-                    width = "50%")
-      } else {
-        return(NULL)
-      }
-    })
+    ### soil Tab1 ------------------------------------------------------------
     
     
-    ## nspecies --------------------------------------------------------------------
+    output$tab1_dynamic_nsoil1 <-
+      renderUI(
+        reactive({
+          function(this.input){ get_dynamic_input(x, "nsoil", "tab1_nsoil1", this.input)}
+        })()(input$tab1_var1))
     
-    output$tab1_dynamic_nspecies1 <- renderUI({
-      if (input$tab1_var1 %in% species_var) {
-        selectInput("tab1_nspecies1", label = div(style = "font-size:10px", "Species"),
-                    choices = get_dim_value(x[[1]], "nspecies"),
-                    selected = 1,
-                    width = "100%")
-      } else {
-        return(NULL)
-      }
-    })
+    output$tab1_dynamic_nsoil2 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nsoil", "tab1_nsoil2", this.input)}
+        })()(input$tab1_var2))
     
-    output$tab1_dynamic_nspecies2 <- renderUI({
-      if (input$tab1_var2 %in% species_var) {
-        selectInput("tab1_nspecies2", label = div(style = "font-size:10px", "Species"),
-                    choices = get_dim_value(x[[1]], "nspecies"),
-                    selected = 1,
-                    width = "100%")
-      } else {
-        return(NULL)
-      }
-    })
+    output$tab1_dynamic_nsoil3 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nsoil", "tab1_nsoil3", this.input)}
+        })()(input$tab1_var3))
     
-    output$tab1_dynamic_nspecies3 <- renderUI({
-      if (input$tab1_var3 %in% species_var) {
-        selectInput("tab1_nspecies3", label = div(style = "font-size:10px", "Species"),
-                    choices = get_dim_value(x[[1]], "nspecies"),
-                    selected = 1,
-                    width = "100%")
-      } else {
-        return(NULL)
-      }
-    })
+    ### air Tab1 -------------------------------------------------------------
     
-    ## nveg --------------------------------------------------------------------
+    output$tab1_dynamic_nair1 <-
+      renderUI(
+        reactive({
+          function(this.input){ get_dynamic_input(x, "nair", "tab1_nair1", this.input)}
+        })()(input$tab1_var1))
     
-    output$tab1_dynamic_nveg1 <- renderUI({
-      if (input$tab1_var1 %in% veg_var) {
-        selectInput("tab1_nveg1", label = div(style = "font-size:10px", "Vegetation Layer"),
-                    choices = get_dim_value(x[[1]], "nveg"),
-                    selected = 1,
-                    width = "100%")
-      } else {
-        return(NULL)
-      }
-    })
+    output$tab1_dynamic_nair2 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nair", "tab1_nair2", this.input)}
+        })()(input$tab1_var2))
     
-    output$tab1_dynamic_nveg2 <- renderUI({
-      if (input$tab1_var2 %in% veg_var) {
-        selectInput("tab1_nveg2", label = div(style = "font-size:10px", "Vegetation Layer"),
-                    choices = get_dim_value(x[[1]], "nveg"),
-                    selected = 1,
-                    width = "100%")
-      } else {
-        return(NULL)
-      }
-    })
+    output$tab1_dynamic_nair3 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nair", "tab1_nair3", this.input)}
+        })()(input$tab1_var3))
     
-    output$tab1_dynamic_nveg3 <- renderUI({
-      if (input$tab1_var3 %in% veg_var) {
-        selectInput("tab1_nveg3", label = div(style = "font-size:10px", "Vegetation Layer"),
-                    choices = get_dim_value(x[[1]], "nveg"),
-                    selected = 1,
-                    width = "100%")
-      } else {
-        return(NULL)
-      }
-    })
     
-    ## nleafage --------------------------------------------------------------------
     
-    output$tab1_dynamic_nleafage1 <- renderUI({
-      if (input$tab1_var1 %in% leafage_var) {
-        selectInput("tab1_nleafage1", label = div(style = "font-size:10px", "Leaf Age"),
-                    choices = get_dim_value(x[[1]], "nleafage"),
-                    selected = 1,
-                    width = "100%")
-      } else {
-        return(NULL)
-      }
-    })
+    ### nspecies Tab1 --------------------------------------------------------
     
-    output$tab1_dynamic_nleafage2 <- renderUI({
-      if (input$tab1_var2 %in% leafage_var) {
-        selectInput("tab1_nleafage2", label = div(style = "font-size:10px", "Leaf Age"),
-                    choices = get_dim_value(x[[1]], "nleafage"),
-                    selected = 1,
-                    width = "100%")
-      } else {
-        return(NULL)
-      }
-    })
+    output$tab1_dynamic_nspecies1 <-
+      renderUI(
+        reactive({
+          function(this.input){ get_dynamic_input(x, "nspecies", "tab1_nspecies1", this.input)}
+        })()(input$tab1_var1))
     
-    output$tab1_dynamic_nleafage3 <- renderUI({
-      if (input$tab1_var3 %in% leafage_var) {
-        selectInput("tab1_nleafage3", label = div(style = "font-size:10px", "Leaf Age"),
-                    choices = get_dim_value(x[[1]], "nleafage"),
-                    selected = 1,
-                    width = "100%")
-      } else {
-        return(NULL)
-      }
-    })
-    # reactive title -----------------------------------------------------------
+    output$tab1_dynamic_nspecies2 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nspecies", "tab1_nspecies2", this.input)}
+        })()(input$tab1_var2))
+    
+    output$tab1_dynamic_nspecies3 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nspecies", "tab1_nspecies3", this.input)}
+        })()(input$tab1_var3))
+    
+    
+    
+    
+    ### nveg Tab1 -----------------------------------------------------------
+    
+    
+    output$tab1_dynamic_nveg1 <-
+      renderUI(
+        reactive({
+          function(this.input){ get_dynamic_input(x, "nveg", "tab1_nveg1", this.input)}
+        })()(input$tab1_var1))
+    
+    output$tab1_dynamic_nveg2 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nveg", "tab1_nveg2", this.input)}
+        })()(input$tab1_var2))
+    
+    output$tab1_dynamic_nveg3 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nveg", "tab1_nveg3", this.input)}
+        })()(input$tab1_var3))
+    
+    ### nleafage Tab1 ------------------------------------------------------
+    
+    
+    output$tab1_dynamic_nleafage1 <-
+      renderUI(
+        reactive({
+          function(this.input){ get_dynamic_input(x, "nleafage", "tab1_nleafage1", this.input)}
+        })()(input$tab1_var1))
+    
+    output$tab1_dynamic_nleafage2 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nleafage", "tab1_nleafage2", this.input)}
+        })()(input$tab1_var2))
+    
+    output$tab1_dynamic_nleafage3 <-
+      renderUI(
+        reactive({
+          function(this.input){get_dynamic_input(x, "nleafage", "tab1_nleafage3", this.input)}
+        })()(input$tab1_var3))
+    
+    ## reactive title Tab1 ---------------------------------------------------
     
     tab1_main.title1 <- eventReactive(input$tab1_UpdateView,{
-      tmp.title <- input$tab1_var1
-      if (input$tab1_var1 %in% soil_var) {
-        soil.level <- get_soil_level(x[[1]], input$tab1_nsoil1)
-        min.soil <- round(soil.level[1], digits = 1)
-        max.soil <- round(soil.level[2], digits = 1)
-        tmp.title <- paste0(tmp.title, " ; nsoil = ", input$tab1_nsoil1, " (",min.soil,"-",max.soil,"cm)")
-      }
-      if (input$tab1_var1 %in% air_var) {
-        air.level <- get_air_level(x[[1]], input$tab1_nair1)
-        min.air <- round(air.level[1], digits = 1)
-        max.air <- round(air.level[2], digits = 1)
-        tmp.title <- paste0(tmp.title, " ; nair = ", input$tab1_nair1, " (",min.air,"-",max.air,"m)")
-      }
-      if (input$tab1_var1 %in% species_var) {
-        tmp.title <- paste0(tmp.title, " ; species = ", input$tab1_nspecies1)
-      }
-      if (input$tab1_var1 %in% veg_var) {
-        air.level <- get_air_level(x[[1]], input$tab1_nveg1)
-        min.air <- round(air.level[1], digits = 1)
-        max.air <- round(air.level[2], digits = 1)
-        tmp.title <- paste0(tmp.title, " ; nveg = ", input$tab1_nair1, " (",min.air,"-",max.air,"m)")
-      }
-      tmp.title
+      get_main_title(x,
+                     this.var = input$tab1_var1,
+                     this.soil = input$tab1_nsoil1,
+                     this.air = input$tab1_nair1,
+                     this.species = input$tab1_nspecies1,
+                     this.veg = input$tab1_nveg1,
+                     this.leaf = input$tab1_nleafage1)
     })
     
     tab1_main.title2 <- eventReactive(input$tab1_UpdateView,{
-      tmp.title <- input$tab1_var2
-      if (input$tab1_var2 %in% soil_var) {
-        soil.level <- get_soil_level(x[[1]], input$tab1_nsoil2)
-        min.soil <- round(soil.level[1], digits = 1)
-        max.soil <- round(soil.level[2], digits = 1)
-        tmp.title <- paste0(tmp.title, " ; nsoil = ", input$tab1_nsoil2, " (",min.soil,"-",max.soil,"cm)")
-      }
-      if (input$tab1_var2 %in% air_var) {
-        air.level <- get_air_level(x[[1]], input$tab1_nair2)
-        min.air <- round(air.level[1], digits = 1)
-        max.air <- round(air.level[2], digits = 1)
-        tmp.title <- paste0(tmp.title, " ; nair = ", input$tab1_nair2, " (",min.air,"-",max.air,"m)")
-      }
-      if (input$tab1_var2 %in% species_var) {
-        tmp.title <- paste0(tmp.title, " ; species = ", input$tab1_nspecies2)
-      }
-      if (input$tab1_var2 %in% veg_var) {
-        air.level <- get_air_level(x[[1]], input$tab1_nveg2)
-        min.air <- round(air.level[1], digits = 1)
-        max.air <- round(air.level[2], digits = 1)
-        tmp.title <- paste0(tmp.title, " ; nveg = ", input$tab1_nveg2, " (",min.air,"-",max.air,"m)")
-      }
-      tmp.title
+      get_main_title(x,
+                     this.var = input$tab1_var2,
+                     this.soil = input$tab1_nsoil2,
+                     this.air = input$tab1_nair2,
+                     this.species = input$tab1_nspecies2,
+                     this.veg = input$tab1_nveg2,
+                     this.leaf = input$tab1_nleafage2)
     })
     
     tab1_main.title3 <- eventReactive(input$tab1_UpdateView,{
-      tmp.title <- input$tab1_var3
-      if (input$tab1_var3 %in% soil_var) {
-        soil.level <- get_soil_level(x[[1]], input$tab1_nsoil3)
-        min.soil <- round(soil.level[1], digits = 1)
-        max.soil <- round(soil.level[2], digits = 1)
-        tmp.title <- paste0(tmp.title, " ; nsoil = ", input$tab1_nsoil3, " (",min.soil,"-",max.soil,"cm)")
-      }
-      if (input$tab1_var3 %in% air_var) {
-        air.level <- get_air_level(x[[1]], input$tab1_nair3)
-        min.air <- round(air.level[1], digits = 1)
-        max.air <- round(air.level[2], digits = 1)
-        tmp.title <- paste0(tmp.title, " ; nair = ", input$tab1_nair3, " (",min.air,"-",max.air,"m)")
-      }
-      if (input$tab1_var3 %in% species_var) {
-        tmp.title <- paste0(tmp.title, " ; species = ", input$tab1_nspecies3)
-      }
-      if (input$tab1_var3 %in% veg_var) {
-        air.level <- get_air_level(x[[1]], input$tab1_nveg3)
-        min.air <- round(air.level[1], digits = 1)
-        max.air <- round(air.level[2], digits = 1)
-        tmp.title <- paste0(tmp.title, " ; nveg = ", input$tab1_nveg3, " (",min.air,"-",max.air,"m)")
-      }
-      tmp.title
+      get_main_title(x,
+                     this.var = input$tab1_var3,
+                     this.soil = input$tab1_nsoil3,
+                     this.air = input$tab1_nair3,
+                     this.species = input$tab1_nspecies3,
+                     this.veg = input$tab1_nveg3,
+                     this.leaf = input$tab1_nleafage3)
     })
-    # reactive data ------------------------------------------------------------
+    ## reactive data Tab1 ---------------------------------------------------
     
     
     tab1_df1 <- eventReactive(input$tab1_UpdateView, {
@@ -319,7 +236,7 @@ musica_server <- function(x) {
     })
     
     
-    # output ------------------------------------------------------------------
+    ## output Tab1 -------------------------------------------------------
     
     
     output$tab1_dygraph1 <- renderDygraph({
@@ -340,5 +257,65 @@ musica_server <- function(x) {
                          pixwidth = 600, 
                          pixheight = 40)
     })
-  })
-}
+    
+    # Tab 2 ---------------------------------------------------------------
+    ## input Tab2 ------------------------------------------------------------
+    
+    ### DateTime Tab2 ------------------------------------------------------
+    observeEvent(input$tab2_datemax_left, {
+      updateSliderInput(session, "tab2_timerange",
+                        value = input$tab2_timerange - 24*3600*c(0,1))
+    })
+    observeEvent(input$tab2_datemax_right, {
+      updateSliderInput(session, "tab2_timerange", 
+                        value = input$tab2_timerange + 24*3600*c(0,1))
+    })
+    observeEvent(input$tab2_datemin_left, {
+      updateSliderInput(session, "tab2_timerange",
+                        value = input$tab2_timerange - 24*3600*c(1,0))
+    })
+    observeEvent(input$tab2_datemin_right, {
+      updateSliderInput(session, "tab2_timerange",
+                        value = input$tab2_timerange + 24*3600*c(1,0))
+    })
+    
+    observeEvent(input$tab2_timemax_left, {
+      updateSliderInput(session, "tab2_timerange",
+                        value = input$tab2_timerange - 1800*c(0,1))
+    })
+    observeEvent(input$tab2_timemax_right, {
+      updateSliderInput(session, "tab2_timerange",
+                        value = input$tab2_timerange + 1800*c(0,1))
+    })
+    observeEvent(input$tab2_timemin_left, {
+      updateSliderInput(session, "tab2_timerange", 
+                        value = input$tab2_timerange - 1800*c(1,0))
+    })
+    observeEvent(input$tab2_timemin_right, {
+      updateSliderInput(session, "tab2_timerange", 
+                        value = input$tab2_timerange + 1800*c(1,0))
+    })
+    
+    output$tab2_dynamic_date <-
+      renderUI({
+        eventReactive(input$tab1_time_range, {
+          sliderInput("tab2_timerange", label = "Date",
+                      min = get_time_range(x)[1],
+                      max = get_time_range(x)[2],
+                      value = input$tab1_time_range,
+                      timeFormat = "%F %T",
+                      step = 24*3600) 
+        })()})
+
+
+
+    tab2_df <- eventReactive(input$tab2_UpdateView, {
+      get_variable_comparison(x, "Rnet",
+                              time_range = list.values$tab2_time_range)
+    })
+    
+    output$tab2_plot <- renderPlot(
+      ggplot_variable(tab2_df())
+    ) 
+  }) #end shinyserver
+} # end

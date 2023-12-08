@@ -81,7 +81,7 @@ get_6month <- function(musica.list) {
 ##' @examples
 ##' library(ncdf4)
 ##' 
-##' 
+##' @importFrom dplyr pull
 ##' @export
 ##' 
 ##' 
@@ -117,7 +117,7 @@ get_soil_level <- function(x, soil.level) {
 ##' @examples
 ##' library(ncdf4)
 ##' 
-##' 
+##' @importFrom dplyr pull
 ##' @export
 ##' 
 ##' 
