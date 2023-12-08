@@ -204,12 +204,20 @@ get_all_var <- function(x) {
 ##' 
 ##' 
 
-get_variable_comparison <- function(x, this_var, time_range, n.soil.level, n.air.level) {
+get_variable_comparison <- function(x, this_var, time_range, 
+                                    n.soil.level = NULL, list.soil.level = NULL, 
+                                    n.air.level = NULL,  list.air.level = NULL, 
+                                    n.species.level = NULL,  list.species.level = NULL, 
+                                    n.veg.level = NULL,  list.veg.level = NULL, 
+                                    n.leafage.level = NULL,  list.leafage.level = NULL) {
   list.df <- lapply(seq_along(x), function(i){
     tmp.try <- try({
       tmp <- get_variable(x[[i]], this_var, time_range = time_range) %>% 
-        filter_dim("nsoil", n.soil.level) %>% 
-        filter_dim("nair",  n.air.level) 
+        filter_dim("nsoil", n.soil.level, list_dim = list.soil.level) %>% 
+        filter_dim("nair",  n.air.level, list_dim = list.air.level)  %>% 
+        filter_dim("nspecies",  n.species.level, list_dim = list.species.level) %>% 
+        filter_dim("nveg",  n.veg.level, list_dim = list.veg.level) %>% 
+        filter_dim("nleafage",  n.leafage.level, list_dim = list.leafage.level) 
     })
     if (!inherits(tmp.try, "try-error")) {
       tmp$run <- names(x)[i]

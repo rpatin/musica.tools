@@ -74,7 +74,7 @@ get_dim_value <- function(x, dimname) {
     return_values <- ncvar_get(x, "time")
     return_values <- format_time(return_values, date0 = x$var[["time"]]$units)
   }
-
+  
   if (dimname %in% c("nspecies", "n_species_max")) {
     list_species <- ncatt_get(x, varid = 0)
     return_values <- factor(return_values, 
@@ -93,7 +93,7 @@ get_dim_value <- function(x, dimname) {
   }
   dfdim <- get_dim_info(x)
   if (!dimname %in% dfdim$dimname) {
-      stop("dimension ", dimname, " not found in x")
+    stop("dimension ", dimname, " not found in x")
   }
   NULL
 }
@@ -225,15 +225,30 @@ attr_legend <- function(df) {
 ##' @export
 
 
-filter_dim <- function(df, this.dim, n.dim.level) {
-  if (any(colnames(df) == this.dim) & !is.null(n.dim.level)) {
-    list_dim <- unique(df[, this.dim])
-    n_list_dim <- length(list_dim)
-    if (n_list_dim > n.dim.level) {
-      list_dim <- c(list_dim[floor(seq(1, n_list_dim, length.out = n.dim.level))])
+filter_dim <- function(df, this.dim, 
+                       n.dim.level, list_dim = NULL) {
+  if (any(colnames(df) == this.dim) & (!is.null(n.dim.level) | !is.null(list_dim))) {
+    doFilter <- FALSE
+    if (is.null(list_dim)) {
+      list_dim <- unique(df[, this.dim])
+      n_list_dim <- length(list_dim)
+      if (n_list_dim > n.dim.level) {
+        doFilter <- TRUE
+        list_dim <- c(list_dim[floor(seq(1, n_list_dim, length.out = n.dim.level))])
+      }
+    } else {
+      list_dim <- list_dim[list_dim %in% unique(df[, this.dim])]
+      doFilter <- TRUE
+    }
+    if (doFilter) {
       df <- 
         df %>% 
         filter(!!sym(this.dim) %in% list_dim)
+      if (length(list_dim) == 1) {
+        df <- 
+          df %>% 
+          select(-sym(this.dim))
+      }
     }
   }
   df
