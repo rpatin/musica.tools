@@ -18,7 +18,6 @@ This function plot the output of \code{\link{get_variable}}
 \examples{
 library(ncdf4)
 
-
 }
 \seealso{
 Other plot: 
@@ -26,6 +25,8 @@ Other plot:
 \code{\link{dygraph_variable}()},
 \code{\link{get_6month}()},
 \code{\link{get_air_level}()},
+\code{\link{get_dynamic_input}()},
+\code{\link{get_main_title}()},
 \code{\link{get_time_range}()},
 \code{\link{ggplot_list_var}()},
 \code{\link{ggplot_variable}()},
