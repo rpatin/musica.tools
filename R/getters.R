@@ -33,7 +33,7 @@
 ##' 
 ##' 
 
-get_variable <- function(x, varname, time_range) {
+get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   time_range <- .check_get_variable(
     x = x,
     varname = varname,
@@ -45,6 +45,11 @@ get_variable <- function(x, varname, time_range) {
            function(thisid) {
              dfdim$dimname[which(dfdim$id == thisid)]
            })
+  
+  if (return.colnames) {
+    return(list_dimname)
+  }
+  
   list_dimvalue <-
     lapply(list_dimname, 
            function(this_dimname) {
