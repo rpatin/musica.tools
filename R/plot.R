@@ -22,27 +22,157 @@
 ##' @importFrom ggplot2 ggplot aes geom_line geom_step xlab ylab facet_wrap 
 ##' scale_color_brewer scale_color_viridis_d theme element_blank theme_dark
 ##' guide_legend guides element_rect scale_fill_viridis_c scale_y_reverse
-##' geom_raster scale_y_continuous
+##' geom_raster scale_y_continuous scale_x_continuous scale_y_reverse
 ##' @importFrom stringr str_wrap
 ##' @importFrom scales breaks_pretty
-##' @importFrom dplyr last mutate
+##' @importFrom dplyr last mutate ungroup group_by select 
+##' @importFrom tidyr pivot_longer
 ##' @importFrom lubridate hour minute second
 ##' @export
 ##' 
 ##' 
 
-ggplot_variable <- function(df, heatmap = TRUE, daily_heatmap = TRUE, 
-                            time_range) {
+ggplot_variable <- function(df,
+                            time_range,
+                            format.date = "%b %Y",
+                            out.type = c("standard", "heatmap", "daily_heatmap"),
+                            x, y, color, linetype, facet_formula) {
   # df <- list_value$relative_height
-  this_variable <- last(colnames(df))
+  args <- .check_ggplot_variable(df = df,
+                                 time_range = time_range,
+                                 format.date = format.date,
+                                 out.type = out.type,
+                                 x = x, y = y,
+                                 color = color, linetype = linetype,
+                                 facet_formula = facet_formula)
+  for (argi in names(args)) { 
+    assign(x = argi, value = args[[argi]]) 
+  }
+  rm(args)
+  
   this_ylab <- attr_legend(df)
   skip_ylab <- FALSE
+  this_variable <- attr(df, 'var')
   
-  stopifnot(is.logical(heatmap))
-  stopifnot(is.logical(daily_heatmap))
-  if (daily_heatmap & ncol(df) > 3) {
-    stop("daily heatmap can only be produced for 1 dimension variables")
+  if (out.type == "standard") {
+    g <- 
+      ggplot(df) 
+    
+    if (!is.null(color) & !is.null(linetype)) {
+      g <- g + geom_line(aes(x = .data[[x]],
+                             y = .data[[y]],
+                             color = .data[[color]],
+                             linetype = .data[[linetype]]))
+    } else if (!is.null(color)) {
+      g <- g + geom_line(aes(x = .data[[x]],
+                             y = .data[[y]],
+                             color = .data[[color]]))
+      
+    } else if (!is.null(linetype)) {
+      g <- g + geom_line(aes(x = .data[[x]],
+                             y = .data[[y]]))
+    } else {
+      g <- g + geom_line(aes(x = .data[[x]],
+                             y = .data[[y]],
+                             linetype = .data[[linetype]]))
+    }
+    if (!is.null(facet_formula)) {
+      g <- 
+        g +
+        facet_wrap(formula(facet_formula), ncol = 1)
+    }
+    g <- g +
+      scale_x_datetime(NULL, breaks = breaks_pretty(10))
+  } else if (out.type == "daily_heatmap") {
+    skip_ylab <- TRUE
+    df_timed <- 
+      df %>% 
+      mutate(date = as.Date(time),
+             hour = hour(time) + minute(time)/60 + second(time)/3600,
+             datenum = as.numeric(date)*24*3600,
+             datepos = as.POSIXct(datenum, origin = "1970-01-01"), 
+             year = year(datepos), 
+             month = month(datepos), 
+             day = day(datepos))
+    
+    df_breaks <- 
+      df_timed %>% 
+      filter(day == 1) %>% 
+      group_by(year, month) %>% 
+      filter(time == min(time)) %>% 
+      ungroup() %>% 
+      mutate(label = format(time, format.date)) %>% 
+      select(time, label)
+    
+    
+    g <-
+      ggplot(df_timed) +
+      geom_raster(aes(y = datenum, x = hour, 
+                      fill = .data[[this_variable]])) +
+      scale_x_continuous(breaks = breaks_pretty(n = 13), expand = c(0,0)) +
+      scale_y_reverse(labels = df_breaks$label,
+                      breaks = as.numeric(df_breaks$time)) +
+      scale_fill_viridis_c(str_wrap(this_ylab, width = 15),
+                           option = "D", direction = 1) +
+      xlab("Time of the day (h)") +
+      ylab(NULL)
+
+    if (!is.null(facet_formula)) {
+      g <- 
+        g +
+        facet_wrap(formula(facet_formula), nrow = 1)
+    }
+  } else if (out.type == "heatmap") {
+    skip_ylab <- TRUE
+    g <-
+      ggplot(df) +
+      geom_raster(aes(x = time,
+                      y = .data[[y]],
+                      fill = .data[[this_variable]])) +
+      scale_y_reverse(breaks = breaks_pretty(n = 10)) +
+      scale_fill_viridis_c(str_wrap(this_ylab, width = 15),
+                           option = "D", direction = -1) +
+      # geom_hline(yintercept = seq(0.5, 10.5), color = "darkgreen", linetype = 2) + # not nice
+      ylab(y) +
+      xlab(NULL)
+    
+    if (!is.null(facet_formula)) {
+      g <- 
+        g +
+        facet_wrap(formula(facet_formula), ncol = 1)
+    }
   }
+  if (!is.null(color) && color == "nspecies") {
+    g <- g +
+      scale_color_brewer("Species", palette = "Set1") 
+  }
+  if ( !skip_ylab ) {
+    
+    g <- g + ylab(str_wrap(this_ylab, width = 25))
+  }
+  g
+}
+
+.check_ggplot_variable <- function(df, time_range, format.date, out.type,
+                                   x, y, color, linetype, facet_formula) {
+  
+  
+  # input data.frame --------------------------------------------------------
+  
+  this_variable <- attr(df, 'var')
+  
+  if (!is.null(attr(df,'models'))) {
+    attr.list <- attributes(df)
+    df <- pivot_longer(df, !attr(df,'dimname'),
+                       names_to = "models",
+                       values_to = this_variable)
+    for (this.attr in names(attr.list)[-c(1:3)]) {
+      attr(df, this.attr) <- attr.list[[this.attr]]
+    }
+  }
+  
+  
+  # time-range --------------------------------------------------------------
   
   if (!missing(time_range)) {
     df <-
@@ -51,98 +181,125 @@ ggplot_variable <- function(df, heatmap = TRUE, daily_heatmap = TRUE,
              time <= time_range[2])
   }
   
-  ## relative_height (nair) ---------------------------------------------------------
-  if (this_variable %in% c("relative_height")) {
-    df <- rbind(
-      data.frame(nair = 0, relative_height = 0),
-      df,
-      data.frame(nair = Inf, relative_height = max(df$relative_height))
-    )
-    g <- 
-      ggplot(df) +
-      geom_step(aes(x = nair, y = relative_height))
+  # out.type ----------------------------------------------------------------
+  
+  if (length(out.type) > 1) {
+    out.type <- first(out.type)
   }
   
-  ## longitude & latitude ---------------------------------------------------------
-  if (this_variable %in% c("longitude","latitude")) {
-    return(df[,this_variable])
-  }
   
-  ## variable with [time] ------------------------------------------------------
-  if (this_variable %in% c("veget_height_top", "Qle", "Qh", "NEE",
-                           "Qg", "runoff")) {
-    if(!daily_heatmap) {
-      g <- 
-        ggplot(df) +
-        geom_line(aes(x = time, y = .data[[this_variable]])) +
-        xlab(NULL)
-    } else {
-      skip_ylab <- TRUE
-      df_timed <- 
-        df %>% 
-        mutate(date = as.Date(time)) %>% 
-        mutate(hour = hour(time) + minute(time)/60 + second(time)/3600)
-      
-      g <-
-        ggplot(df_timed) +
-        geom_raster(aes(x = date, y = hour, fill = .data[[this_variable]])) +
-        scale_y_continuous(breaks = breaks_pretty(n = 24), expand = c(0,0)) +
-        scale_fill_viridis_c(str_wrap(this_ylab, width = 15),
-                             option = "D", direction = 1) +
-        ylab("Time of the day") +
-        xlab(NULL)
-      
-    }
-  }
-  
-  ## variable with [nspecies,time]   -------------------------------------------
-  if (this_variable %in% c("h_canopy", "gpp", "transpir", "d_w_xylem_ox18",
-                           "d_w_xylem_deut", "fh_xylem")) {
-    g <-
-      ggplot(df) +
-      geom_line(aes(x = time, y = .data[[this_variable]],
-                    color = factor(nspecies))) +
-      # facet_wrap(~nspecies, ncol = 1) +
-      scale_color_brewer("Species", palette = "Set1") +
-      xlab(NULL) +
-      theme(strip.text = element_blank())
-  }
-  
-  ## variable with [nsoil,time] -----------------------------------------------
-  if (this_variable %in% c("w_soil", "h_soil", "d_w_soil_ox18", "d_w_soil_deut",
-                           "q_h2o_soil_liq", "q_h2o_soil_vap")) {
-    if (!heatmap) {
-      g <-
-        ggplot(df) +
-        geom_line(aes(x = time, y = .data[[this_variable]],
-                      color = factor(nsoil))) +
-        scale_color_viridis_d("Soil Layer", option = "C", direction = -1) +
-        guides(color = guide_legend(ncol = 2)) +
-        xlab(NULL) +
-        theme_dark() +
-        theme(plot.background = element_rect(fill = "grey80"),
-              legend.background =  element_rect(fill = "grey80"))
-    } else {
-      skip_ylab <- TRUE
-      g <-
-        ggplot(df) +
-        geom_raster(aes(x = time, y = nsoil, fill = .data[[this_variable]])) +
-        scale_y_reverse(breaks = breaks_pretty(n = 10)) +
-        scale_fill_viridis_c(str_wrap(this_ylab, width = 15),
-                             option = "D", direction = -1) +
-        # geom_hline(yintercept = seq(0.5, 10.5), color = "darkgreen", linetype = 2) + # not nice
-        ylab("Soil Layer") +
-        xlab(NULL)
-    }
-  }
-  
-  if ( !skip_ylab ) {
+  # standard ------------------------------------------------------------
+  if (out.type == "standard") {
+    list.var <- colnames(df)
     
-    g <- g + ylab(str_wrap(this_ylab, width = 25))
+    if (missing(x)) {
+      x <- "time"
+    } else {
+      .fun_testIfIn(x, attr(df, "dimname"))
+    }
+    list.var <- list.var[-which(list.var == x)]
+    
+    if (missing(y)) {
+      y <- attr(df, "var") 
+    } else {
+      .fun_testIfIn(y, attr(df, "dimname"))
+    }
+    list.var <- list.var[-which(list.var == y)]
+    
+    if (missing(color)) {
+      if (!is.null(attr(df, "models"))) {
+        color <- "models"
+        list.var <- list.var[-which(list.var == color)]
+      } else if (length(list.var) > 0) {
+        color <- first(list.var)
+        list.var <- list.var[-which(list.var == color)]
+      } else {
+        color <- NULL
+      }
+    } else if (!is.null(color)) {
+      .fun_testIfIn(color, attr(df, "dimname"))
+      which.var <- which(list.var == color)
+      if (length(which.var) > 0) list.var <- list.var[-which.var]
+    }
+    
+    if (missing(linetype)) {
+      if (length(list.var) > 0) {
+        linetype <- first(list.var)
+        list.var <- list.var[-which(list.var == linetype)]
+      } else {
+        linetype <- NULL
+      }
+    } else if (!is.null(linetype)) {
+      .fun_testIfIn(linetype, attr(df, "dimname"))
+      which.var <- which(list.var == linetype)
+      if (length(which.var) > 0) list.var <- list.var[-which.var]
+    }
+    
+    if (missing(facet_formula)) {
+      if (length(list.var) > 0) {
+        facet_formula <- paste0("~", paste0(list.var, collapse = "+"))
+      } else {
+        facet_formula <- NULL
+      }
+    } 
   }
-  g
+  
+  
+  # daily_heatmap -----------------------------------------------------------
+  if (out.type == "daily_heatmap") {
+    list.var <- colnames(df)
+    .fun_testIfIn("time", attr(df, "dimname"))
+    list.var <- list.var[-which(list.var == "time")]
+    list.var <- list.var[-which(list.var == attr(df, 'var'))]
+    if (missing(facet_formula)) {
+      if (length(list.var) > 0) {
+        facet_formula <- paste0("~", paste0(list.var, collapse = "+"))
+      } else {
+        facet_formula <- NULL
+        
+      }
+    } 
+    x <- NULL
+    y <- NULL
+    linetype <- NULL
+    color <- NULL
+  } 
+  
+  # heatmap -----------------------------------------------------------
+  if (out.type == "heatmap") {
+    list.var <- colnames(df)
+    .fun_testIfIn("time", attr(df, "dimname"))
+    list.var <- list.var[-which(list.var == "time")]
+    list.var <- list.var[-which(list.var == attr(df, 'var'))]
+    
+    if (missing(y)) {
+      y <- first(list.var)
+    } else {
+      .fun_testIfIn(y, attr(df, "dimname"))
+    }
+    list.var <- list.var[-which(list.var == y)]
+    
+    if (missing(facet_formula)) {
+      if (length(list.var) > 0) {
+        facet_formula <- paste0("~", paste0(list.var, collapse = "+"))
+      } else {
+        facet_formula <- NULL
+      }
+    }
+    x <- "time"
+    linetype <- NULL
+    color <- NULL
+  } 
+  
+  list(df = df,
+       format.date = format.date,
+       out.type = out.type,
+       x = x,
+       y = y,
+       color = color,
+       linetype = linetype,
+       facet_formula = facet_formula)
 }
-
 
 # ggplot_list_var ---------------------------------------------------------
 ##' @name ggplot_list_var
