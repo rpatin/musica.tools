@@ -253,3 +253,42 @@ filter_dim <- function(df, this.dim,
   }
   df
 }
+
+
+
+
+# var_with_dim ---------------------------------------------------------
+##' @name var_with_dim
+##' @author Remi Lemaire-Patin
+##' 
+##' @title Filter a \code{data.frame} dimension
+##' 
+##' @description Extract a proper formatted legend from the attributes stored
+##' in a \code{data.frame} 
+##' 
+##' @param df a \code{data.frame}
+##' @param this.dim a \code{character}, the dimension to filter
+##' @param n.dim.level a \code{numeric}, the max. number of level to keep. If 
+##' \code{NULL}, no filtering occur
+##' 
+##' @return
+##' 
+##' A \code{data.frame}
+##' 
+##' @family Tools
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+##' @export
+
+var_with_dim <- function(x, this.dim) {
+    out <- sapply(names(x$var), function(this.var) {
+      this.dim %in% get_variable(x, this.var, return.colnames = TRUE)
+    })
+    if (any(out)) {
+      return(names(out)[which(out)])
+    } else {
+      return(NULL)
+    }
+}
