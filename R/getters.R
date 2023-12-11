@@ -80,7 +80,7 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
         rename(df, !!sym(old_conversion[this.old]) := sym(this.old))
     }
   }
-
+  
   attr(df, "units") <- x$var[[varname]]$units
   attr(df, "longname") <- x$var[[varname]]$longname
   attr(df, "var") <- varname
@@ -88,6 +88,37 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   attr(df, "dimname") <- unlist(list_dimname)
   attr(df, "nvar") <- 1
   attr(df, "models") <- NULL
+  
+  if ("nsoil" %in% list_dimname & 
+      !(varname %in% c("z_soil", "dz_soil"))) {
+    if ("z_soil" %in% names(x$var)) {
+      attr(df, "z_soil") <- 
+        get_variable(x, "z_soil") 
+    }
+    if ("dz_soil" %in% names(x$var)) {
+      attr(df, "dz_soil") <- 
+        get_variable(x, "dz_soil")
+    }
+  }
+  
+  if (("nair" %in% list_dimname |
+       "nveg" %in% list_dimname) & 
+      !(varname %in% c("relative_height", "layer_thickness"))) {
+    if ("relative_height" %in% names(x$var)) {
+      attr(df, "relative_height") <- 
+        get_variable(x, "relative_height")
+    }
+    if ("veget_height_top" %in% names(x$var)) {
+      attr(df, "veget_height_top") <- 
+        get_variable(x, "veget_height_top")
+    }
+    if ("layer_thickness" %in% names(x$var)) {
+      attr(df, "layer_thickness") <- 
+        get_variable(x, "layer_thickness") 
+    }
+    
+  }
+  
   if (!is.null(time_range)) {
     df <- 
       df %>% 
@@ -221,7 +252,6 @@ get_variable_comparison <- function(x, this_var, time_range,
            function(thisid) {
              dfdim$dimname[which(dfdim$id == thisid)]
            })
-  
   list.df <- lapply(seq_along(x), function(i){
     tmp.try <- try({
       
@@ -239,7 +269,6 @@ get_variable_comparison <- function(x, this_var, time_range,
       return(NULL)
     }
   }) 
-  
   df <- list.df %>% 
     do.call('rbind', .) %>% 
     pivot_wider(names_from = "run",
@@ -247,9 +276,14 @@ get_variable_comparison <- function(x, this_var, time_range,
   attr(df, "var") <- this_var
   attr(df, "units") <- attr(list.df[[1]], "units")
   attr(df, "longname") <- attr(list.df[[1]], "longname")
-  attr(df, "dimname") <- list_dimname
+  attr(df, "dimname") <- attr(list.df[[1]], "dimname")
   attr(df, "ndim") <- ncol(list.df[[1]]) - 2
   attr(df, "nvar") <- ncol(df) - attr(df, "ndim")
   attr(df, "models") <- names(x)
+  attr(df, "z_soil") <- attr(list.df[[1]], "z_soil")
+  attr(df, "dz_soil") <- attr(list.df[[1]], "dz_soil")
+  attr(df, "relative_height") <- attr(list.df[[1]], "relative_height")
+  attr(df, "veget_height_top") <- attr(list.df[[1]], "veget_height_top")
+  attr(df, "layer_thickness") <- attr(list.df[[1]], "layer_thickness")
   df
 }

@@ -248,6 +248,8 @@ filter_dim <- function(df, this.dim,
         df <- 
           df %>% 
           select(-sym(this.dim))
+        list_dimname <- attr(df, "dimname")
+        attr(df, "dimname") <- list_dimname[-which(list_dimname == this.dim)]
       }
     }
   }
