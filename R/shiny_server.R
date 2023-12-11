@@ -22,6 +22,7 @@
 ##' @importFrom dygraphs renderDygraph
 ##' @importFrom htmltools div
 ##' @importFrom lubridate `year<-` year `day<-` day `month<-` month
+##' @importFrom cowplot save_plot
 ##' @export
 ##' 
 ##' 
@@ -34,14 +35,12 @@ musica_server <- function(x) {
     veg_var <- var_with_dim(x[[1]],"nveg")
     leafage_var <- var_with_dim(x[[1]],"nleafage")
     
-    list.values <- reactiveValues(tab2_time_range = get_6month(x))
-    
     # Tab1 ---------------------------------------------------------------
     ## input Tab1 ------------------------------------------------------------
     
-
+    
     ### time Tab1 ------------------------------------------------------------
-
+    
     observeEvent(input$tab1_datemax_left, {
       updateSliderInput(session, "tab1_time_range",
                         value = input$tab1_time_range - 24*3600*c(0,1),
@@ -63,7 +62,8 @@ musica_server <- function(x) {
                         timeFormat = "%F")
     })    
     observeEvent(input$tab1_time_range, {
-      list.values$tab2_time_range <- input$tab1_time_range
+      updateSliderInput(session, "tab2_timerange",
+                        value = input$tab1_time_range)
     })
     ### soil Tab1 ------------------------------------------------------------
     
@@ -262,6 +262,14 @@ musica_server <- function(x) {
     ## input Tab2 ------------------------------------------------------------
     
     ### DateTime Tab2 ------------------------------------------------------
+    observeEvent(input$tab2_date_left, {
+      updateSliderInput(session, "tab2_timerange",
+                        value = input$tab2_timerange - 7*24*3600*c(1,1))
+    })
+    observeEvent(input$tab2_date_right, {
+      updateSliderInput(session, "tab2_timerange",
+                        value = input$tab2_timerange + 7*24*3600*c(1,1))
+    })
     observeEvent(input$tab2_datemax_left, {
       updateSliderInput(session, "tab2_timerange",
                         value = input$tab2_timerange - 24*3600*c(0,1))
@@ -296,6 +304,47 @@ musica_server <- function(x) {
                         value = input$tab2_timerange + 1800*c(1,0))
     })
     
+    
+    ### Selected Models -------------------------------------------------------
+    observeEvent(input$tab1_selected_output, {
+      updateSelectInput(session, "tab2_selected_output",
+                        selected = input$tab1_selected_output)
+    })
+    
+    ### Selected Variables ----------------------------------------------------
+    observeEvent(input$tab1_var1, {
+      updateSelectInput(session, "tab2_var",
+                        selected = input$tab1_var1)
+    })
+    
+    
+    
+    ### Reset levels --------------------------------------------------------
+    
+    observeEvent(input$tab2_subset, {
+      if (input$tab2_subset) {
+        updateSelectInput(session, "tab2_nsoil",
+                          selected = input$tab1_nsoil1)
+        updateSelectInput(session, "tab2_nair",
+                          selected = input$tab1_nair1)
+        updateSelectInput(session, "tab2_nveg",
+                          selected = input$tab1_nveg1)
+        updateSelectInput(session, "tab2_nspecies",
+                          selected = input$tab1_nspecies1)
+        updateSelectInput(session, "tab2_nleafage",
+                          selected = input$tab1_nleafage1)
+      } 
+    })
+    
+    observeEvent(input$tab2_type, {
+      if (input$tab2_type == "heatmap") {
+        updateCheckboxInput(session, "tab2_subset",
+                            value = FALSE)
+      }
+    })
+    ### Reactive dim input -------------------------------------------------
+    
+    
     output$tab2_dynamic_date <-
       renderUI({
         eventReactive(input$tab1_time_range, {
@@ -304,18 +353,93 @@ musica_server <- function(x) {
                       max = get_time_range(x)[2],
                       value = input$tab1_time_range,
                       timeFormat = "%F %T",
-                      step = 24*3600) 
+                      step = 24*3600,
+                      round = 4) 
         })()})
-
-
-
+    
+    output$tab2_dynamic_nsoil <-
+      renderUI(
+        reactive({
+          function(this.input){ 
+            get_dynamic_input(x, "nsoil", "tab2_nsoil", this.input,
+                              multiple = TRUE, hide = !input$tab2_subset)
+          }
+        })()(input$tab2_var))
+    
+    output$tab2_dynamic_nair <-
+      renderUI(
+        reactive({
+          function(this.input){ 
+            get_dynamic_input(x, "nair", "tab2_nair", this.input,
+                              multiple = TRUE, hide = !input$tab2_subset)
+          }
+        })()(input$tab2_var))
+    
+    output$tab2_dynamic_nspecies <-
+      renderUI(
+        reactive({
+          function(this.input){ 
+            get_dynamic_input(x, "nspecies", "tab2_nspecies", this.input,
+                              multiple = TRUE, hide = !input$tab2_subset)
+          }
+          
+        })()(input$tab2_var))
+    
+    output$tab2_dynamic_nveg <-
+      renderUI(
+        reactive({
+          function(this.input){ 
+            get_dynamic_input(x, "nveg", "tab2_nveg", this.input,
+                              multiple = TRUE, hide = !input$tab2_subset)
+          }
+        })()(input$tab2_var))
+    
+    output$tab2_dynamic_nleafage <-
+      renderUI(
+        reactive({
+          function(this.input){ 
+            get_dynamic_input(x, "nleafage", "tab2_nleafage", this.input,
+                              multiple = TRUE, hide = !input$tab2_subset)
+          }
+        })()(input$tab2_var))
+    
+    ## data and plot generation -----------------------------------------------
+    
     tab2_df <- eventReactive(input$tab2_UpdateView, {
-      get_variable_comparison(x, "Rnet",
-                              time_range = list.values$tab2_time_range)
+      if (input$tab2_subset) {
+        df <- 
+          get_variable_comparison(x[input$tab2_selected_output],
+                                  this_var = input$tab2_var,
+                                  time_range = input$tab2_timerange,
+                                  list.soil.level = input$tab2_nsoil,
+                                  list.air.level = input$tab2_nair,
+                                  list.species.level = input$tab2_nspecies,
+                                  list.veg.level = input$tab2_nveg,
+                                  list.leafage.level = input$tab2_nleafage)
+      } else {
+        df <- 
+          get_variable_comparison(x[input$tab2_selected_output],
+                                  this_var = input$tab2_var,
+                                  time_range = input$tab2_timerange)
+      }
+      df
     })
     
-    output$tab2_plot <- renderPlot(
-      ggplot_variable(tab2_df())
-    ) 
+    tab2_plot <- eventReactive(input$tab2_UpdateView, {
+      ggplot_variable(tab2_df(),
+                      out.type = input$tab2_type,
+                      color = input$tab2_color,
+                      linetype = input$tab2_linetype,
+                      facet_formula = input$tab2_facet)
+    })
+    output$tab2_plot <- 
+      renderPlot(tab2_plot())
+    
+    output$tab2_download <- downloadHandler(
+      filename = function() { paste(input$dataset, '.png', sep = '') },
+      content = function(file) {
+        save_plot(file, tab2_plot(), base_width = 30/cm(1), base_height = 20/cm(1))
+      }
+    )
   }) #end shinyserver
 } # end

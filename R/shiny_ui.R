@@ -18,8 +18,10 @@
 ##' @examples
 ##' library(ncdf4)
 ##' 
-##' @importFrom shiny shinyUI fluidPage tabsetPanel tabPanel sidebarLayout sidebarPanel fluidRow plotOutput
-##' sliderInput selectInput uiOutput  actionButton mainPanel icon
+##' @importFrom shiny shinyUI fluidPage tabsetPanel tabPanel
+##' sidebarLayout sidebarPanel fluidRow plotOutput checkboxInput
+##' sliderInput selectInput uiOutput  actionButton mainPanel icon 
+##' selectizeInput conditionalPanel downloadButton
 ##' @importFrom dygraphs dygraphOutput
 ##' @importFrom htmltools HTML tags
 ##' @export
@@ -43,12 +45,22 @@ musica_ui <- function(x) {
                                  value = get_6month(x),
                                  timeFormat = "%F",
                                  step = 24*3600),  
-                     fluidRow(actionButton("tab1_datemin_left", icon("minus")),
+                     fluidRow(class = "myDateRow",
+                              actionButton("tab1_datemin_left",
+                                           icon("minus"),
+                                           style='padding:4px; font-size:70%'),
                               "Start Date",
-                              actionButton("tab1_datemin_right", icon("plus"))),
-                     fluidRow(actionButton("tab1_datemax_left", icon("minus")),
+                              actionButton("tab1_datemin_right",
+                                           icon("plus"),
+                                           style='padding:4px; font-size:70%')),
+                     fluidRow(class = "myDateRow",
+                              actionButton("tab1_datemax_left",
+                                           icon("minus"),
+                                           style='padding:4px; font-size:70%'),
                               "End Date",
-                              actionButton("tab1_datemax_right", icon("plus"))),
+                              actionButton("tab1_datemax_right",
+                                           icon("plus"),
+                                           style='padding:4px; font-size:70%')),
                      ### selected models ----------------------------------------
                      selectInput("tab1_selected_output", label = "Outputs to plot",
                                  choices = names(x),
@@ -96,36 +108,106 @@ musica_ui <- function(x) {
                  )
         ), # end tabPanel1
         # Tab 2 - Model to model comparison ------------------------------------
-        tabPanel("Model to model comparison", fluid = TRUE,
-                 sidebarLayout(
-                   sidebarPanel(
-                     ## Input --------------------------------------------------
-                     ## time range --------------------------------------------
-                     uiOutput(outputId = 'tab2_dynamic_date'),
-                     fluidRow(actionButton("tab2_datemin_left", icon("minus")),
-                              "Start Day",
-                              actionButton("tab2_datemin_right", icon("plus"))),
-                     fluidRow(actionButton("tab2_timemin_left", icon("minus")),
-                              "Start Time",
-                              actionButton("tab2_timemin_right", icon("plus"))),
-                     fluidRow(actionButton("tab2_datemax_left", icon("minus")),
-                              "End Day",
-                              actionButton("tab2_datemax_right", icon("plus"))),
-                     fluidRow(actionButton("tab2_timemax_left", icon("minus")),
-                              "End Time",
-                              actionButton("tab2_timemax_right", icon("plus"))),
-                     # uiOutput(outputId = 'tab2_dynamic_model2'),
-                     # uiOutput(outputId = 'tab2_dynamic_var'),
-                     actionButton("tab2_UpdateView", icon("refresh")),
-                     width = 2
-                   ),
-                   ## Output ---------------------------------------------------
-                   mainPanel(
-                     plotOutput("tab2_plot"),
-                     width = 10
-                   ),
-                   position = "left"
-                 )
+        tabPanel(
+          "Model to model comparison", fluid = TRUE,
+          sidebarLayout(
+            sidebarPanel(
+              ## Input --------------------------------------------------
+              ## time range --------------------------------------------
+              uiOutput(outputId = 'tab2_dynamic_date'),
+              fluidRow(class = "myDateRow",
+                       actionButton("tab2_date_left",
+                                    icon("minus"),
+                                    style='padding:4px; font-size:70%'),
+                       "1 week",
+                       actionButton("tab2_date_right",
+                                    icon("plus"),
+                                    style='padding:4px; font-size:70%')),
+              fluidRow(class = "myDateRow",
+                       actionButton("tab2_datemin_left",
+                                     icon("minus"),
+                                     style='padding:4px; font-size:70%'),
+                       "Start Day",
+                       actionButton("tab2_datemin_right",
+                                    icon("plus"),
+                                    style='padding:4px; font-size:70%')),
+              fluidRow(class = "myDateRow",
+                       actionButton("tab2_timemin_left",
+                                    icon("minus"),
+                                    style='padding:4px; font-size:70%'),
+                       "Start Time",
+                       actionButton("tab2_timemin_right",
+                                    icon("plus"),
+                                    style='padding:4px; font-size:70%')),
+              fluidRow(class = "myDateRow",
+                       actionButton("tab2_datemax_left",
+                                    icon("minus"),
+                                    style='padding:4px; font-size:70%'),
+                       "End Day",
+                       actionButton("tab2_datemax_right",
+                                    icon("plus"),
+                                    style='padding:4px; font-size:70%')),
+              fluidRow(class = "myDateRow",
+                       actionButton("tab2_timemax_left",
+                                    icon("minus"),
+                                    style='padding:4px; font-size:70%'),
+                       "End Time",
+                       actionButton("tab2_timemax_right",
+                                    icon("plus"),
+                                    style='padding:4px; font-size:70%')),
+              selectInput("tab2_selected_output", label = "Outputs to plot",
+                          choices = names(x),
+                          multiple = TRUE,
+                          selected = first(names(x))),
+              selectInput("tab2_var", label = "Variable",
+                          choices = var_with_dim(x[[1]],"time"),
+                          selected = "Qg"),
+              checkboxInput("tab2_subset", "subset data", value = FALSE),
+              uiOutput(outputId = 'tab2_dynamic_nsoil'),
+              uiOutput(outputId = 'tab2_dynamic_nair'),
+              uiOutput(outputId = 'tab2_dynamic_nspecies'),
+              uiOutput(outputId = 'tab2_dynamic_nveg'),
+              uiOutput(outputId = 'tab2_dynamic_nleafage'),
+              selectInput("tab2_type", label = "Plot type",
+                          choices = c("standard",
+                                      "heatmap",
+                                      "daily_heatmap"),
+                          selected = "standard"),
+              selectInput("tab2_facet", label = "facet",
+                          choices = c("models",
+                                      get_dim_info(x[[1]])$dimname),
+                          multiple = TRUE,
+                          selected = NULL),
+              conditionalPanel(
+                condition = "input.tab2_type == 'standard'",
+                selectizeInput("tab2_color", label = "color",
+                               choices = c("models",
+                                           get_dim_info(x[[1]])$dimname),
+                               options = list(
+                                 placeholder = 'Empty',
+                                 onInitialize = I('function() { this.setValue(""); }')))
+              ),
+              conditionalPanel(
+                condition = "input.tab2_type == 'standard'",
+                selectizeInput("tab2_linetype", label = "linetype",
+                               choices = c("models",
+                                           get_dim_info(x[[1]])$dimname),
+                               options = list(
+                                 placeholder = 'Empty',
+                                 onInitialize = I('function() { this.setValue(""); }')))
+              ),
+              fluidRow(
+                actionButton("tab2_UpdateView", icon("refresh")),
+                downloadButton('tab2_download', "Download Plot")),
+              width = 2
+            ),
+            ## Output ---------------------------------------------------
+            mainPanel(
+              plotOutput("tab2_plot"),
+              width = 10
+            ),
+            position = "left"
+          )
         ) # end tabPanel 2
       ), # end tabsetPanel
       tags$head(tags$style(HTML(".shiny-input-container > label {
@@ -142,7 +224,11 @@ musica_ui <- function(x) {
                             min-height: 10px;
                             padding-top: 0px;
                             margin: -10px
-                          }")))
+                          }")),
+                tags$style(HTML(".myDateRow{
+                                font-size: 8px;
+                                line-height: 10px;
+                                min-height: 10px;}")))
     )
   )
 }

@@ -23,7 +23,7 @@
 ##' 
 ##' 
 ##' 
-get_dynamic_input <- function(x, this.var, input.name, input.var) {
+get_dynamic_input <- function(x, this.var, input.name, input.var, multiple = FALSE, hide = FALSE) {
   
   list.var <- var_with_dim(x[[1]], this.var)
   label.var <- switch(this.var,
@@ -32,10 +32,11 @@ get_dynamic_input <- function(x, this.var, input.name, input.var) {
                       "nspecies" = "Species",
                       "nveg" = "Vegetation layer",
                       "nleafage" = "Leaf age")
-  if (input.var %in% list.var) {
+  if (input.var %in% list.var & !hide) {
     return(selectInput(input.name, label = div(style = "font-size:10px", label.var),
                        choices = get_dim_value(x[[1]], this.var),
                        selected = 1,
+                       multiple = multiple,
                        width = "50%"))
   } else {
     return(NULL)
