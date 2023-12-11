@@ -4,7 +4,14 @@
 \alias{get_dynamic_input}
 \title{plot for a single variable}
 \usage{
-get_dynamic_input(x, this.var, input.name, input.var)
+get_dynamic_input(
+  x,
+  this.var,
+  input.name,
+  input.var,
+  multiple = FALSE,
+  hide = FALSE
+)
 }
 \arguments{
 \item{df}{a \code{data.frame} object}
