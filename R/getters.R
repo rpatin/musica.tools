@@ -240,12 +240,13 @@ get_all_var <- function(x) {
 ##' 
 ##' 
 
-get_variable_comparison <- function(x, this_var, time_range, 
+get_variable_comparison <- function(x, this_var, time_range = NULL, 
                                     n.soil.level = NULL, list.soil.level = NULL, 
                                     n.air.level = NULL,  list.air.level = NULL, 
                                     n.species.level = NULL,  list.species.level = NULL, 
                                     n.veg.level = NULL,  list.veg.level = NULL, 
                                     n.leafage.level = NULL,  list.leafage.level = NULL) {
+  
   dfdim <- get_dim_info(x[[1]])
   list_dimname <- 
     sapply(x[[1]]$var[[this_var]]$dimids,           

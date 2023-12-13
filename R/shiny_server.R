@@ -438,7 +438,7 @@ musica_server <- function(x) {
     output$tab2_download <- downloadHandler(
       filename = function() { paste(input$dataset, '.png', sep = '') },
       content = function(file) {
-        save_plot(file, tab2_plot(), base_width = 30/cm(1), base_height = 20/cm(1))
+        save_plot(file, tab2_plot(), base_width = 16/cm(1), base_height = 12/cm(1))
       }
     )
   }) #end shinyserver

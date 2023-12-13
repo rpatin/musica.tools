@@ -126,10 +126,12 @@ get_dim_value <- function(x, dimname) {
 
 
 format_time <- function(time, date0) {
-  if (grepl("(GMT", date0, fixed = TRUE)) {
+  if (grepl("(GMT", date0, fixed = TRUE)) { # for dev_jerome
     date0 <- stri_split_fixed(str = date0, pattern = " (GMT+")[[1]][1]
+    date0  <- ymd_hms(date0) - 1800
+  } else {
+    date0  <- ymd_hms(date0)
   }
-  date0 = ymd_hms(date0)
   date0 + time*3600. # add seconds after date0
 }
 
