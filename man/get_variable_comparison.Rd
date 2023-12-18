@@ -7,7 +7,7 @@
 get_variable_comparison(
   x,
   this_var,
-  time_range,
+  time_range = NULL,
   n.soil.level = NULL,
   list.soil.level = NULL,
   n.air.level = NULL,
@@ -17,7 +17,8 @@ get_variable_comparison(
   n.veg.level = NULL,
   list.veg.level = NULL,
   n.leafage.level = NULL,
-  list.leafage.level = NULL
+  list.leafage.level = NULL,
+  diffmodels = FALSE
 )
 }
 \arguments{

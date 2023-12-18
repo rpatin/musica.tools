@@ -8,12 +8,17 @@ ggplot_variable(
   df,
   time_range,
   format.date = "\%b \%Y",
-  out.type = c("standard", "heatmap", "daily_heatmap"),
+  out.type = c("standard", "heatmap", "daily_heatmap", "boxplot"),
   x,
   y,
   color,
   linetype,
-  facet_formula
+  facet_formula,
+  xrange = NULL,
+  yrange = NULL,
+  fillrange = NULL,
+  bin2d = TRUE,
+  diffmodels = FALSE
 )
 }
 \arguments{
@@ -38,6 +43,7 @@ Other plot:
 \code{\link{get_air_level}()},
 \code{\link{get_dynamic_input}()},
 \code{\link{get_main_title}()},
+\code{\link{get_shiny_filename}()},
 \code{\link{get_soil_level}()},
 \code{\link{get_time_range}()},
 \code{\link{ggplot_list_var}()},

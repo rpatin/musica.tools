@@ -12,6 +12,9 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.0.6
+  * Improved Shiny App and added several types of graphics
+
 ### 0.0.5
   * Added a second tab to the shiny app
   

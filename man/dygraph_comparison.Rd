@@ -42,6 +42,7 @@ Other plot:
 \code{\link{get_air_level}()},
 \code{\link{get_dynamic_input}()},
 \code{\link{get_main_title}()},
+\code{\link{get_shiny_filename}()},
 \code{\link{get_soil_level}()},
 \code{\link{get_time_range}()},
 \code{\link{ggplot_list_var}()},
