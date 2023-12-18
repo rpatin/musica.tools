@@ -105,3 +105,38 @@ get_main_title <- function(x, this.var, this.soil, this.air,
   
 }
 
+# get_shiny_filename ---------------------------------------------------------
+##' @name get_shiny_filename
+##' @author Remi Lemaire-Patin
+##' 
+##' @title plot for a single variable
+##' 
+##' @description This function plot the output of \code{\link{get_variable}}
+##' 
+##' 
+##' @param df a \code{data.frame} object
+##' 
+##' @return
+##' 
+##' A \code{ggplot} object
+##' 
+##' @family plot
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+##' 
+##' @export
+##' 
+##' 
+##' 
+get_shiny_filename <- function(var, prefix, suffix, file.format) {
+  basename <- var
+  if (prefix != "") {
+    basename <-   paste0(prefix, "_", basename)
+  } 
+  if (suffix != "") {
+    basename <-   paste0(basename, "_", suffix)
+  } 
+  paste0(basename,".",file.format)
+}

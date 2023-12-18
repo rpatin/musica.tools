@@ -19,6 +19,7 @@
 ##' library(ncdf4)
 ##' 
 ##' @importFrom shiny shinyServer renderUI selectInput eventReactive reactive
+##' @importFrom shinyjs reset
 ##' @importFrom dygraphs renderDygraph
 ##' @importFrom htmltools div
 ##' @importFrom lubridate `year<-` year `day<-` day `month<-` month
@@ -41,32 +42,86 @@ musica_server <- function(x) {
     
     ### time Tab1 ------------------------------------------------------------
     
-    observeEvent(input$tab1_datemax_left, {
-      updateSliderInput(session, "tab1_time_range",
-                        value = input$tab1_time_range - 24*3600*c(0,1),
+    #### datemin Tab1 ------------------------------------------------------------
+    
+    observeEvent(input$tab1_datemin_month_left, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin - 24*3600*30,
                         timeFormat = "%F")
     })
-    observeEvent(input$tab1_datemax_right, {
-      updateSliderInput(session, "tab1_time_range",
-                        value = input$tab1_time_range + 24*3600*c(0,1),
-                        timeFormat = "%F")
-    })
-    observeEvent(input$tab1_datemin_left, {
-      updateSliderInput(session, "tab1_time_range", 
-                        value = input$tab1_time_range - 24*3600*c(1,0),
-                        timeFormat = "%F")
-    })
-    observeEvent(input$tab1_datemin_right, {
-      updateSliderInput(session, "tab1_time_range", 
-                        value = input$tab1_time_range + 24*3600*c(1,0),
+    observeEvent(input$tab1_datemin_month_right, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin + 24*3600*30,
                         timeFormat = "%F")
     })    
-    observeEvent(input$tab1_time_range, {
-      updateSliderInput(session, "tab2_timerange",
-                        value = input$tab1_time_range)
+    observeEvent(input$tab1_datemin_week_left, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin - 24*3600*7,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_datemin_week_right, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin + 24*3600*7,
+                        timeFormat = "%F")
+    })    
+    observeEvent(input$tab1_datemin_day_left, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin - 24*3600,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_datemin_day_right, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin + 24*3600,
+                        timeFormat = "%F")
+    })    
+    observeEvent(input$tab1_datemin, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab1_datemin)
+    })
+    
+    
+    #### datemax Tab1 ------------------------------------------------------------
+    
+    observeEvent(input$tab1_datemax_month_left, {
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax - 24*3600*30,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_datemax_month_right, {
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax + 24*3600*30,
+                        timeFormat = "%F")
+    })    
+    observeEvent(input$tab1_datemax_week_left, {
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax - 24*3600*7,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_datemax_week_right, {
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax + 24*3600*7,
+                        timeFormat = "%F")
+    })    
+    observeEvent(input$tab1_datemax_day_left, {
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax - 24*3600,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_datemax_day_right, {
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax + 24*3600,
+                        timeFormat = "%F")
+    })    
+    observeEvent(input$tab1_datemax, {
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab1_datemax)
     })
     ### soil Tab1 ------------------------------------------------------------
-    
+    observeEvent(input$tab1_datemax_day_left, {
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax - 24*3600,
+                        timeFormat = "%F")
+    })
     
     output$tab1_dynamic_nsoil1 <-
       renderUI(
@@ -209,7 +264,7 @@ musica_server <- function(x) {
     
     tab1_df1 <- eventReactive(input$tab1_UpdateView, {
       get_variable_comparison(x[input$tab1_selected_output],input$tab1_var1,
-                              time_range = input$tab1_time_range,
+                              time_range = c(input$tab1_datemin, input$tab1_datemax),
                               list.soil.level = input$tab1_nsoil1,
                               list.air.level = input$tab1_nair1,
                               list.species.level = input$tab1_nspecies1,
@@ -218,7 +273,7 @@ musica_server <- function(x) {
     })
     tab1_df2 <- eventReactive(input$tab1_UpdateView, {
       get_variable_comparison(x[input$tab1_selected_output],input$tab1_var2,
-                              time_range = input$tab1_time_range,
+                              time_range = c(input$tab1_datemin, input$tab1_datemax),
                               list.soil.level = input$tab1_nsoil2,
                               list.air.level = input$tab1_nair2,
                               list.species.level = input$tab1_nspecies2,
@@ -227,7 +282,7 @@ musica_server <- function(x) {
     })
     tab1_df3 <- eventReactive(input$tab1_UpdateView, {
       get_variable_comparison(x[input$tab1_selected_output],input$tab1_var3,
-                              time_range = input$tab1_time_range,
+                              time_range = c(input$tab1_datemin, input$tab1_datemax),
                               list.soil.level = input$tab1_nsoil3,
                               list.air.level = input$tab1_nair3,
                               list.species.level = input$tab1_nspecies3,
@@ -262,46 +317,77 @@ musica_server <- function(x) {
     ## input Tab2 ------------------------------------------------------------
     
     ### DateTime Tab2 ------------------------------------------------------
-    observeEvent(input$tab2_date_left, {
-      updateSliderInput(session, "tab2_timerange",
-                        value = input$tab2_timerange - 7*24*3600*c(1,1))
+    
+    #### datemin Tab2 ------------------------------------------------------
+    
+    observeEvent(input$tab2_datemin_month_left, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin - 30*24*3600)
     })
-    observeEvent(input$tab2_date_right, {
-      updateSliderInput(session, "tab2_timerange",
-                        value = input$tab2_timerange + 7*24*3600*c(1,1))
+    observeEvent(input$tab2_datemin_month_right, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin + 30*24*3600)
     })
-    observeEvent(input$tab2_datemax_left, {
-      updateSliderInput(session, "tab2_timerange",
-                        value = input$tab2_timerange - 24*3600*c(0,1))
+    observeEvent(input$tab2_datemin_week_left, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin - 7*24*3600)
     })
-    observeEvent(input$tab2_datemax_right, {
-      updateSliderInput(session, "tab2_timerange", 
-                        value = input$tab2_timerange + 24*3600*c(0,1))
+    observeEvent(input$tab2_datemin_week_right, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin + 7*24*3600)
     })
-    observeEvent(input$tab2_datemin_left, {
-      updateSliderInput(session, "tab2_timerange",
-                        value = input$tab2_timerange - 24*3600*c(1,0))
+    observeEvent(input$tab2_datemin_day_left, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin - 24*3600)
     })
-    observeEvent(input$tab2_datemin_right, {
-      updateSliderInput(session, "tab2_timerange",
-                        value = input$tab2_timerange + 24*3600*c(1,0))
+    observeEvent(input$tab2_datemin_day_right, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin + 24*3600)
+    })
+    
+    observeEvent(input$tab2_timemin_left, {
+      updateSliderInput(session, "tab2_datemin", 
+                        value = input$tab2_datemin - 1800)
+    })
+    observeEvent(input$tab2_timemin_right, {
+      updateSliderInput(session, "tab2_datemin", 
+                        value = input$tab2_datemin + 1800)
+    })
+    
+    #### datemax Tab2 ------------------------------------------------------
+    
+    observeEvent(input$tab2_datemax_month_left, {
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax - 30*24*3600)
+    })
+    observeEvent(input$tab2_datemax_month_right, {
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax + 30*24*3600)
+    })
+    observeEvent(input$tab2_datemax_week_left, {
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax - 7*24*3600)
+    })
+    observeEvent(input$tab2_datemax_week_right, {
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax + 7*24*3600)
+    })
+    observeEvent(input$tab2_datemax_day_left, {
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax - 24*3600)
+    })
+    observeEvent(input$tab2_datemax_day_right, {
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax + 24*3600)
     })
     
     observeEvent(input$tab2_timemax_left, {
-      updateSliderInput(session, "tab2_timerange",
-                        value = input$tab2_timerange - 1800*c(0,1))
+      updateSliderInput(session, "tab2_datemax", 
+                        value = input$tab2_datemax - 1800)
     })
     observeEvent(input$tab2_timemax_right, {
-      updateSliderInput(session, "tab2_timerange",
-                        value = input$tab2_timerange + 1800*c(0,1))
-    })
-    observeEvent(input$tab2_timemin_left, {
-      updateSliderInput(session, "tab2_timerange", 
-                        value = input$tab2_timerange - 1800*c(1,0))
-    })
-    observeEvent(input$tab2_timemin_right, {
-      updateSliderInput(session, "tab2_timerange", 
-                        value = input$tab2_timerange + 1800*c(1,0))
+      updateSliderInput(session, "tab2_datemax", 
+                        value = input$tab2_datemax + 1800)
     })
     
     
@@ -345,13 +431,25 @@ musica_server <- function(x) {
     ### Reactive dim input -------------------------------------------------
     
     
-    output$tab2_dynamic_date <-
+    output$tab2_dynamic_datemin <-
       renderUI({
-        eventReactive(input$tab1_time_range, {
-          sliderInput("tab2_timerange", label = "Date",
+        eventReactive(input$tab1_datemin, {
+          sliderInput("tab2_datemin", label = "Start Date",
                       min = get_time_range(x)[1],
                       max = get_time_range(x)[2],
-                      value = input$tab1_time_range,
+                      value = input$tab1_datemin,
+                      timeFormat = "%F %T",
+                      step = 24*3600,
+                      round = 4) 
+        })()})
+    
+    output$tab2_dynamic_datemax <-
+      renderUI({
+        eventReactive(input$tab1_datemax, {
+          sliderInput("tab2_datemax", label = "End Date",
+                      min = get_time_range(x)[1],
+                      max = get_time_range(x)[2],
+                      value = input$tab1_datemax,
                       timeFormat = "%F %T",
                       step = 24*3600,
                       round = 4) 
@@ -402,15 +500,155 @@ musica_server <- function(x) {
                               multiple = TRUE, hide = !input$tab2_subset)
           }
         })()(input$tab2_var))
+    ### tab2_dynamic_type -------------------------------------------------
+    
+    output$tab2_dynamic_type <-
+      renderUI(
+        reactive({
+          function(this.input, this.selected.models){ 
+            this.var.dim <- get_variable(musica.list[[1]],
+                                         this.input,
+                                         return.colnames = TRUE)
+            this.choices <- c("standard",
+                              "daily_heatmap")
+            default.selected <- "standard"
+            if (any(this.var.dim %in% c("nsoil","nveg","nair"))) {
+              default.selected <- "heatmap"
+              this.choices <- c(this.choices,
+                                "heatmap")
+              
+            } 
+            if (length(this.selected.models) > 1) {
+              this.choices <- c(this.choices,
+                                "boxplot",
+                                "scatterplot")
+            }
+            selectInput("tab2_type", label = "Plot type",
+                        choices = this.choices,
+                        selected = default.selected)
+          }
+        })()(input$tab2_var, input$tab2_selected_output))
+    
+    ### tab2_dynamic_facet -------------------------------------------------
+    
+    output$tab2_dynamic_facet <-
+      renderUI(
+        reactive({
+          function(this.var, this.type, this.selected.models){ 
+            this.var.dim <- get_variable(musica.list[[this.selected.models[1]]],
+                                         this.var,
+                                         return.colnames = TRUE)
+            default.selected = ""
+            if (length(this.selected.models) > 1) {
+              this.var.dim <- c("models", this.var.dim)
+              if (this.type %in% c("heatmap", "daily_heatmap")) {
+                default.selected = "models"
+              }
+            }
+            selectInput("tab2_facet", label = "facet",
+                        choices = this.var.dim,
+                        multiple = TRUE,
+                        selected = default.selected)
+          }
+        })()(input$tab2_var, input$tab2_type, input$tab2_selected_output))
+    
+    observeEvent({
+      input$tab2_type
+      input$tab2_selected_output
+    }, {
+      if (!is.null(input$tab2_type) &&
+          input$tab2_type == "standard" && 
+          length(input$tab2_selected_output) > 1)  {
+        updateSelectInput(session = session,
+                          "tab2_color",
+                          selected = "models")
+      }
+    })
+    
+    ### tab2 xrange -----------------------------------------------------
+    
+    observeEvent({
+      input$tab2_selected_output  
+      input$tab2_type
+    }, {
+      if (!(!is.null(input$tab2_type)) &&
+          input$tab2_type == "scatterplot" &&
+          length(input$tab2_selected_output) > 1)  {
+        reset(id = "tab2_xmin", asis = FALSE)
+        reset(id = "tab2_xmax", asis = FALSE)
+      }
+    })
+    
+    ### tab2 yrange -----------------------------------------------------
+    
+    observeEvent({
+      input$tab2_selected_output  
+      input$tab2_type
+    }, {
+      if (!(!is.null(input$tab2_type) &&
+            input$tab2_type %in% c("standard",
+                                   "boxplot", 
+                                   "heatmap",
+                                   "scatterplot")))  {
+        reset(id = "tab2_ymin", asis = FALSE)
+        reset(id = "tab2_ymax", asis = FALSE)
+      }
+    })
+    
+    ### tab2 fillrange -----------------------------------------------------
+    
+    observeEvent({
+      input$tab2_selected_output  
+      input$tab2_type
+    }, {
+      if (!(!is.null(input$tab2_type) &&
+            input$tab2_type %in% c("heatmap",
+                                   "daily_heatmap")))  {
+        reset(id = "tab2_fillmin", asis = FALSE)
+        reset(id = "tab2_fillmax", asis = FALSE)
+      }
+    })
+    
+    
+    #### Reset with change of var ----------------------------------------------
+    
+    observeEvent({
+      input$tab2_var
+    }, {
+      reset(id = "tab2_fillmin", asis = FALSE)
+      reset(id = "tab2_fillmax", asis = FALSE)
+      reset(id = "tab2_ymin", asis = FALSE)
+      reset(id = "tab2_ymax", asis = FALSE)
+      reset(id = "tab2_xmin", asis = FALSE)
+      reset(id = "tab2_xmax", asis = FALSE)
+    })
+    ### tab2 filename -----------------------------------------------------------
+    
+    observeEvent({
+      input$tab2_var
+      input$tab2_file_prefix
+      input$tab2_file_suffix
+      input$tab2_file_format
+    }, {
+      updateTextInput(session, "tab2_filename",
+                      value = 
+                        get_shiny_filename(
+                          input$tab2_var,
+                          input$tab2_file_prefix,
+                          input$tab2_file_suffix,
+                          input$tab2_file_format))
+    })
     
     ## data and plot generation -----------------------------------------------
     
+    
+    ### tab2_df -----------------------------------------------------------
     tab2_df <- eventReactive(input$tab2_UpdateView, {
       if (input$tab2_subset) {
         df <- 
           get_variable_comparison(x[input$tab2_selected_output],
                                   this_var = input$tab2_var,
-                                  time_range = input$tab2_timerange,
+                                  time_range = c(input$tab2_datemin, input$tab2_datemax),
                                   list.soil.level = input$tab2_nsoil,
                                   list.air.level = input$tab2_nair,
                                   list.species.level = input$tab2_nspecies,
@@ -420,7 +658,8 @@ musica_server <- function(x) {
         df <- 
           get_variable_comparison(x[input$tab2_selected_output],
                                   this_var = input$tab2_var,
-                                  time_range = input$tab2_timerange)
+                                  time_range = c(input$tab2_datemin, input$tab2_datemax),
+                                  diffmodels = input$tab2_diffmodels)
       }
       df
     })
@@ -430,15 +669,30 @@ musica_server <- function(x) {
                       out.type = input$tab2_type,
                       color = input$tab2_color,
                       linetype = input$tab2_linetype,
-                      facet_formula = input$tab2_facet)
+                      facet_formula = input$tab2_facet,
+                      xrange = c(input$tab2_xmin, input$tab2_xmax),
+                      yrange = c(input$tab2_ymin, input$tab2_ymax),
+                      fillrange = c(input$tab2_fillmin, input$tab2_fillmax),
+                      diffmodels = input$tab2_diffmodels)
     })
     output$tab2_plot <- 
       renderPlot(tab2_plot())
     
+    tab2_filename <- eventReactive(input$tab2_filename, {
+      input$tab2_filename
+    })
+    tab2_width <- eventReactive(input$tab2_width, {
+      input$tab2_width
+    })
+    tab2_height <- eventReactive(input$tab2_height, {
+      input$tab2_height
+    })
     output$tab2_download <- downloadHandler(
-      filename = function() { paste(input$dataset, '.png', sep = '') },
+      filename = function() { tab2_filename() },
       content = function(file) {
-        save_plot(file, tab2_plot(), base_width = 16/cm(1), base_height = 12/cm(1))
+        save_plot(file, tab2_plot(), 
+                  base_width = tab2_width()/cm(1), 
+                  base_height = tab2_height()/cm(1))
       }
     )
   }) #end shinyserver
