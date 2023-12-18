@@ -23,7 +23,8 @@
 ##' scale_color_brewer scale_color_viridis_d theme element_blank theme_dark
 ##' guide_legend guides element_rect scale_fill_viridis_c scale_y_reverse
 ##' geom_raster scale_y_continuous scale_x_continuous scale_y_reverse
-##' scale_x_datetime geom_hline
+##' scale_x_datetime geom_hline geom_boxplot geom_bin2d ggtitle element_text
+##' coord_cartesian
 ##' @importFrom stringr str_wrap
 ##' @importFrom scales breaks_pretty breaks_width
 ##' @importFrom dplyr last mutate ungroup group_by select 
@@ -35,9 +36,10 @@
 ggplot_variable <- function(df,
                             time_range,
                             format.date = "%b %Y",
-                            out.type = c("standard", "heatmap", "daily_heatmap"),
-                            x, y, color, linetype, facet_formula) {
-  
+                            out.type = c("standard", "heatmap", "daily_heatmap", "boxplot"),
+                            x, y, color, linetype, facet_formula,
+                            xrange = NULL, yrange = NULL, fillrange = NULL,
+                            bin2d = TRUE, diffmodels = FALSE) {
   # df <- list_value$relative_height
   args <- .check_ggplot_variable(df = df,
                                  time_range = time_range,
@@ -45,7 +47,11 @@ ggplot_variable <- function(df,
                                  out.type = out.type,
                                  x = x, y = y,
                                  color = color, linetype = linetype,
-                                 facet_formula = facet_formula)
+                                 facet_formula = facet_formula, 
+                                 xrange = xrange,
+                                 yrange = yrange,
+                                 fillrange = fillrange,
+                                 diffmodels = diffmodels)
   for (argi in names(args)) { 
     assign(x = argi, value = args[[argi]]) 
   }
@@ -57,9 +63,9 @@ ggplot_variable <- function(df,
   if (out.type == "standard") {
     
     # standard plot -----------------------------------------------------------
-    
     g <- 
       ggplot(df) 
+    
     
     if (!is.null(color) & !is.null(linetype)) {
       g <- g + geom_line(aes(x = .data[[x]],
@@ -86,11 +92,19 @@ ggplot_variable <- function(df,
     }
     g <- g +
       scale_x_datetime(NULL, breaks = breaks_pretty(10)) +
+      coord_cartesian(ylim = yrange) +
       theme(axis.text.x = element_text(hjust = 1, angle = 30),
             legend.position = "top")
   } else if (out.type == "daily_heatmap") {
     # daily heatmap plot --------------------------------------------------
     skip_ylab <- TRUE
+    if (diffmodels) {
+      this.legend.fill <- diff.legend
+      this.title <- this_ylab
+    } else {
+      this.legend.fill <- this_ylab
+      this.title <- NULL
+    }
     df_timed <- 
       df %>% 
       mutate(date = as.Date(time),
@@ -118,10 +132,16 @@ ggplot_variable <- function(df,
       scale_x_continuous(breaks = breaks_pretty(n = 13), expand = c(0,0)) +
       scale_y_reverse(labels = df_breaks$label,
                       breaks = as.numeric(df_breaks$time)) +
-      scale_fill_viridis_c(str_wrap(this_ylab, width = 15),
-                           option = "D", direction = 1) +
+      scale_fill_viridis_c(str_wrap(this.legend.fill, width = 15),
+                           option = "D", direction = 1,
+                           limits = fillrange) +
       xlab("Time of the day (h)") +
       ylab(NULL)
+    
+    if (!is.null(this.title)) {
+      g <- g + 
+        ggtitle(str_wrap(this.title, width = 75))
+    }
     
     if (!is.null(facet_formula)) {
       g <- 
@@ -131,6 +151,14 @@ ggplot_variable <- function(df,
   } else if (out.type == "heatmap") {
     # heatmap plot -----------------------------------------------------------
     skip_ylab <- TRUE
+    
+    if (diffmodels) {
+      this.legend.fill <- diff.legend
+      this.title <- this_ylab
+    } else {
+      this.legend.fill <- this_ylab
+      this.title <- NULL
+    }
     vjust <- 
       switch(y,
              "nsoil" = 1,
@@ -145,8 +173,9 @@ ggplot_variable <- function(df,
                       fill = .data[[this_variable]]),
                   vjust = vjust) +
       scale_y_continuous(breaks = breaks_pretty(n = 10)) +
-      scale_fill_viridis_c(str_wrap(this_ylab, width = 15),
-                           option = "D", direction = -1) +
+      scale_fill_viridis_c(str_wrap(this.legend.fill, width = 15),
+                           option = "D", direction = -1,
+                           limits = fillrange) +
       # geom_hline(yintercept = seq(0.5, 10.5), color = "darkgreen", linetype = 2) + # not nice
       ylab(y) +
       xlab(NULL)
@@ -156,14 +185,46 @@ ggplot_variable <- function(df,
         z_soil <- attr(df, "z_soil")
         dz_soil <- attr(df, "dz_soil")
         bottom_soil <- z_soil$z_soil + 0.5*dz_soil$dz_soil
-        y_levels <- breaks_pretty(n = 10)(z_soil$nsoil)
-        y_labels <- c(0, bottom_soil[y_levels[-1]])
+        if (!is.null(yrange)) {
+          keep_levels <- findInterval(x = yrange, vec = 100*c(0,bottom_soil))
+          keep_levels[1] <- max(keep_levels[1], 1)
+          keep_levels[2] <- min(keep_levels[2], length(z_soil$z_soil))
+          z_soil <- z_soil[seq(keep_levels[1], keep_levels[2]),]
+          dz_soil <- dz_soil[seq(keep_levels[1], keep_levels[2]),]
+          bottom_soil <- z_soil$z_soil + 0.5*dz_soil$dz_soil
+          yrange <- keep_levels 
+          if (first(keep_levels) == 1) {
+            yrange[1] <- 0
+          }
+        }
+        y_levels <-
+          breaks_pretty(n = 10)(z_soil$nsoil) %>% 
+          as.integer() %>% 
+          unique()
+        if (first(y_levels) == 0) {
+          y_labels <- c(0, bottom_soil[y_levels[-1]])
+        } else if (first(y_levels) < first(z_soil$nsoil)) {
+          y_levels <- y_levels[-1]
+          y_labels <- bottom_soil[which(z_soil$nsoil %in% y_levels)]
+        } else {
+          y_labels <- bottom_soil[which(z_soil$nsoil %in% y_levels)]
+        }
+        if (last(y_levels) > last(z_soil$nsoil)) {
+          y_levels <- y_levels[-length(y_levels)]
+        }
+        y_labels <- na.omit(y_labels)
         y_labels <- round(y_labels*100, digits = 1) # in cm
         y_units <- "Depth (cm)"
+
         g <- g +
           scale_y_reverse(y_units,
                           breaks = y_levels,
                           labels = y_labels) 
+        if (!is.null(yrange)) {
+          g <- g +
+            coord_cartesian(ylim = rev(yrange))
+        }
+        
       } else if (y %in% c("nair","nveg")) {
         veget_top <- attr(df, "veget_height_top") %>% 
           pull(veget_height_top) %>% 
@@ -172,19 +233,54 @@ ggplot_variable <- function(df,
           mutate(height = relative_height * veget_top)
         dzair <- attr(df, "layer_thickness") 
         top_air <- zair$height + dzair$layer_thickness/2
-        y_levels <- breaks_width(5)(c(0, max(zair$nair)))
-        y_labels <- c(0, top_air[y_levels[-1]])
-        y_labels <- round(y_labels, digits = 1) # in m
-        y_units <- "Height (m)"
-        y_levels <- y_levels
+        
+        if (!is.null(yrange)) {
+          keep_levels <- findInterval(x = yrange, vec = c(0,top_air))
+          keep_levels[1] <- max(keep_levels[1], 1)
+          keep_levels[2] <- min(keep_levels[2], length(zair$height))
+          yrange <- keep_levels 
+          if (first(keep_levels) == 1) {
+            yrange[1] <- 0
+          }
+        }
+        y_levels <- breaks_pretty(n = 8)(zair$nair) %>% 
+          as.integer() %>% 
+          unique()
         y_veg <- which.min(abs(top_air - veget_top))
+        if (!(y_veg %in% y_levels)) {
+          y_levels <- sort(c(y_levels,y_veg))
+        }
+        if (first(y_levels) == 0) {
+          y_labels <- c(0, top_air[y_levels[-1]])
+        } else if (first(y_levels) < first(zair$nair)) {
+          y_levels <- y_levels[-1]
+          y_labels <- top_air[which(zair$nair %in% y_levels)]
+        } else {
+          y_labels <- top_air[which(zair$nair %in% y_levels)]
+        }
+        if (last(y_levels) > last(zair$nair)) {
+          y_levels <- y_levels[-length(y_levels)]
+        }
+        y_labels <- na.omit(y_labels)
+        y_labels <- round(y_labels, digits = 1) # in m
+        
+        y_units <- "Height (m)"
         g <- g +
           geom_hline(yintercept = y_veg, linetype = "dashed")
         g <- g +
           scale_y_continuous(y_units,
                              breaks = y_levels,
                              labels = y_labels)
+        if (!is.null(yrange)) {
+          g <- g +
+            coord_cartesian(ylim = yrange) 
+        }
       }
+    }
+    
+    if (!is.null(this.title)) {
+      g <- g + 
+        ggtitle(str_wrap(this.title, width = 75))
     }
     
     if (!is.null(facet_formula)) {
@@ -192,25 +288,75 @@ ggplot_variable <- function(df,
         g +
         facet_wrap(formula(facet_formula), ncol = 1)
     }
+    
+    if (!is.null(yrange) & out.type != "heatmap") {
+      g <- g + 
+        coord_cartesian(ylim = yrange)
+    }
+  } else if (out.type == "boxplot") {
+    # boxplot -----------------------------------------------------------
+    g <-
+      ggplot(df) +
+      geom_boxplot(aes(x = models,
+                       y = .data[[this_variable]])) +
+      theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
+      coord_cartesian(ylim = yrange) +
+      xlab(NULL)
+  } else if (out.type == "scatterplot") {
+    # scatterplot -----------------------------------------------------------
+    skip_ylab <- TRUE
+    list_models <- attr(df,"models")
+    df <- df %>% 
+      pivot_wider(names_from = models,
+                  values_from = !!sym(this_variable))
+    if (bin2d) {
+      g <-
+        ggplot(df) +
+        geom_bin2d(aes(x = .data[[list_models[1]]],
+                       y = .data[[list_models[2]]]))
+    } else {
+      ggplot(df) +
+        geom_point(aes(x = .data[[list_models[1]]],
+                       y = .data[[list_models[2]]]))
+    } 
+    g <- g +
+      ggtitle(str_wrap(this_ylab, width = 100)) +
+      coord_cartesian(xlim = xrange) +
+      coord_cartesian(ylim = yrange)
   }
   if (!is.null(color) && color == "nspecies") {
     g <- g +
       scale_color_brewer("Species", palette = "Set1") 
   }
   if ( !skip_ylab ) {
-    
-    g <- g + ylab(str_wrap(this_ylab, width = 25))
+    if (!diffmodels) {
+      g <- g + ylab(str_wrap(this_ylab, width = 25))
+    } else {
+      g <- g + 
+        ggtitle(str_wrap(this_ylab, width = 75)) +
+        ylab(str_wrap(diff.legend, width = 25))
+    }
   }
   g
 }
 
 .check_ggplot_variable <- function(df, time_range, format.date, out.type,
-                                   x, y, color, linetype, facet_formula) {
-  
-  
+                                   x, y, color, linetype, facet_formula,
+                                   xrange, yrange, fillrange,
+                                   diffmodels) {
   # input data.frame --------------------------------------------------------
   
   this_variable <- attr(df, 'var')
+  
+  diff.legend <- NULL
+  
+  if (diffmodels) {
+    listmodels <- attr(df, "models")[1:2]
+    attr(df, "models") <- NULL
+    diff.legend <-  paste0(
+      "Difference between ", listmodels[1],
+      " and ", listmodels[2])
+  } 
   
   if (!is.null(attr(df,'models'))) {
     attr.list <- attributes(df)
@@ -276,7 +422,7 @@ ggplot_variable <- function(df,
         if (length(which.var) > 0) list.var <- list.var[-which.var]
       }
     }
-
+    
     if (missing(linetype)) {
       if (length(list.var) > 0) {
         linetype <- first(list.var)
@@ -360,6 +506,22 @@ ggplot_variable <- function(df,
     color <- NULL
   } 
   
+  if (out.type %in% c("scatterplot", "boxplot")) {
+    x <- NULL
+    y <- NULL
+    linetype <- NULL
+    color <- NULL
+    facet_formula <- NULL
+  }
+  if (any(is.na(xrange))) {
+    xrange <- NULL
+  }
+  if (any(is.na(yrange))) {
+    yrange <- NULL
+  }
+  if (any(is.na(fillrange))) {
+    fillrange <- NULL
+  }
   list(df = df,
        format.date = format.date,
        out.type = out.type,
@@ -367,7 +529,11 @@ ggplot_variable <- function(df,
        y = y,
        color = color,
        linetype = linetype,
-       facet_formula = facet_formula)
+       facet_formula = facet_formula,
+       xrange = xrange,
+       yrange = yrange,
+       fillrange = fillrange,
+       diff.legend = diff.legend)
 }
 
 # ggplot_list_var ---------------------------------------------------------
