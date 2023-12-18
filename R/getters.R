@@ -245,7 +245,8 @@ get_variable_comparison <- function(x, this_var, time_range = NULL,
                                     n.air.level = NULL,  list.air.level = NULL, 
                                     n.species.level = NULL,  list.species.level = NULL, 
                                     n.veg.level = NULL,  list.veg.level = NULL, 
-                                    n.leafage.level = NULL,  list.leafage.level = NULL) {
+                                    n.leafage.level = NULL,  list.leafage.level = NULL,
+                                    diffmodels = FALSE) {
   
   dfdim <- get_dim_info(x[[1]])
   list_dimname <- 
@@ -286,5 +287,15 @@ get_variable_comparison <- function(x, this_var, time_range = NULL,
   attr(df, "relative_height") <- attr(list.df[[1]], "relative_height")
   attr(df, "veget_height_top") <- attr(list.df[[1]], "veget_height_top")
   attr(df, "layer_thickness") <- attr(list.df[[1]], "layer_thickness")
+  
+  if (diffmodels) {
+    n_output <- length(attr(df, "models"))
+    df$diff <- 
+      df[, attr(df, "models")[1], drop = TRUE] -
+      df[, attr(df, "models")[2], drop = TRUE]
+    df <- df[,-which(colnames(df) %in% attr(df, "models"))]
+    attr(df, "var") <- "diff"
+  }
+  
   df
 }
