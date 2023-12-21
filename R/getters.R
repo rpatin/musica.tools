@@ -151,6 +151,93 @@ varname must be among ", paste0(names(x$var), collapes = " ; "))
   time_range
 }
 
+
+# get_two_variables ---------------------------------------------------------
+##' @name get_two_variables
+##' @author Remi Lemaire-Patin
+##' 
+##' @title Get two variable from a \code{ncdf4} object
+##' 
+##' @description This function extract a variable from a \code{ncdf4} object and
+##' format it in a nice \code{data.frame}.
+##' 
+##' 
+##' @param x a \code{ncdf4} object
+##' 
+##' @return
+##' 
+##' A \code{data.frame}
+##' 
+##' 
+##' @details 
+##' 
+##' \describe{
+##' Additional Description
+##' }
+##' 
+##' 
+##' @family getters
+##' 
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+##' @importFrom dplyr filter full_join
+##' @export
+##' 
+##' 
+
+get_two_variables <- function(x, varnames, time_range) {
+  time_range <- .check_get_two_variables(
+    x = x,
+    varnames = varnames,
+    time_range = time_range
+  )
+  df1 <- get_variable(x, varnames[1], time_range)
+  df2 <- get_variable(x, varnames[2], time_range)
+  df <- full_join(df1, df2)
+  attr(df, "var") <- c(attr(df1, "var"), attr(df2, "var"))
+  attr(df, "units") <- c(attr(df1, "units"), attr(df2, "units"))
+  attr(df, "longname") <- c(attr(df1, "longname"), attr(df2, "longname"))
+  attr(df, "var") <- c(attr(df1, "var"), attr(df2, "var"))
+  attr(df, "nvar") <- 2
+  attr(df, "z_soil") <- attr(df1, "z_soil")
+  attr(df, "dz_soil") <- attr(df1, "dz_soil")
+  attr(df, "relative_height") <- attr(df1, "relative_height")
+  attr(df, "veget_height_top") <- attr(df1, "veget_height_top")
+  attr(df, "layer_thickness") <- attr(df1, "layer_thickness")
+  df
+}
+
+.check_get_two_variables <- function(x, varnames, time_range) {
+  if (!inherits(x,"ncdf4")) {
+    stop("x must be a ncdf4 object")
+  }
+  if ( length(varnames) != 2) {
+    stop("varnames must be of length 2")
+  }
+  
+  time_range <- .check_get_variable(x, varnames[1], time_range)
+  time_range <- .check_get_variable(x, varnames[2], time_range)
+  dfdim <- get_dim_info(x)
+  list_dimname1 <- 
+    lapply(x$var[[varnames[1]]]$dimids,           
+           function(thisid) {
+             dfdim$dimname[which(dfdim$id == thisid)]
+           })
+  list_dimname2 <- 
+    lapply(x$var[[varnames[2]]]$dimids,           
+           function(thisid) {
+             dfdim$dimname[which(dfdim$id == thisid)]
+           })
+  if (!all(unlist(list_dimname1) == unlist(list_dimname2))) {
+    stop("Variables ", varnames[1], " and ", varnames[2], " have different dimensions. \n",
+         varnames[1], ": ", paste0(unlist(list_dimname1), collapse = " ; "), "\n",
+         varnames[2], ": ", paste0(unlist(list_dimname2), collapse = " ; "))
+  }
+  time_range
+}
+
 # get_all_var ---------------------------------------------------------
 ##' @name get_all_var
 ##' @author Remi Lemaire-Patin
