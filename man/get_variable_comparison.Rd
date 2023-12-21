@@ -43,6 +43,7 @@ library(ncdf4)
 \seealso{
 Other getters: 
 \code{\link{get_all_var}()},
+\code{\link{get_two_variables}()},
 \code{\link{get_variable}()}
 }
 \author{

@@ -11,7 +11,8 @@ dygraph_comparison(
   axisLabelWidth = 75,
   group = "Overview",
   time_range,
-  main.title = NULL
+  main.title = NULL,
+  diffmodels = FALSE
 )
 }
 \arguments{
@@ -37,19 +38,23 @@ library(ncdf4)
 }
 \seealso{
 Other plot: 
+\code{\link{add_changedate_button}()},
 \code{\link{dygraph_variable}()},
 \code{\link{get_6month}()},
 \code{\link{get_air_level}()},
 \code{\link{get_dynamic_input}()},
 \code{\link{get_main_title}()},
+\code{\link{get_range_input}()},
 \code{\link{get_shiny_filename}()},
 \code{\link{get_soil_level}()},
+\code{\link{get_subset_input}()},
 \code{\link{get_time_range}()},
 \code{\link{ggplot_list_var}()},
 \code{\link{ggplot_variable}()},
 \code{\link{musica_server}()},
 \code{\link{musica_ui}()},
-\code{\link{shinymusica}()}
+\code{\link{shinymusica}()},
+\code{\link{toggle_subset_input}()}
 }
 \author{
 Remi Lemaire-Patin
