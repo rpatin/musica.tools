@@ -19,11 +19,12 @@
 ##' library(ncdf4)
 ##' 
 ##' @importFrom shiny shinyServer renderUI selectInput eventReactive reactive
-##' @importFrom shinyjs reset
+##' @importFrom shinyjs reset show hide toggle
 ##' @importFrom dygraphs renderDygraph
 ##' @importFrom htmltools div
 ##' @importFrom lubridate `year<-` year `day<-` day `month<-` month
 ##' @importFrom cowplot save_plot
+##' @importFrom stringr str_subset
 ##' @export
 ##' 
 ##' 
@@ -116,118 +117,46 @@ musica_server <- function(x) {
       updateSliderInput(session, "tab2_datemax",
                         value = input$tab1_datemax)
     })
-    ### soil Tab1 ------------------------------------------------------------
-    observeEvent(input$tab1_datemax_day_left, {
-      updateSliderInput(session, "tab1_datemax", 
-                        value = input$tab1_datemax - 24*3600,
-                        timeFormat = "%F")
+    
+    ### Toggle diffmodels -----------------------------------------
+    observeEvent({
+      input$tab1_selected_output
+    }, {
+      if (length(input$tab1_selected_output) > 1)  {
+        shinyjs::show("tab1_diffmodels1")
+        shinyjs::show("tab1_diffmodels2")
+        shinyjs::show("tab1_diffmodels3")
+      } else {
+        reset("tab1_diffmodels1")
+        reset("tab1_diffmodels2")
+        reset("tab1_diffmodels3")
+        hide("tab1_diffmodels1")
+        hide("tab1_diffmodels2")
+        hide("tab1_diffmodels3")
+      }
+    })
+    ### Subset Tab1 ------------------------------------------------------------
+    
+    observeEvent({
+      input$tab1_var1
+    }, {
+      toggle_subset_input(session, input, index.var = 1, x,
+                          tab = "tab1")
     })
     
-    output$tab1_dynamic_nsoil1 <-
-      renderUI(
-        reactive({
-          function(this.input){ get_dynamic_input(x, "nsoil", "tab1_nsoil1", this.input)}
-        })()(input$tab1_var1))
+    observeEvent({
+      input$tab1_var2
+    }, {
+      toggle_subset_input(session, input, index.var = 2, x,
+                          tab = "tab1")
+    })
     
-    output$tab1_dynamic_nsoil2 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nsoil", "tab1_nsoil2", this.input)}
-        })()(input$tab1_var2))
-    
-    output$tab1_dynamic_nsoil3 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nsoil", "tab1_nsoil3", this.input)}
-        })()(input$tab1_var3))
-    
-    ### air Tab1 -------------------------------------------------------------
-    
-    output$tab1_dynamic_nair1 <-
-      renderUI(
-        reactive({
-          function(this.input){ get_dynamic_input(x, "nair", "tab1_nair1", this.input)}
-        })()(input$tab1_var1))
-    
-    output$tab1_dynamic_nair2 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nair", "tab1_nair2", this.input)}
-        })()(input$tab1_var2))
-    
-    output$tab1_dynamic_nair3 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nair", "tab1_nair3", this.input)}
-        })()(input$tab1_var3))
-    
-    
-    
-    ### nspecies Tab1 --------------------------------------------------------
-    
-    output$tab1_dynamic_nspecies1 <-
-      renderUI(
-        reactive({
-          function(this.input){ get_dynamic_input(x, "nspecies", "tab1_nspecies1", this.input)}
-        })()(input$tab1_var1))
-    
-    output$tab1_dynamic_nspecies2 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nspecies", "tab1_nspecies2", this.input)}
-        })()(input$tab1_var2))
-    
-    output$tab1_dynamic_nspecies3 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nspecies", "tab1_nspecies3", this.input)}
-        })()(input$tab1_var3))
-    
-    
-    
-    
-    ### nveg Tab1 -----------------------------------------------------------
-    
-    
-    output$tab1_dynamic_nveg1 <-
-      renderUI(
-        reactive({
-          function(this.input){ get_dynamic_input(x, "nveg", "tab1_nveg1", this.input)}
-        })()(input$tab1_var1))
-    
-    output$tab1_dynamic_nveg2 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nveg", "tab1_nveg2", this.input)}
-        })()(input$tab1_var2))
-    
-    output$tab1_dynamic_nveg3 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nveg", "tab1_nveg3", this.input)}
-        })()(input$tab1_var3))
-    
-    ### nleafage Tab1 ------------------------------------------------------
-    
-    
-    output$tab1_dynamic_nleafage1 <-
-      renderUI(
-        reactive({
-          function(this.input){ get_dynamic_input(x, "nleafage", "tab1_nleafage1", this.input)}
-        })()(input$tab1_var1))
-    
-    output$tab1_dynamic_nleafage2 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nleafage", "tab1_nleafage2", this.input)}
-        })()(input$tab1_var2))
-    
-    output$tab1_dynamic_nleafage3 <-
-      renderUI(
-        reactive({
-          function(this.input){get_dynamic_input(x, "nleafage", "tab1_nleafage3", this.input)}
-        })()(input$tab1_var3))
-    
+    observeEvent({
+      input$tab1_var3
+    }, {
+      toggle_subset_input(session, input, index.var = 3, x,
+                          tab = "tab1")
+    })
     ## reactive title Tab1 ---------------------------------------------------
     
     tab1_main.title1 <- eventReactive(input$tab1_UpdateView,{
@@ -269,7 +198,8 @@ musica_server <- function(x) {
                               list.air.level = input$tab1_nair1,
                               list.species.level = input$tab1_nspecies1,
                               list.veg.level = input$tab1_nveg1,
-                              list.leafage.level = input$tab1_nleafage1)
+                              list.leafage.level = input$tab1_nleafage1,
+                              diffmodels = input$tab1_diffmodels1)
     })
     tab1_df2 <- eventReactive(input$tab1_UpdateView, {
       get_variable_comparison(x[input$tab1_selected_output],input$tab1_var2,
@@ -278,7 +208,8 @@ musica_server <- function(x) {
                               list.air.level = input$tab1_nair2,
                               list.species.level = input$tab1_nspecies2,
                               list.veg.level = input$tab1_nveg2,
-                              list.leafage.level = input$tab1_nleafage2)
+                              list.leafage.level = input$tab1_nleafage2,
+                              diffmodels = input$tab1_diffmodels2)
     })
     tab1_df3 <- eventReactive(input$tab1_UpdateView, {
       get_variable_comparison(x[input$tab1_selected_output],input$tab1_var3,
@@ -287,7 +218,8 @@ musica_server <- function(x) {
                               list.air.level = input$tab1_nair3,
                               list.species.level = input$tab1_nspecies3,
                               list.veg.level = input$tab1_nveg3,
-                              list.leafage.level = input$tab1_nleafage3)
+                              list.leafage.level = input$tab1_nleafage3,
+                              diffmodels = input$tab1_diffmodels3)
     })
     
     
@@ -298,19 +230,22 @@ musica_server <- function(x) {
       dygraph_comparison(tab1_df1(),
                          main.title = tab1_main.title1(),
                          pixwidth = 600, 
-                         pixheight = 40)
+                         pixheight = 40,
+                         diffmodels = input$tab1_diffmodels1)
     })
     output$tab1_dygraph2 <- renderDygraph({
       dygraph_comparison(tab1_df2(),
                          main.title = tab1_main.title2(),
                          pixwidth = 600, 
-                         pixheight = 40)
+                         pixheight = 40,
+                         diffmodels = input$tab1_diffmodels2)
     })
     output$tab1_dygraph3 <- renderDygraph({
       dygraph_comparison(tab1_df3(),
                          main.title = tab1_main.title3(),
                          pixwidth = 600, 
-                         pixheight = 40)
+                         pixheight = 40,
+                         diffmodels = input$tab1_diffmodels3)
     })
     
     # Tab 2 ---------------------------------------------------------------
@@ -422,195 +357,221 @@ musica_server <- function(x) {
       } 
     })
     
+    ### Toggle subset ~ tab2_type ---------------------------------------------
     observeEvent(input$tab2_type, {
-      if (input$tab2_type == "heatmap") {
+      if (!is.null(input$tab2_type) &&
+          input$tab2_type == "heatmap") {
         updateCheckboxInput(session, "tab2_subset",
                             value = FALSE)
       }
     })
-    ### Reactive dim input -------------------------------------------------
+    ### Subset dim input tab2 -------------------------------------------------
     
-    
-    output$tab2_dynamic_datemin <-
-      renderUI({
-        eventReactive(input$tab1_datemin, {
-          sliderInput("tab2_datemin", label = "Start Date",
-                      min = get_time_range(x)[1],
-                      max = get_time_range(x)[2],
-                      value = input$tab1_datemin,
-                      timeFormat = "%F %T",
-                      step = 24*3600,
-                      round = 4) 
-        })()})
-    
-    output$tab2_dynamic_datemax <-
-      renderUI({
-        eventReactive(input$tab1_datemax, {
-          sliderInput("tab2_datemax", label = "End Date",
-                      min = get_time_range(x)[1],
-                      max = get_time_range(x)[2],
-                      value = input$tab1_datemax,
-                      timeFormat = "%F %T",
-                      step = 24*3600,
-                      round = 4) 
-        })()})
-    
-    output$tab2_dynamic_nsoil <-
-      renderUI(
-        reactive({
-          function(this.input){ 
-            get_dynamic_input(x, "nsoil", "tab2_nsoil", this.input,
-                              multiple = TRUE, hide = !input$tab2_subset)
-          }
-        })()(input$tab2_var))
-    
-    output$tab2_dynamic_nair <-
-      renderUI(
-        reactive({
-          function(this.input){ 
-            get_dynamic_input(x, "nair", "tab2_nair", this.input,
-                              multiple = TRUE, hide = !input$tab2_subset)
-          }
-        })()(input$tab2_var))
-    
-    output$tab2_dynamic_nspecies <-
-      renderUI(
-        reactive({
-          function(this.input){ 
-            get_dynamic_input(x, "nspecies", "tab2_nspecies", this.input,
-                              multiple = TRUE, hide = !input$tab2_subset)
-          }
-          
-        })()(input$tab2_var))
-    
-    output$tab2_dynamic_nveg <-
-      renderUI(
-        reactive({
-          function(this.input){ 
-            get_dynamic_input(x, "nveg", "tab2_nveg", this.input,
-                              multiple = TRUE, hide = !input$tab2_subset)
-          }
-        })()(input$tab2_var))
-    
-    output$tab2_dynamic_nleafage <-
-      renderUI(
-        reactive({
-          function(this.input){ 
-            get_dynamic_input(x, "nleafage", "tab2_nleafage", this.input,
-                              multiple = TRUE, hide = !input$tab2_subset)
-          }
-        })()(input$tab2_var))
-    ### tab2_dynamic_type -------------------------------------------------
-    
-    output$tab2_dynamic_type <-
-      renderUI(
-        reactive({
-          function(this.input, this.selected.models){ 
-            this.var.dim <- get_variable(musica.list[[1]],
-                                         this.input,
-                                         return.colnames = TRUE)
-            this.choices <- c("standard",
-                              "daily_heatmap")
-            default.selected <- "standard"
-            if (any(this.var.dim %in% c("nsoil","nveg","nair"))) {
-              default.selected <- "heatmap"
-              this.choices <- c(this.choices,
-                                "heatmap")
-              
-            } 
-            if (length(this.selected.models) > 1) {
-              this.choices <- c(this.choices,
-                                "boxplot",
-                                "scatterplot")
-            }
-            selectInput("tab2_type", label = "Plot type",
-                        choices = this.choices,
-                        selected = default.selected)
-          }
-        })()(input$tab2_var, input$tab2_selected_output))
-    
-    ### tab2_dynamic_facet -------------------------------------------------
-    
-    output$tab2_dynamic_facet <-
-      renderUI(
-        reactive({
-          function(this.var, this.type, this.selected.models){ 
-            this.var.dim <- get_variable(musica.list[[this.selected.models[1]]],
-                                         this.var,
-                                         return.colnames = TRUE)
-            default.selected = ""
-            if (length(this.selected.models) > 1) {
-              this.var.dim <- c("models", this.var.dim)
-              if (this.type %in% c("heatmap", "daily_heatmap")) {
-                default.selected = "models"
-              }
-            }
-            selectInput("tab2_facet", label = "facet",
-                        choices = this.var.dim,
-                        multiple = TRUE,
-                        selected = default.selected)
-          }
-        })()(input$tab2_var, input$tab2_type, input$tab2_selected_output))
     
     observeEvent({
-      input$tab2_type
+      input$tab2_subset
+      input$tab2_var
+      input$tab2_subset
+    }, {
+      toggle_subset_input(session, input, index.var = NULL, x,
+                          tab = "tab2", hide = !input$tab2_subset)
+    })
+    
+    ### tab2_type -------------------------------------------------
+    observeEvent({ 
+      input$tab2_var 
       input$tab2_selected_output
     }, {
+      this.var.dim <- get_variable(x[[1]],
+                                   input$tab2_var,
+                                   return.colnames = TRUE)
+      this.choices <- c("standard",
+                        "daily_heatmap")
+      default.selected <- "standard"
+      if (any(this.var.dim %in% c("nsoil","nveg","nair"))) {
+        default.selected <- "heatmap"
+        this.choices <- c(this.choices,
+                          "heatmap")
+        
+      } 
+      if (length(input$tab2_selected_output) > 1) {
+        this.choices <- c(this.choices,
+                          "distribution",
+                          "scatterplot")
+      }
+      updateSelectInput(session = session,
+                        inputId = "tab2_type",
+                        choices = this.choices,
+                        selected = default.selected)
+    })
+    
+    #### tab2 type options -----------------------------------------------------
+    observeEvent({ 
+      input$tab2_type
+    }, {
       if (!is.null(input$tab2_type) &&
-          input$tab2_type == "standard" && 
-          length(input$tab2_selected_output) > 1)  {
-        updateSelectInput(session = session,
+          input$tab2_type == "scatterplot") {
+        shinyjs::show("tab2_scatterplot_points")
+      } else {
+        # reset("tab2_scatterplot_points")
+        hide("tab2_scatterplot_points")
+      }
+      
+      if (!is.null(input$tab2_type) &&
+          input$tab2_type == "distribution") {
+        shinyjs::show("tab2_distribution_option")
+      } else {
+        # reset("tab2_distribution_option")
+        hide("tab2_distribution_option")
+      }
+    })
+    
+    ### tab2_facet -------------------------------------------------
+    
+    
+    observeEvent({
+      input$tab2_var
+      input$tab2_type
+      input$tab2_selected_output
+      input$tab2_diffmodels
+    }, {
+      this.var.dim <- get_variable(musica.list[[input$tab2_selected_output[1]]],
+                                   input$tab2_var,
+                                   return.colnames = TRUE)
+      default.selected = ""
+      if (length(input$tab2_selected_output) > 1) {
+        this.var.dim <- c("models", this.var.dim)
+        if (!is.null(input$tab2_type) &&
+            input$tab2_type %in% c("heatmap", "daily_heatmap") &
+            !input$tab2_diffmodels) {
+          default.selected = "models"
+        }
+      }
+      updateSelectInput(session = session,
+                        "tab2_facet",
+                        choices = this.var.dim,
+                        selected = default.selected)
+    })
+    
+    
+    ### Toggle diffmodels -----------------------------------------
+    observeEvent({
+      input$tab2_selected_output
+    }, {
+      if (length(input$tab2_selected_output) > 1)  {
+        shinyjs::show("tab2_diffmodels")
+      } else {
+        reset("tab2_diffmodels")
+        hide("tab2_diffmodels")
+      }
+    })
+    
+    
+    ### colors and linetype -----------------------------------------------------
+    
+    
+    observeEvent({
+      input$tab2_var
+      input$tab2_type
+      input$tab2_diffmodels
+      input$tab2_distribution_option
+      input$tab2_selected_output
+    }, {
+      this.var.dim <- get_variable(musica.list[[input$tab2_selected_output[1]]],
+                                   input$tab2_var,
+                                   return.colnames = TRUE)
+      this.var.dim <- str_subset(this.var.dim, "time", negate = TRUE)
+      this.selected <- first(this.var.dim)
+      if (length(input$tab2_selected_output) > 1 &&
+          !input$tab2_diffmodels) {
+        this.var.dim <- c("models", this.var.dim)
+        this.selected <- "models"
+      }
+
+      if (!is.null(input$tab2_type) &&
+          (input$tab2_type == "standard" |
+           (input$tab2_type == "distribution" &&
+            input$tab2_distribution_option == c("Density"))
+          ) &&
+          length(this.var.dim) >= 1) {
+        shinyjs::show("tab2_color")
+        shinyjs::show("tab2_linetype")
+        updateSelectizeInput(session = session,
                           "tab2_color",
-                          selected = "models")
+                          choices = this.var.dim,
+                          selected = this.selected)
+        updateSelectizeInput(session = session,
+                          "tab2_linetype",
+                          choices = this.var.dim)
+      } else {
+        reset("tab2_color")
+        reset("tab2_linetype")
+        hide("tab2_color")
+        hide("tab2_linetype")
+      }
+      
+      if (!is.null(input$tab2_type) &&
+          (input$tab2_type == "distribution" &&
+           input$tab2_distribution_option %in% c("Boxplot",
+                                                 "Histogram") &&
+           !input$tab2_diffmodels)  &&
+          length(this.var.dim) >= 1
+      ) {
+        shinyjs::show("tab2_fill")
+        updateSelectizeInput(session = session,
+                          "tab2_fill",
+                          choices = this.var.dim,
+                          selected = this.selected)
+      } else {
+        reset("tab2_fill")
+        hide("tab2_fill")
       }
     })
     
-    ### tab2 xrange -----------------------------------------------------
+    
+    ### tab2 range -----------------------------------------------------
     
     observeEvent({
       input$tab2_selected_output  
       input$tab2_type
     }, {
-      if (!(!is.null(input$tab2_type)) &&
-          input$tab2_type == "scatterplot" &&
-          length(input$tab2_selected_output) > 1)  {
-        reset(id = "tab2_xmin", asis = FALSE)
-        reset(id = "tab2_xmax", asis = FALSE)
+      
+      #### xrange -------------------------------------
+      if (is.null(input$tab2_type) ||
+          input$tab2_type != "scatterplot") {
+        reset("tab2_xmin")
+        reset("tab2_xmax")
+        hide("tab2_xrange")
+      } else {
+        shinyjs::show("tab2_xrange")
       }
-    })
-    
-    ### tab2 yrange -----------------------------------------------------
-    
-    observeEvent({
-      input$tab2_selected_output  
-      input$tab2_type
-    }, {
-      if (!(!is.null(input$tab2_type) &&
-            input$tab2_type %in% c("standard",
-                                   "boxplot", 
+      
+      #### yrange -------------------------------------
+      if (is.null(input$tab2_type) ||
+          !(input$tab2_type %in% c("standard",
+                                   "distribution", 
                                    "heatmap",
-                                   "scatterplot")))  {
-        reset(id = "tab2_ymin", asis = FALSE)
-        reset(id = "tab2_ymax", asis = FALSE)
+                                   "scatterplot"))) {
+        reset("tab2_ymin")
+        reset("tab2_ymax")
+        hide("tab2_yrange")
+      } else {
+        shinyjs::show("tab2_yrange")
       }
-    })
-    
-    ### tab2 fillrange -----------------------------------------------------
-    
-    observeEvent({
-      input$tab2_selected_output  
-      input$tab2_type
-    }, {
-      if (!(!is.null(input$tab2_type) &&
-            input$tab2_type %in% c("heatmap",
+      #### fillrange -------------------------------------
+      if (is.null(input$tab2_type) ||
+          !(input$tab2_type %in% c("heatmap",
                                    "daily_heatmap")))  {
-        reset(id = "tab2_fillmin", asis = FALSE)
-        reset(id = "tab2_fillmax", asis = FALSE)
+        reset("tab2_fillmin")
+        reset("tab2_fillmax")
+        hide("tab2_fillrange") 
+      } else {
+        shinyjs::show("tab2_fillrange")
       }
     })
     
     
-    #### Reset with change of var ----------------------------------------------
+    #### Reset all ranges with change of var ----------------------------------------------
     
     observeEvent({
       input$tab2_var
@@ -622,6 +583,7 @@ musica_server <- function(x) {
       reset(id = "tab2_xmin", asis = FALSE)
       reset(id = "tab2_xmax", asis = FALSE)
     })
+    
     ### tab2 filename -----------------------------------------------------------
     
     observeEvent({
@@ -653,7 +615,8 @@ musica_server <- function(x) {
                                   list.air.level = input$tab2_nair,
                                   list.species.level = input$tab2_nspecies,
                                   list.veg.level = input$tab2_nveg,
-                                  list.leafage.level = input$tab2_nleafage)
+                                  list.leafage.level = input$tab2_nleafage,
+                                  diffmodels = input$diffmodels)
       } else {
         df <- 
           get_variable_comparison(x[input$tab2_selected_output],
