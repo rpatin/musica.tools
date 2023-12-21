@@ -28,7 +28,7 @@
 ##' @examples
 ##' library(ncdf4)
 ##' 
-##' @importFrom dplyr filter
+##' @importFrom dplyr filter rename
 ##' @export
 ##' 
 ##' 
@@ -116,7 +116,6 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
       attr(df, "layer_thickness") <- 
         get_variable(x, "layer_thickness") 
     }
-    
   }
   
   if (!is.null(time_range)) {
@@ -248,16 +247,23 @@ get_variable_comparison <- function(x, this_var, time_range = NULL,
                                     n.leafage.level = NULL,  list.leafage.level = NULL,
                                     diffmodels = FALSE) {
   
-  dfdim <- get_dim_info(x[[1]])
-  list_dimname <- 
-    sapply(x[[1]]$var[[this_var]]$dimids,           
-           function(thisid) {
-             dfdim$dimname[which(dfdim$id == thisid)]
-           })
+  args <- .check_get_variable_comparison(
+    this_var,
+    diffmodels
+  )
+  for (argi in names(args)) { 
+    assign(x = argi, value = args[[argi]]) 
+  }
+  rm(args)
   list.df <- lapply(seq_along(x), function(i){
     tmp.try <- try({
-      
-      tmp <- get_variable(x[[i]], this_var, time_range = time_range) %>% 
+      if (length(this_var) == 1) {
+        tmp <- get_variable(x[[i]], this_var, time_range = time_range) 
+      } else {
+        tmp <- get_two_variables(x[[i]], this_var, time_range = time_range) 
+      }
+      tmp <- 
+        tmp %>% 
         filter_dim("nsoil", n.soil.level, list_dim = list.soil.level) %>% 
         filter_dim("nair",  n.air.level, list_dim = list.air.level)  %>% 
         filter_dim("nspecies",  n.species.level, list_dim = list.species.level) %>% 
@@ -265,37 +271,56 @@ get_variable_comparison <- function(x, this_var, time_range = NULL,
         filter_dim("nleafage",  n.leafage.level, list_dim = list.leafage.level) 
     })
     if (!inherits(tmp.try, "try-error")) {
-      tmp$run <- names(x)[i]
+      tmp$models <- names(x)[i]
       return(tmp)
     } else {
       return(NULL)
     }
   }) 
   df <- list.df %>% 
-    do.call('rbind', .) %>% 
-    pivot_wider(names_from = "run",
-                values_from = sym(this_var))
+    do.call('rbind', .) 
   attr(df, "var") <- this_var
   attr(df, "units") <- attr(list.df[[1]], "units")
   attr(df, "longname") <- attr(list.df[[1]], "longname")
   attr(df, "dimname") <- attr(list.df[[1]], "dimname")
-  attr(df, "ndim") <- ncol(list.df[[1]]) - 2
+  attr(df, "ndim") <- length(attr(df, "dimname"))
   attr(df, "nvar") <- ncol(df) - attr(df, "ndim")
-  attr(df, "models") <- names(x)
+  attr(df, "models") <- names(x) 
   attr(df, "z_soil") <- attr(list.df[[1]], "z_soil")
   attr(df, "dz_soil") <- attr(list.df[[1]], "dz_soil")
   attr(df, "relative_height") <- attr(list.df[[1]], "relative_height")
   attr(df, "veget_height_top") <- attr(list.df[[1]], "veget_height_top")
   attr(df, "layer_thickness") <- attr(list.df[[1]], "layer_thickness")
-  
   if (diffmodels) {
-    n_output <- length(attr(df, "models"))
+    df <- 
+      df %>% 
+      pivot_wider(names_from = "models",
+                  values_from = sym(this_var))
     df$diff <- 
       df[, attr(df, "models")[1], drop = TRUE] -
       df[, attr(df, "models")[2], drop = TRUE]
     df <- df[,-which(colnames(df) %in% attr(df, "models"))]
     attr(df, "var") <- "diff"
+    
+  } else {
+    attr(df, "dimname") <- c(attr(df, "dimname"), "models")
+    attr(df, "ndim") <- length(attr(df, "dimname"))
   }
-  
   df
+}
+
+.check_get_variable_comparison <- function(this_var, diffmodels) {
+  .fun_testIfIn(length(this_var), values = c(1,2))
+  
+  if (length(this_var) > 1) {
+    diffmodels <- FALSE 
+  } else {
+    if (missing(diffmodels) || is.null(diffmodels)) {
+      diffmodels <- FALSE
+    }
+  }
+  list(
+    this_var = this_var,
+    diffmodels = diffmodels
+  )
 }
