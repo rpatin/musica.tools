@@ -26,7 +26,7 @@
 ##' @importFrom shinyjs useShinyjs hidden
 ##' @importFrom shinyWidgets awesomeRadio
 ##' @importFrom dygraphs dygraphOutput
-##' @importFrom htmltools HTML tags
+##' @importFrom htmltools HTML tags hr
 ##' @export
 ##' 
 ##' 
@@ -146,9 +146,9 @@ musica_ui <- function(x) {
                    position = "left"
                  )
         ), # end tabPanel1
-        # Tab 2 - Model to model comparison ------------------------------------
+        # Tab 2 - Static Graphics ------------------------------------
         tabPanel(
-          "Model to model comparison", fluid = TRUE,
+          "Static Graphics & Export", fluid = TRUE,
           sidebarLayout(
             sidebarPanel(
               ## Input --------------------------------------------------
@@ -192,27 +192,81 @@ musica_ui <- function(x) {
                                     legend = "Time step",
                                     class = "myDateRow"),
               
-              ## Update View -----------------------------------------------
+              ## Update View & tab2_type-----------------------------------------------
               hr(), 
-              actionButton("tab2_UpdateView", icon("refresh")),
+              fluidRow(
+                column(6,
+                       selectInput("tab2_type", label = "Plot type",
+                                   choices = c("standard",
+                                               "daily_heatmap",
+                                               "heatmap",
+                                               "boxplot",
+                                               "density",
+                                               "histogram",
+                                               "scatterplot_model",
+                                               "scatterplot_var"),
+                                   selected = "standard")),
+                column(3,
+                       hidden(div(
+                         id = "tab2_scatterplot_points",
+                         checkboxInput("tab2_scatterplot_points", 
+                                       label = "Points",
+                                       value = FALSE)))
+                ),
+                column(3,
+                       actionButton("tab2_UpdateView", icon("refresh"))
+                )
+              ),
               hr(), 
               ## models --------------------------------------------
-              fluidRow(
-                column(8,
-                       selectInput("tab2_selected_output", label = "Outputs to plot",
-                                   choices = names(x),
-                                   multiple = TRUE,
-                                   selected = first(names(x)))),
-                column(4,
-                       hidden(
-                         div(id = "tab2_diffmodels",
-                             checkboxInput("tab2_diffmodels", 
-                                           label = "Difference",
-                                           value = FALSE))))),
+              div(id = "tab2_selected_output", 
+                  fluidRow(
+                    column(8,
+                           selectInput("tab2_selected_output", label = "Outputs to plot",
+                                       choices = names(x),
+                                       multiple = TRUE,
+                                       selected = first(names(x)))),
+                    column(4,
+                           hidden(
+                             div(id = "tab2_diffmodels",
+                                 checkboxInput("tab2_diffmodels", 
+                                               label = "Difference",
+                                               value = FALSE)))
+                    ))),
               ## variable --------------------------------------------
-              selectInput("tab2_var", label = "Variable",
-                          choices = var_with_dim(x[[1]],"time"),
-                          selected = "Qg"),
+              hidden(
+                div(id = "tab2_selected_output2",
+                    fluidRow(
+                      column(6, 
+                             selectInput("tab2_selected_output2.1", label = "First model",
+                                         choices = names(x),
+                                         multiple = FALSE,
+                                         selected = first(names(x)))),
+                      column(6,
+                             selectInput("tab2_selected_output2.2", label = "Second model",
+                                         choices = names(x),
+                                         multiple = FALSE,
+                                         selected = names(x)[2])),
+                    ))),
+              ## variable --------------------------------------------
+              fluidRow(
+                column(6, 
+                       selectInput("tab2_var", label = "Variable",
+                                   choices = var_with_dim(x[[1]],"time"),
+                                   selected = "Qg")),
+                column(6,
+                       hidden(
+                         div(id = "tab2_var2",
+                             selectizeInput(
+                               "tab2_var2", 
+                               label = "Variable 2",
+                               choices = NULL,
+                               options = list(
+                                 placeholder = 'Empty',
+                                 onInitialize =
+                                   I('function() { this.setValue(""); }')))
+                         ))
+                )),
               ## subset options --------------------------------------------
               checkboxInput("tab2_subset", "subset data", value = FALSE),
               # subset options
@@ -225,38 +279,36 @@ musica_ui <- function(x) {
               get_range_input("tab2","y"),
               get_range_input("tab2","fill"),
               # end subset options
-              fluidRow(
-                column(8,
-                       selectInput("tab2_type", label = "Plot type",
-                                   choices = c("standard",
-                                               "daily_heatmap"),
-                                   selected = "standard")),
-                column(4,
-                       hidden(div(
-                         id = "tab2_scatterplot_points",
-                         checkboxInput("tab2_scatterplot_points", 
-                                       label = "Points",
-                                       value = FALSE))),
-                       hidden(div(
-                         id = "tab2_distribution_option",
-                         awesomeRadio(
-                           inputId = "tab2_distribution_option",
-                           label = "Option", 
-                           choices = c("Boxplot", "Histogram", "Density"),
-                           selected = "Boxplot"
-                         )))
-                )),
               selectInput("tab2_facet", label = "facet",
                           choices = NULL,
                           multiple = TRUE,
                           selected = NULL),
+              hidden(div(
+                id = "tab2_x",
+                selectizeInput("tab2_x", label = "x",
+                               choices = NULL,
+                               options = list(
+                                 placeholder = 'Empty',
+                                 onInitialize =
+                                   I('function() { this.setValue(""); }')))
+              )),
+              hidden(div(
+                id = "tab2_y",
+                selectizeInput("tab2_y", label = "y",
+                               choices = NULL,
+                               options = list(
+                                 placeholder = 'Empty',
+                                 onInitialize =
+                                   I('function() { this.setValue(""); }')))
+              )),
               hidden(div(
                 id = "tab2_color",
                 selectizeInput("tab2_color", label = "color",
                                choices = NULL,
                                options = list(
                                  placeholder = 'Empty',
-                                 onInitialize = I('function() { this.setValue(""); }')))
+                                 onInitialize =
+                                   I('function() { this.setValue(""); }')))
               )),
               hidden(div(
                 id = "tab2_linetype",
@@ -264,7 +316,8 @@ musica_ui <- function(x) {
                                choices = NULL,
                                options = list(
                                  placeholder = 'Empty',
-                                 onInitialize = I('function() { this.setValue(""); }')))
+                                 onInitialize = 
+                                   I('function() { this.setValue(""); }')))
               )),
               hidden(div(
                 id = "tab2_fill",
@@ -272,7 +325,17 @@ musica_ui <- function(x) {
                                choices = NULL,
                                options = list(
                                  placeholder = 'Empty',
-                                 onInitialize = I('function() { this.setValue(""); }')))
+                                 onInitialize = 
+                                   I('function() { this.setValue(""); }')))
+              )),
+              hidden(div(
+                id = "tab2_shape",
+                selectizeInput("tab2_shape", label = "shape",
+                               choices = NULL,
+                               options = list(
+                                 placeholder = 'Empty',
+                                 onInitialize =
+                                   I('function() { this.setValue(""); }')))
               )),
               hr(), 
               downloadButton('tab2_download', "Download Plot"),

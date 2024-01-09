@@ -190,17 +190,20 @@ musica_server <- function(x) {
     })
     ## reactive data Tab1 ---------------------------------------------------
     
+    ### tab1_df1 ---------------------------------------------------
     
     tab1_df1 <- eventReactive(input$tab1_UpdateView, {
-      get_variable_comparison(x[input$tab1_selected_output],input$tab1_var1,
+      get_variable_comparison(x = x[input$tab1_selected_output],
+                              varname = input$tab1_var1,
                               time_range = c(input$tab1_datemin, input$tab1_datemax),
                               list.soil.level = input$tab1_nsoil1,
                               list.air.level = input$tab1_nair1,
                               list.species.level = input$tab1_nspecies1,
                               list.veg.level = input$tab1_nveg1,
                               list.leafage.level = input$tab1_nleafage1,
-                              diffmodels = input$tab1_diffmodels1)
+                              diffmodels = input$tab1_diffmodels1) 
     })
+    ### tab1_df2 ---------------------------------------------------
     tab1_df2 <- eventReactive(input$tab1_UpdateView, {
       get_variable_comparison(x[input$tab1_selected_output],input$tab1_var2,
                               time_range = c(input$tab1_datemin, input$tab1_datemax),
@@ -211,6 +214,7 @@ musica_server <- function(x) {
                               list.leafage.level = input$tab1_nleafage2,
                               diffmodels = input$tab1_diffmodels2)
     })
+    ### tab1_df3 ---------------------------------------------------
     tab1_df3 <- eventReactive(input$tab1_UpdateView, {
       get_variable_comparison(x[input$tab1_selected_output],input$tab1_var3,
                               time_range = c(input$tab1_datemin, input$tab1_datemax),
@@ -226,6 +230,7 @@ musica_server <- function(x) {
     ## output Tab1 -------------------------------------------------------
     
     
+    ### tab1_dygraph1 -------------------------------------------------------
     output$tab1_dygraph1 <- renderDygraph({
       dygraph_comparison(tab1_df1(),
                          main.title = tab1_main.title1(),
@@ -233,6 +238,7 @@ musica_server <- function(x) {
                          pixheight = 40,
                          diffmodels = input$tab1_diffmodels1)
     })
+    ### tab1_dygraph2 -------------------------------------------------------
     output$tab1_dygraph2 <- renderDygraph({
       dygraph_comparison(tab1_df2(),
                          main.title = tab1_main.title2(),
@@ -240,6 +246,7 @@ musica_server <- function(x) {
                          pixheight = 40,
                          diffmodels = input$tab1_diffmodels2)
     })
+    ### tab1_dygraph3 -------------------------------------------------------
     output$tab1_dygraph3 <- renderDygraph({
       dygraph_comparison(tab1_df3(),
                          main.title = tab1_main.title3(),
@@ -326,19 +333,96 @@ musica_server <- function(x) {
     })
     
     
+    
+    ### UI changes with tab2_type
+    observeEvent({ 
+      input$tab2_type
+    }, {
+      # Hide/Show UI for selected models and var
+      if (input$tab2_type == "scatterplot_model") {
+        reset("tab2_var2")
+        hide("tab2_selected_output")
+        hide("tab2_var2")
+        shinyjs::show("tab2_selected_output2")
+        shinyjs::show("tab2_scatterplot_points")
+      } else if (input$tab2_type == "scatterplot_var") {
+        hide("tab2_selected_output2")
+        shinyjs::show("tab2_selected_output")
+        shinyjs::show("tab2_var2")
+        shinyjs::show("tab2_scatterplot_points")
+        updateSelectInput(session, "tab2_var",
+                          selected = input$tab2_var)
+      } else {
+        reset("tab2_var2")
+        reset("tab2_scatterplot_points")
+        hide("tab2_var2")
+        hide("tab2_selected_output2")
+        hide("tab2_scatterplot_points")
+        shinyjs::show("tab2_selected_output")
+      }
+    })
     ### Selected Models -------------------------------------------------------
+    
     observeEvent(input$tab1_selected_output, {
       updateSelectInput(session, "tab2_selected_output",
                         selected = input$tab1_selected_output)
     })
     
+    observeEvent(input$tab2_selected_output, {
+      updateSelectInput(session, "tab2_selected_output2.1",
+                        selected = first(input$tab2_selected_output))
+    })
+    
+    observeEvent(
+      {
+        input$tab2_selected_output2.1
+      }, {
+        avail.output <- names(x)
+        avail.output <- avail.output[which(avail.output != input$tab2_selected_output2.1)]
+        if (length(input$tab2_selected_output) > 1) {
+          this.default <- input$tab2_selected_output[2]
+        } else {
+          this.default <- first(avail.output)
+        }
+        
+        updateSelectInput(session, "tab2_selected_output2.2",
+                          choices = avail.output, 
+                          selected = this.default)
+      })
+    
     ### Selected Variables ----------------------------------------------------
+    
     observeEvent(input$tab1_var1, {
       updateSelectInput(session, "tab2_var",
                         selected = input$tab1_var1)
     })
     
+    observeEvent(
+      {
+        input$tab2_var
+      }, {
+        if (input$tab2_type %in% c("scatterplot_var")) {
+          avail.var <- var_with_same_dim(x, input$tab2_var)
+          updateSelectizeInput(session, "tab2_var2",
+                               choices = avail.var)
+          if (!(input$tab2_var2 %in% avail.var)) {
+            updateSelectizeInput(session, "tab2_var2",
+                                 selected = first(avail.var))
+          }
+        }
+      })
     
+    observeEvent(
+      {
+        input$tab2_type
+      }, {
+        if (input$tab2_type %in% c("scatterplot_var")) {
+          avail.var <- var_with_same_dim(x, input$tab2_var)
+          updateSelectizeInput(session, "tab2_var2",
+                               choices = avail.var,
+                               selected = first(avail.var))
+        }
+      })
     
     ### Reset levels --------------------------------------------------------
     
@@ -357,108 +441,54 @@ musica_server <- function(x) {
       } 
     })
     
-    ### Toggle subset ~ tab2_type ---------------------------------------------
-    observeEvent(input$tab2_type, {
-      if (!is.null(input$tab2_type) &&
-          input$tab2_type == "heatmap") {
-        updateCheckboxInput(session, "tab2_subset",
-                            value = FALSE)
-      }
-    })
+    
     ### Subset dim input tab2 -------------------------------------------------
     
     
     observeEvent({
       input$tab2_subset
       input$tab2_var
-      input$tab2_subset
     }, {
       toggle_subset_input(session, input, index.var = NULL, x,
                           tab = "tab2", hide = !input$tab2_subset)
     })
     
-    ### tab2_type -------------------------------------------------
+    ### available choices for tab2_type -------------------------------------------------
     observeEvent({ 
       input$tab2_var 
-      input$tab2_selected_output
     }, {
       this.var.dim <- get_variable(x[[1]],
                                    input$tab2_var,
                                    return.colnames = TRUE)
-      this.choices <- c("standard",
-                        "daily_heatmap")
-      default.selected <- "standard"
+      current.selected <- input$tab2_type
+      choices <- c("standard",
+                   "daily_heatmap",
+                   "boxplot",
+                   "density",
+                   "histogram",
+                   "scatterplot_model",
+                   "scatterplot_var")
       if (any(this.var.dim %in% c("nsoil","nveg","nair"))) {
-        default.selected <- "heatmap"
-        this.choices <- c(this.choices,
-                          "heatmap")
-        
-      } 
-      if (length(input$tab2_selected_output) > 1) {
-        this.choices <- c(this.choices,
-                          "distribution",
-                          "scatterplot")
-      }
-      updateSelectInput(session = session,
-                        inputId = "tab2_type",
-                        choices = this.choices,
-                        selected = default.selected)
-    })
-    
-    #### tab2 type options -----------------------------------------------------
-    observeEvent({ 
-      input$tab2_type
-    }, {
-      if (!is.null(input$tab2_type) &&
-          input$tab2_type == "scatterplot") {
-        shinyjs::show("tab2_scatterplot_points")
-      } else {
-        # reset("tab2_scatterplot_points")
-        hide("tab2_scatterplot_points")
-      }
-      
-      if (!is.null(input$tab2_type) &&
-          input$tab2_type == "distribution") {
-        shinyjs::show("tab2_distribution_option")
-      } else {
-        # reset("tab2_distribution_option")
-        hide("tab2_distribution_option")
-      }
-    })
-    
-    ### tab2_facet -------------------------------------------------
-    
-    
-    observeEvent({
-      input$tab2_var
-      input$tab2_type
-      input$tab2_selected_output
-      input$tab2_diffmodels
-    }, {
-      this.var.dim <- get_variable(musica.list[[input$tab2_selected_output[1]]],
-                                   input$tab2_var,
-                                   return.colnames = TRUE)
-      default.selected = ""
-      if (length(input$tab2_selected_output) > 1) {
-        this.var.dim <- c("models", this.var.dim)
-        if (!is.null(input$tab2_type) &&
-            input$tab2_type %in% c("heatmap", "daily_heatmap") &
-            !input$tab2_diffmodels) {
-          default.selected = "models"
+        choices <- c(choices, "heatmap")
+      }  else {
+        if (current.selected == "heatmap") {
+          current.selected <- "standard"
         }
       }
       updateSelectInput(session = session,
-                        "tab2_facet",
-                        choices = this.var.dim,
-                        selected = default.selected)
+                        inputId = "tab2_type",
+                        choices = choices,
+                        selected = current.selected)
     })
-    
     
     ### Toggle diffmodels -----------------------------------------
     observeEvent({
       input$tab2_selected_output
+      input$tab2_type
     }, {
-      if (length(input$tab2_selected_output) > 1)  {
+      if (length(input$tab2_selected_output) > 1 &
+          !(input$tab2_type %in% c("scatterplot_var",
+                                   "scatterplot_model") ))  {
         shinyjs::show("tab2_diffmodels")
       } else {
         reset("tab2_diffmodels")
@@ -466,67 +496,225 @@ musica_server <- function(x) {
       }
     })
     
-    
-    ### colors and linetype -----------------------------------------------------
+
+    ### x, y, colors, linetype, shape, fill ------------------------------------
     
     
     observeEvent({
-      input$tab2_var
       input$tab2_type
-      input$tab2_diffmodels
-      input$tab2_distribution_option
-      input$tab2_selected_output
+      input$tab2_var
+      input$tab2_scatterplot_points
+      tab2_testdf()
     }, {
-      this.var.dim <- get_variable(musica.list[[input$tab2_selected_output[1]]],
-                                   input$tab2_var,
-                                   return.colnames = TRUE)
-      this.var.dim <- str_subset(this.var.dim, "time", negate = TRUE)
-      this.selected <- first(this.var.dim)
-      if (length(input$tab2_selected_output) > 1 &&
-          !input$tab2_diffmodels) {
-        this.var.dim <- c("models", this.var.dim)
-        this.selected <- "models"
+      avail.dim <- attr(tab2_testdf(), "dimname")
+      this.var <- attr(tab2_testdf(), "var")
+      this.models <- attr(tab2_testdf(), "models")
+      
+      if (input$tab2_type %in% c("scatterplot_model")) {
+        avail.dim <- str_subset(avail.dim, "models", negate = TRUE)
       }
-
-      if (!is.null(input$tab2_type) &&
-          (input$tab2_type == "standard" |
-           (input$tab2_type == "distribution" &&
-            input$tab2_distribution_option == c("Density"))
-          ) &&
-          length(this.var.dim) >= 1) {
-        shinyjs::show("tab2_color")
-        shinyjs::show("tab2_linetype")
-        updateSelectizeInput(session = session,
-                          "tab2_color",
-                          choices = this.var.dim,
-                          selected = this.selected)
-        updateSelectizeInput(session = session,
-                          "tab2_linetype",
-                          choices = this.var.dim)
-      } else {
-        reset("tab2_color")
-        reset("tab2_linetype")
-        hide("tab2_color")
-        hide("tab2_linetype")
+      default.dim <- avail.dim
+      discrete.dim <- str_subset(avail.dim,
+                                 pattern = "nsoil|nair|nveg|models")
+      
+      #### x ------------------------------------------------------------------
+      x.hide <- FALSE
+      if (input$tab2_type %in% c("standard", "heatmap")) {
+        x <- x.choices <- "time"
+        avail.dim <- str_subset(avail.dim, "time", negate = TRUE)
+        default.dim <- str_subset(default.dim, "time", negate = TRUE)
+      } else if (input$tab2_type %in% c("scatterplot_var")) {
+        x <- x.choices <- this.var[1]
+      } else if (input$tab2_type %in% c("scatterplot_model")) {
+        x <- x.choices <- this.models[1]
+      } else if (input$tab2_type %in% c("boxplot")) {
+        avail.dim <- str_subset(avail.dim, "time", negate = TRUE)
+        x.choices <- c("", avail.dim)
+        if (is.null(input$tab2_x) || !(input$tab2_x %in% avail.dim)) {
+          x <- first(default.dim)
+        } else {
+          x <- input$tab2_x
+        }
+        default.dim <- str_subset(default.dim, x, negate = TRUE)
+      } else if (input$tab2_type %in% c("density", "histogram")) {
+        avail.dim <- str_subset(avail.dim, "time", negate = TRUE)
+        x <- x.choices <- this.var
+      } else if (input$tab2_type %in% c("daily_heatmap")) {
+        avail.dim <- str_subset(avail.dim, "time", negate = TRUE)
+        x <- x.choices <- "Time of day"
       }
       
-      if (!is.null(input$tab2_type) &&
-          (input$tab2_type == "distribution" &&
-           input$tab2_distribution_option %in% c("Boxplot",
-                                                 "Histogram") &&
-           !input$tab2_diffmodels)  &&
-          length(this.var.dim) >= 1
-      ) {
-        shinyjs::show("tab2_fill")
-        updateSelectizeInput(session = session,
-                          "tab2_fill",
-                          choices = this.var.dim,
-                          selected = this.selected)
+      ### y --------------------------------------------------------------------
+      
+      y.hide <- FALSE
+      if (input$tab2_type %in% c("standard", "boxplot")) {
+        y <- y.choices <- this.var
+      } else if (input$tab2_type %in% c("scatterplot_var")) {
+        y <- y.choices <- this.var[2]
+      } else if (input$tab2_type %in% c("scatterplot_model")) {
+        y <- y.choices <- this.models[2]
+      } else if (input$tab2_type %in% c("density", "histogram")) {
+        y.hide <- TRUE
+        y <- y.choices <- NULL
+      } else if (input$tab2_type %in% c("heatmap")) {
+        heatmap.dim <- str_subset(avail.dim,
+                                  pattern = "nsoil|nair|nveg")
+        y.choices <- ifelse(length(heatmap.dim) > 0,
+                            heatmap.dim,
+                            NULL)
+        if (is.null(input$tab2_y) || !(input$tab2_y %in% y.choices)) {
+          y <- ifelse(is.null(default.dim), NULL, first(default.dim))
+        } else {
+          y <- input$tab2_y
+        }
+        default.dim <- str_subset(default.dim, y, negate = TRUE)
+      } else if (input$tab2_type %in% c("daily_heatmap")) {
+        y <- y.choices <- "Julian day"
+      }
+      
+      
+      ### fill -----------------------------------------------------------------
+      
+      
+      fill.hide <- FALSE
+      if (input$tab2_type %in% c("standard", "density", 
+                                 "scatterplot_var", "scatterplot_model")) {
+        fill.hide <- TRUE
+        fill <- fill.choices <- NULL
+      } else if (input$tab2_type %in% c("boxplot", "histogram")) {
+        if (length(discrete.dim) > 0) {
+          fill.choices <- discrete.dim
+          if (is.null(input$tab2_fill) || 
+              !(input$tab2_fill %in% fill.choices)) {
+            default.dim.fill <- str_subset(default.dim, paste0(fill.choices, collapse = "|"))
+            fill <- ifelse(is.null(default.dim.fill), NULL, first(default.dim.fill))
+          } else {
+            fill <- input$tab2_fill
+          }
+          default.dim <- str_subset(default.dim, fill, negate = TRUE)
+        } else {
+          fill.hide <- TRUE
+          fill <- fill.choices <- NULL
+        }
+        
+        
+      } else if (input$tab2_type %in% c("heatmap", "daily_heatmap")) {
+        fill <- fill.choices <- this.var
+      }    
+      
+      ### color ----------------------------------------------------------------
+      
+      color.hide <- FALSE
+      if (input$tab2_type %in% c("standard",
+                                 "density") |
+          (input$tab2_type %in% c("scatterplot_var", 
+                                  "scatterplot_model") &
+           input$tab2_scatterplot_points)) {
+        color.choices <- avail.dim
+        if (is.null(input$tab2_color) ||
+            !(input$tab2_color %in% color.choices)) {
+          color <- first(default.dim)
+        } else {
+          color <- input$tab2_color
+        }
+        default.dim <- str_subset(default.dim, color, negate = TRUE)
       } else {
-        reset("tab2_fill")
-        hide("tab2_fill")
+        color.hide <- TRUE
+        color <- color.choices <- NULL
+      }    
+      
+      ### linetype -------------------------------------------------------------
+      
+      linetype.hide <- FALSE
+      if (input$tab2_type %in% c("standard",
+                                 "density") &
+          length(discrete.dim) > 0) {
+        linetype.choices <- discrete.dim
+        default.dim.linetype <- str_subset(default.dim, 
+                                           paste0(linetype.choices, 
+                                                  collapse = "|"))
+        if (length(linetype.choices) > 0) {
+          if (is.null(input$tab2_linetype) ||
+              !(input$tab2_linetype %in% linetype.choices)) {
+            linetype <- first(default.dim)
+          } else {
+            linetype <- input$tab2_linetype
+          }
+          default.dim <- str_subset(default.dim, linetype, negate = TRUE)
+        } else {
+          linetype <- NULL
+        }
+      } else {
+        linetype.hide <- TRUE
+        linetype <- linetype.choices <- NULL
+      }    
+      
+      
+      ### shape ----------------------------------------------------------------
+      
+      shape.hide <- FALSE
+      if (input$tab2_type %in% c("scatterplot_var",
+                                 "scatterplot_model") &
+          input$tab2_scatterplot_points & 
+          length(discrete.dim) > 0) {
+          shape.choices <- discrete.dim
+          default.dim.shape <- str_subset(default.dim,
+                                          paste0(shape.choices, 
+                                                 collapse = "|"))
+          if (length(default.dim.shape) > 0) {
+            if (is.null(input$tab2_shape) || 
+                !(input$tab2_shape %in% shape.choices)) {
+              shape <- first(default.dim.shape)
+            } else {
+              shape <- input$tab2_shape
+            }
+            default.dim <- str_subset(default.dim, shape, negate = TRUE)
+          } else {
+            shape <- NULL
+          }
+      } else {
+        shape.hide <- TRUE
+        shape <- shape.choices <- NULL
+      }
+      
+      ### updateSelectizeInput, hide/show  -------------------------------------
+      
+      for (this.param in c("x","y","color","shape","linetype","fill")) {
+        this.param.choices <- paste0(this.param,".choices")
+        this.param.hide <- paste0(this.param, ".hide")
+        this.selectize <- paste0("tab2_",this.param)
+        
+        if (eval(sym(this.param.hide))) {
+          reset(id = this.selectize)
+          hide(id = this.selectize)
+        } else {
+          shinyjs::show(id = this.selectize)
+          updateSelectizeInput(
+            session = session,
+            inputId = this.selectize,
+            choices = eval(sym(this.param.choices)),
+            selected = eval(sym(this.param)))
+        }
+        
+      }
+      
+      ### tab2_facet  -------------------------------------
+      
+      if (length(avail.dim) > 0) {
+        if (all(input$tab2_facet %in% discrete.dim)) {
+          facet <- input$tab2_facet
+        } else {
+          facet <- NULL
+        }
+        updateSelectInput(session = session,
+                          "tab2_facet",
+                          choices = discrete.dim,
+                          selected = facet)
+      } else {
+        reset(id = "tab2_facet")
       }
     })
+    
     
     
     ### tab2 range -----------------------------------------------------
@@ -538,7 +726,10 @@ musica_server <- function(x) {
       
       #### xrange -------------------------------------
       if (is.null(input$tab2_type) ||
-          input$tab2_type != "scatterplot") {
+          !(input$tab2_type %in% c("scatterplot_model",
+                                   "scatterplot_var",
+                                   "density",
+                                   "histogram"))) {
         reset("tab2_xmin")
         reset("tab2_xmax")
         hide("tab2_xrange")
@@ -549,9 +740,12 @@ musica_server <- function(x) {
       #### yrange -------------------------------------
       if (is.null(input$tab2_type) ||
           !(input$tab2_type %in% c("standard",
-                                   "distribution", 
+                                   "boxplot", 
                                    "heatmap",
-                                   "scatterplot"))) {
+                                   "scatterplot_model",
+                                   "scatterplot_var",
+                                   "density",
+                                   "histogram"))) {
         reset("tab2_ymin")
         reset("tab2_ymax")
         hide("tab2_yrange")
@@ -605,41 +799,123 @@ musica_server <- function(x) {
     
     
     ### tab2_df -----------------------------------------------------------
-    tab2_df <- eventReactive(input$tab2_UpdateView, {
+    tab2_df <- eventReactive({
+      input$tab2_UpdateView
+    }, {
+      if (!(input$tab2_type %in% c("scatterplot_model"))) {
+        this.selected <- input$tab2_selected_output
+      } else {
+        this.selected <- c(input$tab2_selected_output2.1,
+                           input$tab2_selected_output2.2)
+      }
+      
       if (input$tab2_subset) {
+        list.soil.level = input$tab2_nsoil
+        list.air.level = input$tab2_nair
+        list.species.level = input$tab2_nspecies
+        list.veg.level = input$tab2_nveg
+        list.leafage.level = input$tab2_nleafage
+      } else {
+        list.soil.level = NULL
+        list.air.level = NULL
+        list.species.level = NULL
+        list.veg.level = NULL
+        list.leafage.level = NULL
+      }
+      if (is.null(input$tab2_var2) || input$tab2_var2 == "") {
         df <- 
-          get_variable_comparison(x[input$tab2_selected_output],
-                                  this_var = input$tab2_var,
+          get_variable_comparison(x[this.selected],
+                                  varname = input$tab2_var,
                                   time_range = c(input$tab2_datemin, input$tab2_datemax),
-                                  list.soil.level = input$tab2_nsoil,
-                                  list.air.level = input$tab2_nair,
-                                  list.species.level = input$tab2_nspecies,
-                                  list.veg.level = input$tab2_nveg,
-                                  list.leafage.level = input$tab2_nleafage,
-                                  diffmodels = input$diffmodels)
+                                  list.soil.level = list.soil.level,
+                                  list.air.level = list.air.level,
+                                  list.species.level = list.species.level,
+                                  list.veg.level = list.veg.level,
+                                  list.leafage.level = list.leafage.level,
+                                  diffmodels = input$tab2_diffmodels)
       } else {
         df <- 
-          get_variable_comparison(x[input$tab2_selected_output],
-                                  this_var = input$tab2_var,
-                                  time_range = c(input$tab2_datemin, input$tab2_datemax),
-                                  diffmodels = input$tab2_diffmodels)
+          get_two_variables(x[this.selected],
+                            varnames = c(input$tab2_var, input$tab2_var2),
+                            time_range = c(input$tab2_datemin, input$tab2_datemax),
+                            list.soil.level = list.soil.level,
+                            list.air.level = list.air.level,
+                            list.species.level = list.species.level,
+                            list.veg.level = list.veg.level,
+                            list.leafage.level = list.leafage.level,
+                            diffmodels = input$tab2_diffmodels)
+        
       }
       df
     })
     
-    tab2_plot <- eventReactive(input$tab2_UpdateView, {
+    
+    ### tab2_testdf -----------------------------------------------------------
+    tab2_testdf <- eventReactive(
+      { 
+        input$tab2_var
+        input$tab2_var2
+        input$tab2_diffmodels
+        input$tab2_selected_output2.1
+        input$tab2_selected_output2.2
+      }, {
+        if (!(input$tab2_type %in% c("scatterplot_model"))) {
+          this.selected <- input$tab2_selected_output
+        } else {
+          this.selected <- c(input$tab2_selected_output2.1,
+                             input$tab2_selected_output2.2)
+        }
+        
+        if (is.null(input$tab2_var2) || input$tab2_var2 == "") {
+          df <- 
+            get_variable_comparison(x[this.selected],
+                                    varname = input$tab2_var,
+                                    time_range = c(input$tab2_datemin,
+                                                   input$tab2_datemin + 48*3600),
+                                    diffmodels = input$tab2_diffmodels)
+        } else {
+          df <- 
+            get_two_variables(x[this.selected],
+                              varnames = c(input$tab2_var, input$tab2_var2),
+                              time_range = c(input$tab2_datemin,
+                                             input$tab2_datemin + 48*3600),
+                              diffmodels = input$tab2_diffmodels)
+        }
+        # if(input$tab2_diffmodels) stop(attr(df, "models"))
+        df
+      })
+    
+    ### tab2_plot -----------------------------------------------------------
+    
+    tab2_plot <- eventReactive({
+      input$tab2_UpdateView 
+    }, {
+      
+      if (input$tab2_type %in% c("scatterplot_model",
+                                 "scatterplot_var")) {
+        this.type <- "scatterplot"
+      } else {
+        this.type <- input$tab2_type
+      }
       ggplot_variable(tab2_df(),
-                      out.type = input$tab2_type,
+                      out.type = this.type,
+                      x = input$tab2_x,
+                      y = input$tab2_y,
+                      shape = input$tab2_shape,
+                      fill = input$tab2_fill,
                       color = input$tab2_color,
                       linetype = input$tab2_linetype,
                       facet_formula = input$tab2_facet,
                       xrange = c(input$tab2_xmin, input$tab2_xmax),
                       yrange = c(input$tab2_ymin, input$tab2_ymax),
                       fillrange = c(input$tab2_fillmin, input$tab2_fillmax),
-                      diffmodels = input$tab2_diffmodels)
+                      diffmodels = input$tab2_diffmodels,
+                      bin2d = !input$tab2_scatterplot_points)
     })
     output$tab2_plot <- 
       renderPlot(tab2_plot())
+    
+    ### File handling -----------------------------------------------------------
     
     tab2_filename <- eventReactive(input$tab2_filename, {
       input$tab2_filename
