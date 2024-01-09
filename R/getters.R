@@ -80,7 +80,6 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
         rename(df, !!sym(old_conversion[this.old]) := sym(this.old))
     }
   }
-  
   attr(df, "units") <- x$var[[varname]]$units
   attr(df, "longname") <- x$var[[varname]]$longname
   attr(df, "var") <- varname
@@ -187,14 +186,14 @@ varname must be among ", paste0(names(x$var), collapes = " ; "))
 ##' 
 ##' 
 
-get_two_variables <- function(x, varnames, time_range) {
+get_two_variables <- function(x, varnames, time_range, ...) {
   time_range <- .check_get_two_variables(
     x = x,
     varnames = varnames,
     time_range = time_range
   )
-  df1 <- get_variable(x, varnames[1], time_range)
-  df2 <- get_variable(x, varnames[2], time_range)
+  df1 <- get_variable_comparison(x, varnames[1], time_range, ...)
+  df2 <- get_variable_comparison(x, varnames[2], time_range, ...)
   df <- full_join(df1, df2)
   attr(df, "var") <- c(attr(df1, "var"), attr(df2, "var"))
   attr(df, "units") <- c(attr(df1, "units"), attr(df2, "units"))
@@ -206,27 +205,30 @@ get_two_variables <- function(x, varnames, time_range) {
   attr(df, "relative_height") <- attr(df1, "relative_height")
   attr(df, "veget_height_top") <- attr(df1, "veget_height_top")
   attr(df, "layer_thickness") <- attr(df1, "layer_thickness")
+  attr(df, "models") <- attr(df1, "models")
+  attr(df, "dimname") <- attr(df1, "dimname")
+  attr(df, "ndim") <- attr(df1, "ndim")
   df
 }
 
 .check_get_two_variables <- function(x, varnames, time_range) {
-  if (!inherits(x,"ncdf4")) {
-    stop("x must be a ncdf4 object")
+  if (!all(sapply(x, function(xx) {inherits(xx,"ncdf4")}))) {
+    stop("x must be a list of ncdf4 object")
   }
   if ( length(varnames) != 2) {
     stop("varnames must be of length 2")
   }
   
-  time_range <- .check_get_variable(x, varnames[1], time_range)
-  time_range <- .check_get_variable(x, varnames[2], time_range)
+  time_range <- .check_get_variable(x[[1]], varnames[1], time_range)
+  time_range <- .check_get_variable(x[[1]], varnames[2], time_range)
   dfdim <- get_dim_info(x)
   list_dimname1 <- 
-    lapply(x$var[[varnames[1]]]$dimids,           
+    lapply(x[[1]]$var[[varnames[1]]]$dimids,           
            function(thisid) {
              dfdim$dimname[which(dfdim$id == thisid)]
            })
   list_dimname2 <- 
-    lapply(x$var[[varnames[2]]]$dimids,           
+    lapply(x[[1]]$var[[varnames[2]]]$dimids,           
            function(thisid) {
              dfdim$dimname[which(dfdim$id == thisid)]
            })
@@ -326,7 +328,7 @@ get_all_var <- function(x) {
 ##' 
 ##' 
 
-get_variable_comparison <- function(x, this_var, time_range = NULL, 
+get_variable_comparison <- function(x, varname, time_range = NULL, 
                                     n.soil.level = NULL, list.soil.level = NULL, 
                                     n.air.level = NULL,  list.air.level = NULL, 
                                     n.species.level = NULL,  list.species.level = NULL, 
@@ -335,7 +337,7 @@ get_variable_comparison <- function(x, this_var, time_range = NULL,
                                     diffmodels = FALSE) {
   
   args <- .check_get_variable_comparison(
-    this_var,
+    varname,
     diffmodels
   )
   for (argi in names(args)) { 
@@ -344,10 +346,10 @@ get_variable_comparison <- function(x, this_var, time_range = NULL,
   rm(args)
   list.df <- lapply(seq_along(x), function(i){
     tmp.try <- try({
-      if (length(this_var) == 1) {
-        tmp <- get_variable(x[[i]], this_var, time_range = time_range) 
+      if (length(varname) == 1) {
+        tmp <- get_variable(x[[i]], varname, time_range = time_range) 
       } else {
-        tmp <- get_two_variables(x[[i]], this_var, time_range = time_range) 
+        tmp <- get_two_variables(x[[i]], varname, time_range = time_range) 
       }
       tmp <- 
         tmp %>% 
@@ -366,7 +368,7 @@ get_variable_comparison <- function(x, this_var, time_range = NULL,
   }) 
   df <- list.df %>% 
     do.call('rbind', .) 
-  attr(df, "var") <- this_var
+  attr(df, "var") <- varname
   attr(df, "units") <- attr(list.df[[1]], "units")
   attr(df, "longname") <- attr(list.df[[1]], "longname")
   attr(df, "dimname") <- attr(list.df[[1]], "dimname")
@@ -378,28 +380,35 @@ get_variable_comparison <- function(x, this_var, time_range = NULL,
   attr(df, "relative_height") <- attr(list.df[[1]], "relative_height")
   attr(df, "veget_height_top") <- attr(list.df[[1]], "veget_height_top")
   attr(df, "layer_thickness") <- attr(list.df[[1]], "layer_thickness")
+  df <- df %>% 
+    select("models", everything())
   if (diffmodels) {
+    keep_attr <- attributes(df)
     df <- 
       df %>% 
       pivot_wider(names_from = "models",
-                  values_from = sym(this_var))
+                  values_from = sym(varname))
     df$diff <- 
-      df[, attr(df, "models")[1], drop = TRUE] -
-      df[, attr(df, "models")[2], drop = TRUE]
-    df <- df[,-which(colnames(df) %in% attr(df, "models"))]
-    attr(df, "var") <- "diff"
+      df[, keep_attr$models[1], drop = TRUE] -
+      df[, keep_attr$models[2], drop = TRUE]
     
+    df <- df[, -which(colnames(df) %in% keep_attr$models)]
+    attr(df, "var") <- "diff"
+    for (this.attr in c("units", "longname",
+                        "ndim", "dimname", "nvar", "models")) {
+      attr(df, this.attr) <- keep_attr[[this.attr]]
+    }
   } else {
     attr(df, "dimname") <- c(attr(df, "dimname"), "models")
-    attr(df, "ndim") <- length(attr(df, "dimname"))
   }
+  attr(df, "ndim") <- length(attr(df, "dimname"))
   df
 }
 
-.check_get_variable_comparison <- function(this_var, diffmodels) {
-  .fun_testIfIn(length(this_var), values = c(1,2))
+.check_get_variable_comparison <- function(varname, diffmodels) {
+  .fun_testIfIn(length(varname), values = c(1,2))
   
-  if (length(this_var) > 1) {
+  if (length(varname) > 1) {
     diffmodels <- FALSE 
   } else {
     if (missing(diffmodels) || is.null(diffmodels)) {
@@ -407,7 +416,7 @@ get_variable_comparison <- function(x, this_var, time_range = NULL,
     }
   }
   list(
-    this_var = this_var,
+    varname = varname,
     diffmodels = diffmodels
   )
 }
