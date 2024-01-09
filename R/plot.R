@@ -62,6 +62,8 @@ ggplot_variable <- function(df,
   skip_ylab <- FALSE
   this.title <- NULL
   this_variable <- attr(df, 'var')
+  
+  
   if (out.type == "standard") {
     
     # standard plot -----------------------------------------------------------
@@ -72,12 +74,12 @@ ggplot_variable <- function(df,
     if (!is.null(color) & !is.null(linetype)) {
       g <- g + geom_line(aes(x = .data[[x]],
                              y = .data[[y]],
-                             color = factor(.data[[color]]),
-                             linetype = factor(.data[[linetype]])))
+                             color = .data[[color]],
+                             linetype = .data[[linetype]]))
     } else if (!is.null(color)) {
       g <- g + geom_line(aes(x = .data[[x]],
                              y = .data[[y]],
-                             color = factor(.data[[color]])))
+                             color = .data[[color]]))
       
     } else if (!is.null(linetype)) {
       g <- g + geom_line(aes(x = .data[[x]],
@@ -256,10 +258,10 @@ ggplot_variable <- function(df,
           scale_y_continuous(y_units,
                              breaks = y_levels,
                              labels = y_labels)
-        if (!is.null(yrange)) {
-          g <- g +
-            coord_cartesian(ylim = yrange) 
-        }
+        g <- g +
+          coord_cartesian(ylim = yrange) 
+        
+        
       }
     }
   } else if (out.type == "boxplot") {
@@ -273,7 +275,7 @@ ggplot_variable <- function(df,
                          y = .data[[y]])) 
     } else if (is.null(fill)) {
       g <- g +
-        geom_boxplot(aes(x = .data[[x]],
+        geom_boxplot(aes(x = factor(.data[[x]]),
                          y = .data[[y]]))
     } else if (is.null(x)) {
       g <- g +
@@ -282,7 +284,7 @@ ggplot_variable <- function(df,
                          fill = .data[[fill]]))
     } else {
       g <- g +
-        geom_boxplot(aes(x = .data[[x]],
+        geom_boxplot(aes(x = factor(.data[[x]]),
                          y = .data[[y]],
                          fill = .data[[fill]]))
     }
@@ -311,16 +313,16 @@ ggplot_variable <- function(df,
         g <-  g +
           geom_point(aes(x = .data[[x]],
                          y = .data[[y]]))
-      } else if (!is.null(shape)) {
+      } else if (is.null(color)) {
         g <-  g +
           geom_point(aes(x = .data[[x]],
                          y = .data[[y]],
                          shape = .data[[shape]]))
-      } else if (!is.null(color)) {
+      } else if (is.null(shape)) {
         g <-  g +
           geom_point(aes(x = .data[[x]],
                          y = .data[[y]],
-                         color = .data[[color]]))
+                         color = .data[[color]])) 
       } else {
         g <-  g +
           geom_point(aes(x = .data[[x]],
@@ -338,14 +340,10 @@ ggplot_variable <- function(df,
         scale_y_continuous(this_ylab[2]) 
     }
     
-    if (!is.null(xrange)) {
-      g <- g +
-        coord_cartesian(xlim = xrange) 
-    }
-    if (!is.null(yrange)) {
-      g <- g +
-        coord_cartesian(ylim = yrange)
-    }
+    g <- g +
+      coord_cartesian(xlim = xrange,
+                      ylim = yrange) 
+    
     
   } else if (out.type == "density") {
     
@@ -356,11 +354,11 @@ ggplot_variable <- function(df,
     if (is.null(color) & is.null(linetype)) {
       g <- g +
         geom_density(aes(x = .data[[x]]))
-    } else if (!is.null(color)) {
+    } else if (is.null(linetype)) {
       g <- g +
         geom_density(aes(x = .data[[x]],
                          color = .data[[color]]))
-    } else if (!is.null(linetype)) {
+    } else if (is.null(color)) {
       g <- g +
         geom_density(aes(x = .data[[x]],
                          linetype = .data[[linetype]]))
@@ -371,13 +369,10 @@ ggplot_variable <- function(df,
                          linetype = .data[[linetype]]))
     }
     g <- g +
-      coord_cartesian(xlim = xrange) +
-      coord_cartesian(ylim = yrange)
+      coord_cartesian(xlim = xrange, ylim = yrange) 
   } else if (out.type == "histogram") {
     
     # histogram ---------------------------------------------------------------
-    
-    
     g <- ggplot(df)
     if (is.null(fill)) {
       g <- g +
@@ -389,8 +384,7 @@ ggplot_variable <- function(df,
                        position = "dodge")
     }
     g <- g +
-      coord_cartesian(xlim = xrange) +
-      coord_cartesian(ylim = yrange)
+      coord_cartesian(xlim = xrange, ylim = yrange) 
   }
   
   
@@ -524,14 +518,14 @@ ggplot_variable <- function(df,
         rm(df.save)
         
         potential_dim <- str_subset(potential_dim, "models", negate = TRUE)
-      } else if (length(this_variable) == 2 & length(listmodels) == 1) {
+      } else if (length(this_variable) == 2) {
         x <- this_variable[1]
         y <- this_variable[2]
       } else {
-        stop("Scatterplot can only be used when comparing two models or two variables")
+        stop("Scatterplot can only be used when comparing two models with one variable or two variables with any models")
       }
     } else if (out.type %in% c("boxplot")) {
-      if (missing(x) || is.null(x)) {
+      if (missing(x) || is.null(x) || x == "") {
         if (length(potential_dim) > 0) {
           x <- first(potential_dim)
           potential_dim <- str_subset(potential_dim, x, negate = TRUE)
@@ -564,7 +558,7 @@ ggplot_variable <- function(df,
       # y argument ignored
       y <- NULL
     } else if (out.type %in% c("heatmap")) {
-      if (missing(y) || is.null(y)) {
+      if (missing(y) || is.null(y) || y == "") {
         subdim <- str_subset(potential_dim, "nsoil|nair|nveg")
         if (length(subdim) > 0) {
           y <- first(subdim)
@@ -584,10 +578,11 @@ ggplot_variable <- function(df,
       # fill arg ignored
       fill <- NULL
     } else if (out.type %in% c("boxplot", 'histogram')) {
-      if (missing(fill) || is.null(fill)) {
+      if (missing(fill) || is.null(fill) || fill == "") {
         if (length(potential_dim) > 0) {
-          fill <- first(potential_dim)
-          potential_dim <- str_subset(potential_dim, fill, negate = TRUE)
+          fill <- NULL
+          # fill <- first(potential_dim)
+          # potential_dim <- str_subset(potential_dim, fill, negate = TRUE)
         } else {
           fill <- NULL
         }
@@ -605,10 +600,11 @@ ggplot_variable <- function(df,
     
     if (out.type %in% c("standard", "density") ||
         (out.type == "scatterplot" & !bin2d)) {
-      if (missing(color) || is.null(color)) {
+      if (missing(color) || is.null(color) || color == "") {
         if (length(potential_dim) > 0) {
-          color <- first(potential_dim)
-          potential_dim <- str_subset(potential_dim, color, negate = TRUE)
+          color <- NULL
+          # color <- first(potential_dim)
+          # potential_dim <- str_subset(potential_dim, color, negate = TRUE)
         } else {
           color <- NULL
         }
@@ -624,10 +620,11 @@ ggplot_variable <- function(df,
     # linetype ----------------------------------------------------------------
     
     if (out.type %in% c("standard", "density")) {
-      if (missing(linetype) || is.null(linetype)) {
+      if (missing(linetype) || is.null(linetype) || linetype == "") {
         if (length(potential_dim) > 0) {
-          linetype <- first(potential_dim)
-          potential_dim <- str_subset(potential_dim, linetype, negate = TRUE)
+          linetype <- NULL
+          # linetype <- first(potential_dim)
+          # potential_dim <- str_subset(potential_dim, linetype, negate = TRUE)
         } else {
           linetype <- NULL
         }
@@ -645,10 +642,11 @@ ggplot_variable <- function(df,
     # shape ----------------------------------------------------------------
     
     if (out.type %in% c("scatterplot") & !bin2d) {
-      if (missing(shape) || is.null(shape)) {
+      if (missing(shape) || is.null(shape) || shape == "") {
         if (length(potential_dim) > 0) {
-          shape <- first(potential_dim)
-          potential_dim <- str_subset(potential_dim, shape, negate = TRUE)
+          shape <- NULL # no default shape
+          # shape <- first(potential_dim)
+          # potential_dim <- str_subset(potential_dim, shape, negate = TRUE)
         } else {
           shape <- NULL
         }
@@ -665,8 +663,9 @@ ggplot_variable <- function(df,
     # facet ----------------------------------------------------------------
     if (missing(facet_formula) || is.null(facet_formula)) {
       if (length(potential_dim) > 0) {
-        facet_formula <- paste0("~", paste0(potential_dim, collapse = "+"))
-        potential_dim <- NULL
+        facet_formula <- NULL
+        # facet_formula <- paste0("~", paste0(potential_dim, collapse = "+"))
+        # potential_dim <- NULL
       } else {
         facet_formula <- NULL
       }
@@ -695,6 +694,26 @@ ggplot_variable <- function(df,
     if (any(is.na(fillrange))) {
       fillrange <- NULL
     }
+    
+    
+    if (!is.null(color) && 
+        length(unique(df[,color])) <= 15) {
+      df[,color] <- factor(df[,color, drop = TRUE])
+    }
+    
+    
+    if (!is.null(shape)) {
+      df[,shape] <- factor(df[,shape, drop = TRUE])
+    }
+    if (!is.null(linetype)) {
+      df[,linetype] <- factor(df[,linetype, drop = TRUE])
+    }
+    if (!is.null(fill) &&
+        out.type %in% c("boxplot",
+                        "histogram")) {
+      df[,fill] <- factor(df[,fill, drop = TRUE])
+    }
+    
     list(df = df,
          format.date = format.date,
          out.type = out.type,
@@ -895,8 +914,18 @@ dygraph_comparison <- function(df,
              time <= time_range[2])
   }
   
-  
   this_variable <- attr(df, "var")
+  keep_attr <- attributes(df)
+  if (!is.null(attr(df, "models")) & !diffmodels) {
+    df <- pivot_wider(df, 
+                      values_from = this_variable,
+                      names_from = "models")  
+    for (this.attr in c("units", "longname", "var",
+                        "ndim", "dimname", "nvar", "models")) {
+      attr(df, this.attr) <- keep_attr[[this.attr]]
+    }
+    attr(df, "ndim") <- attr(df, "ndim") - 1
+  }
   this_ylab <- attr_legend(df)
   ndim <- attr(df,"ndim")
   set_hover <- TRUE
@@ -907,12 +936,11 @@ dygraph_comparison <- function(df,
   } else {
     stop("unsupported dimension number")
   }
-  
+
   this.main <- main.title
-  
   dygraph.list <- lapply(df.in, function(this.df){
     if (ndim == 1) {
-      this.xts <- xts(this.df[, -which(colnames(this.df) == "time")],
+      this.xts <- xts(select(this.df, -time),
                       order.by = this.df$time)
     } else {
       if (is.null(main.title)) {
@@ -925,7 +953,10 @@ dygraph_comparison <- function(df,
     if (diffmodels) {
       listmodels <- attr(df, "models")[1:2]
       attr(df, "models") <- NULL
-      this.main <-  paste0(this.main, " ; ",
+      if (!is.null(main.title)) {
+        this.main <-  paste0(this.main, " ; ")
+      }
+        this.main <-  paste0(this.main,
                            "Difference between ", listmodels[1],
                            " and ", listmodels[2])
     } 
