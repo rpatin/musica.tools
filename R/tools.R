@@ -287,12 +287,80 @@ filter_dim <- function(df, this.dim,
 ##' @export
 
 var_with_dim <- function(x, this.dim) {
-    out <- sapply(names(x$var), function(this.var) {
-      this.dim %in% get_variable(x, this.var, return.colnames = TRUE)
-    })
-    if (any(out)) {
-      return(names(out)[which(out)])
-    } else {
-      return(NULL)
-    }
+  out <- sapply(names(x$var), function(this.var) {
+    this.dim %in% get_variable(x, this.var, return.colnames = TRUE)
+  })
+  if (any(out)) {
+    return(names(out)[which(out)])
+  } else {
+    return(NULL)
+  }
+}
+
+
+# list_dim_allvar ---------------------------------------------------------
+##' @name list_dim_allvar
+##' @author Remi Lemaire-Patin
+##' 
+##' @title Filter a \code{data.frame} dimension
+##' 
+##' @description Extract a proper formatted legend from the attributes stored
+##' in a \code{data.frame} 
+##' 
+##' @param df a \code{data.frame}
+##' @param this.dim a \code{character}, the dimension to filter
+##' @param n.dim.level a \code{numeric}, the max. number of level to keep. If 
+##' \code{NULL}, no filtering occur
+##' 
+##' @return
+##' 
+##' A \code{data.frame}
+##' 
+##' @family Tools
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+##' @export
+
+list_dim_allvar <- function(x) {
+  sapply(names(x$var), function(this.var) {
+    get_variable(x, this.var, return.colnames = TRUE)
+  })
+}
+
+# var_with_same_dim ---------------------------------------------------------
+##' @name var_with_same_dim
+##' @author Remi Lemaire-Patin
+##' 
+##' @title Filter a \code{data.frame} dimension
+##' 
+##' @description Extract a proper formatted legend from the attributes stored
+##' in a \code{data.frame} 
+##' 
+##' @param df a \code{data.frame}
+##' @param this.dim a \code{character}, the dimension to filter
+##' @param n.dim.level a \code{numeric}, the max. number of level to keep. If 
+##' \code{NULL}, no filtering occur
+##' 
+##' @return
+##' 
+##' A \code{data.frame}
+##' 
+##' @family Tools
+##'   
+##' @examples
+##' library(ncdf4)
+##' 
+##' @export
+##' @importFrom foreach foreach `%do%`
+var_with_same_dim <- function(x, this.var) {
+  list.dim <- list_dim_allvar(x[[1]])
+  aimed.dim <- list.dim[[this.var]]
+  tmp <- sapply(list.dim, function(this.dim){
+    length(aimed.dim) == length(this.dim) &&
+      all(aimed.dim %in% this.dim)
+  })
+  list.names <- names(tmp)[tmp]
+  str_subset(list.names, this.var, negate = TRUE)
 }
