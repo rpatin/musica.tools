@@ -4,7 +4,7 @@
 \alias{get_two_variables}
 \title{Get two variable from a \code{ncdf4} object}
 \usage{
-get_two_variables(x, varnames, time_range)
+get_two_variables(x, varnames, time_range, ...)
 }
 \arguments{
 \item{x}{a \code{ncdf4} object}

@@ -31,7 +31,9 @@ Other Tools:
 \code{\link{get_dim_info}()},
 \code{\link{get_dim_value}()},
 \code{\link{lat_heat_vap}()},
-\code{\link{var_with_dim}()}
+\code{\link{list_dim_allvar}()},
+\code{\link{var_with_dim}()},
+\code{\link{var_with_same_dim}()}
 }
 \author{
 Remi Lemaire-Patin

@@ -6,7 +6,7 @@
 \usage{
 get_variable_comparison(
   x,
-  this_var,
+  varname,
   time_range = NULL,
   n.soil.level = NULL,
   list.soil.level = NULL,

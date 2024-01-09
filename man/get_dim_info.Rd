@@ -29,8 +29,10 @@ Other Tools:
 \code{\link{format_time}()},
 \code{\link{get_dim_value}()},
 \code{\link{lat_heat_vap}()},
+\code{\link{list_dim_allvar}()},
 \code{\link{mol2kg_water_ratio}()},
-\code{\link{var_with_dim}()}
+\code{\link{var_with_dim}()},
+\code{\link{var_with_same_dim}()}
 }
 \author{
 Remi Lemaire-Patin
