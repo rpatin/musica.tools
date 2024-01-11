@@ -552,32 +552,42 @@ musica_server <- function(x) {
     })
     
     ### available choices for tab2_type -------------------------------------------------
-    observeEvent({ 
-      input$tab2_var 
-    }, {
-      this.var.dim <- get_variable(x[[1]],
-                                   input$tab2_var,
-                                   return.colnames = TRUE)
-      current.selected <- input$tab2_type
-      choices <- c("standard",
-                   "daily_heatmap",
-                   "boxplot",
-                   "density",
-                   "histogram",
-                   "scatterplot_model",
-                   "scatterplot_var")
-      if (any(this.var.dim %in% c("nsoil","nveg","nair"))) {
-        choices <- c(choices, "heatmap")
-      }  else {
-        if (current.selected == "heatmap") {
-          current.selected <- "standard"
+    observeEvent(
+      priority = 1, 
+      { 
+        input$tab2_var 
+      }, {
+        this.var.dim <- get_variable(x[[1]],
+                                     input$tab2_var,
+                                     return.colnames = TRUE)
+        current.selected <- input$tab2_type
+        choices <- c("standard",
+                     "daily_heatmap",
+                     "boxplot",
+                     "density",
+                     "histogram",
+                     "scatterplot_model",
+                     "scatterplot_var")
+        if (any(this.var.dim %in% c("nsoil","nveg","nair"))) {
+          choices <- c("standard",
+                       "heatmap",
+                       "daily_heatmap",
+                       "boxplot",
+                       "density",
+                       "histogram",
+                       "scatterplot_model",
+                       "scatterplot_var")
+          
+        }  else {
+          if (current.selected == "heatmap") {
+            current.selected <- "standard"
+          }
         }
-      }
-      updateSelectInput(session = session,
-                        inputId = "tab2_type",
-                        choices = choices,
-                        selected = current.selected)
-    })
+        updateSelectInput(session = session,
+                          inputId = "tab2_type",
+                          choices = choices,
+                          selected = current.selected)
+      })
     
     ### Toggle diffmodels -----------------------------------------
     observeEvent({
@@ -613,7 +623,7 @@ musica_server <- function(x) {
       }
       default.dim <- avail.dim
       discrete.dim <- str_subset(avail.dim,
-                                 pattern = "nsoil|nair|nveg|models")
+                                 pattern = "nsoil|nair|nveg|models|nspecies|nleafage")
       
       #### x ------------------------------------------------------------------
       x.hide <- FALSE
@@ -657,15 +667,18 @@ musica_server <- function(x) {
       } else if (input$tab2_type %in% c("heatmap")) {
         heatmap.dim <- str_subset(avail.dim,
                                   pattern = "nsoil|nair|nveg")
-        y.choices <- ifelse(length(heatmap.dim) > 0,
-                            heatmap.dim,
-                            NULL)
-        if (is.null(input$tab2_y) || !(input$tab2_y %in% y.choices)) {
-          y <- ifelse(is.null(default.dim), NULL, first(default.dim))
+        if (length(heatmap.dim) > 0) {
+          y.choices <- heatmap.dim
+          if (is.null(input$tab2_y) || !(input$tab2_y %in% y.choices)) {
+            y <- ifelse(is.null(heatmap.dim), NULL, first(heatmap.dim))
+          } else {
+            y <- input$tab2_y
+          } 
+          default.dim <- str_subset(default.dim, y, negate = TRUE)
         } else {
-          y <- input$tab2_y
+          y <- y.choices <- NULL
         }
-        default.dim <- str_subset(default.dim, y, negate = TRUE)
+        
       } else if (input$tab2_type %in% c("daily_heatmap")) {
         y <- y.choices <- "Julian day"
       }
@@ -979,7 +992,6 @@ musica_server <- function(x) {
                                              input$tab2_datemin + 48*3600),
                               diffmodels = input$tab2_diffmodels)
         }
-        # if(input$tab2_diffmodels) stop(attr(df, "models"))
         df
       })
     
