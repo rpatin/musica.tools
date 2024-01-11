@@ -20,7 +20,8 @@ ggplot_variable(
   yrange = NULL,
   fillrange = NULL,
   bin2d = TRUE,
-  diffmodels = FALSE
+  diffmodels = FALSE,
+  nrow.facet = NULL
 )
 }
 \arguments{

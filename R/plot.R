@@ -39,7 +39,7 @@ ggplot_variable <- function(df,
                             out.type,
                             x, y, color, linetype, shape, fill, facet_formula,
                             xrange = NULL, yrange = NULL, fillrange = NULL,
-                            bin2d = TRUE, diffmodels = FALSE) {
+                            bin2d = TRUE, diffmodels = FALSE, nrow.facet = NULL) {
   # df <- list_value$relative_height
   args <- .check_ggplot_variable(df = df,
                                  time_range = time_range,
@@ -53,7 +53,8 @@ ggplot_variable <- function(df,
                                  xrange = xrange,
                                  yrange = yrange,
                                  fillrange = fillrange,
-                                 diffmodels = diffmodels)
+                                 diffmodels = diffmodels, 
+                                 nrow.facet = nrow.facet)
   for (argi in names(args)) { 
     assign(x = argi, value = args[[argi]]) 
   }
@@ -397,7 +398,7 @@ ggplot_variable <- function(df,
   if (!is.null(facet_formula)) {
     g <- 
       g +
-      facet_wrap(formula(facet_formula), nrow = 1)
+      facet_wrap(formula(facet_formula), nrow = nrow.facet)
   }
   
   if (!is.null(color) && color == "nspecies") {
@@ -423,7 +424,7 @@ ggplot_variable <- function(df,
            x, y,
            color, linetype, fill, shape, facet_formula,
            xrange, yrange, fillrange,
-           diffmodels) {
+           diffmodels, nrow.facet) {
     
     if (missing(out.type)) {
       out.type <- "standard"
@@ -679,11 +680,11 @@ ggplot_variable <- function(df,
     }
     # Remaining dimension
     
-    if (out.type %in% c("standard","heatmap", "daily_heatmap","histogram") &
-        length(potential_dim) > 0) {
-      stop("Remaining dimension needs to be handled appropriately: ", 
-           paste0(potential_dim, collapse = " ; "))
-    }  
+    # if (out.type %in% c("standard","heatmap", "daily_heatmap","histogram") &
+    #     length(potential_dim) > 0) {
+    #   stop("Remaining dimension needs to be handled appropriately: ", 
+    #        paste0(potential_dim, collapse = " ; "))
+    # }  
     
     if (any(is.na(xrange))) {
       xrange <- NULL
@@ -712,6 +713,12 @@ ggplot_variable <- function(df,
         out.type %in% c("boxplot",
                         "histogram")) {
       df[,fill] <- factor(df[,fill, drop = TRUE])
+    }
+    
+    if (is.null(nrow.facet)) {
+      if (out.type %in% c("heatmap", "daily_heatmap")) {
+        nrow.facet <- 1
+      }
     }
     
     list(df = df,
