@@ -24,7 +24,7 @@
 ##' selectizeInput conditionalPanel downloadButton textInput textAreaInput
 ##' numericInput column
 ##' @importFrom shinyjs useShinyjs hidden
-##' @importFrom shinyWidgets awesomeRadio
+##' @importFrom shinyWidgets awesomeRadio materialSwitch
 ##' @importFrom dygraphs dygraphOutput
 ##' @importFrom htmltools HTML tags hr
 ##' @export
@@ -49,30 +49,52 @@ musica_ui <- function(x) {
                                  value = get_6month(x)[1],
                                  timeFormat = "%F",
                                  step = 24*3600),  
-                     add_changedate_button(id = "tab1_datemin_month",
-                                           legend = "Month",
-                                           class = "myDateRow"),
-                     add_changedate_button(id = "tab1_datemin_week",
-                                           legend = "Week",
-                                           class = "myDateRow"),
-                     add_changedate_button(id = "tab1_datemin_day",
-                                           legend = "Day",
-                                           class = "myDateRow"),
+                     fluidRow(
+                       column(6,
+                              add_changedate_button(id = "tab1_datemin_year",
+                                                    legend = "Year",
+                                                    class = "myDateRow")),
+                       column(6,
+                              add_changedate_button(id = "tab1_datemin_month",
+                                                    legend = "Month",
+                                                    class = "myDateRow")),
+                     ),
+                     fluidRow(
+                       column(6,
+                              add_changedate_button(id = "tab1_datemin_week",
+                                                    legend = "Week",
+                                                    class = "myDateRow")),
+                       column(6,
+                              add_changedate_button(id = "tab1_datemin_day",
+                                                    legend = "Day",
+                                                    class = "myDateRow"))
+                     ),
                      sliderInput("tab1_datemax", label = "End Date",
                                  min = get_time_range(x)[1],
                                  max = get_time_range(x)[2],
                                  value = get_6month(x)[2],
                                  timeFormat = "%F",
                                  step = 24*3600),  
-                     add_changedate_button(id = "tab1_datemax_month",
-                                           legend = "Month",
-                                           class = "myDateRow"),
-                     add_changedate_button(id = "tab1_datemax_week",
-                                           legend = "Week",
-                                           class = "myDateRow"),
-                     add_changedate_button(id = "tab1_datemax_day",
-                                           legend = "Day",
-                                           class = "myDateRow"),
+                     fluidRow(
+                       column(6,
+                              add_changedate_button(id = "tab1_datemax_year",
+                                                    legend = "Year",
+                                                    class = "myDateRow")),
+                       column(6,
+                              add_changedate_button(id = "tab1_datemax_month",
+                                                    legend = "Month",
+                                                    class = "myDateRow")),
+                     ),
+                     fluidRow(
+                       column(6,
+                              add_changedate_button(id = "tab1_datemax_week",
+                                                    legend = "Week",
+                                                    class = "myDateRow")),
+                       column(6,
+                              add_changedate_button(id = "tab1_datemax_day",
+                                                    legend = "Day",
+                                                    class = "myDateRow"))
+                     ),
                      ### Refresh ----------------------------------------
                      hr(), 
                      actionButton("tab1_UpdateView", icon("refresh")),
@@ -86,9 +108,15 @@ musica_ui <- function(x) {
                      fluidRow(
                        column(8,
                               selectInput("tab1_var1", label = "1st Variable",
-                                          choices = var_with_dim(x[[1]],"time"),
+                                          choices = sort(var_with_dim(x[[1]],"time")),
                                           selected = "Qle")),
                        column(4,
+                              materialSwitch(
+                                inputId = "tab1_plotvar1",
+                                label = NULL, 
+                                status = "primary",
+                                value = TRUE
+                              ),
                               hidden(
                                 div(id = "tab1_diffmodels1",
                                     checkboxInput("tab1_diffmodels1", 
@@ -103,9 +131,15 @@ musica_ui <- function(x) {
                      fluidRow(
                        column(8,
                               selectInput("tab1_var2", label = "2nd Variable",
-                                          choices = var_with_dim(x[[1]],"time"),
+                                          choices = sort(var_with_dim(x[[1]],"time")),
                                           selected = "Qh")),
                        column(4,
+                              materialSwitch(
+                                inputId = "tab1_plotvar2",
+                                label = NULL, 
+                                status = "primary",
+                                value = FALSE
+                              ),
                               hidden(
                                 div(id = "tab1_diffmodels2",
                                     checkboxInput("tab1_diffmodels2", 
@@ -120,9 +154,15 @@ musica_ui <- function(x) {
                      fluidRow(
                        column(8,
                               selectInput("tab1_var3", label = "3rd Variable",
-                                          choices = var_with_dim(x[[1]],"time"),
+                                          choices = sort(var_with_dim(x[[1]],"time")),
                                           selected = "Qg")),
                        column(4,
+                              materialSwitch(
+                                inputId = "tab1_plotvar3",
+                                label = NULL, 
+                                value = FALSE,
+                                status = "primary"
+                              ),
                               hidden(
                                 div(id = "tab1_diffmodels3",
                                     checkboxInput("tab1_diffmodels3", 
@@ -160,18 +200,31 @@ musica_ui <- function(x) {
                           timeFormat = "%F %T",
                           step = 24*3600,
                           round = 4),
-              add_changedate_button(id = "tab2_datemin_month",
-                                    legend = "Month",
-                                    class = "myDateRow"),
-              add_changedate_button(id = "tab2_datemin_week",
-                                    legend = "Week",
-                                    class = "myDateRow"),
-              add_changedate_button(id = "tab2_datemin_day",
-                                    legend = "Day",
-                                    class = "myDateRow"),
-              add_changedate_button(id = "tab2_timemin",
-                                    legend = "Time step",
-                                    class = "myDateRow"),
+              fluidRow(
+                column(4,
+                       add_changedate_button(id = "tab2_datemin_year",
+                                             legend = "Year",
+                                             class = "myDateRow")),
+                column(4,
+                       add_changedate_button(id = "tab2_datemin_month",
+                                             legend = "Month",
+                                             class = "myDateRow")),
+                column(4)
+              ),
+              fluidRow(
+                column(4,
+                       add_changedate_button(id = "tab2_datemin_week",
+                                             legend = "Week",
+                                             class = "myDateRow")),
+                column(4,
+                       add_changedate_button(id = "tab2_datemin_day",
+                                             legend = "Day",
+                                             class = "myDateRow")),
+                column(4,
+                       add_changedate_button(id = "tab2_timemin",
+                                             legend = "Time step",
+                                             class = "myDateRow"))
+              ),
               sliderInput("tab2_datemax", label = "End Date",
                           min = get_time_range(x)[1],
                           max = get_time_range(x)[2],
@@ -179,20 +232,33 @@ musica_ui <- function(x) {
                           timeFormat = "%F %T",
                           step = 24*3600,
                           round = 4) ,
-              add_changedate_button(id = "tab2_datemax_month",
-                                    legend = "Month",
-                                    class = "myDateRow"),
-              add_changedate_button(id = "tab2_datemax_week",
-                                    legend = "Week",
-                                    class = "myDateRow"),
-              add_changedate_button(id = "tab2_datemax_day",
-                                    legend = "Day",
-                                    class = "myDateRow"),
-              add_changedate_button(id = "tab2_timemax",
-                                    legend = "Time step",
-                                    class = "myDateRow"),
-              
-              ## Update View & tab2_type-----------------------------------------------
+              fluidRow(
+                column(4,
+                       add_changedate_button(id = "tab2_datemax_year",
+                                             legend = "Year",
+                                             class = "myDateRow")),
+                column(4,
+                       add_changedate_button(id = "tab2_datemax_month",
+                                             legend = "Month",
+                                             class = "myDateRow")
+                ),
+                column(4)
+              ),
+              fluidRow(
+                column(4,
+                       add_changedate_button(id = "tab2_datemax_week",
+                                             legend = "Week",
+                                             class = "myDateRow")),
+                column(4,
+                       add_changedate_button(id = "tab2_datemax_day",
+                                             legend = "Day",
+                                             class = "myDateRow")),
+                column(4,
+                       add_changedate_button(id = "tab2_timemax",
+                                             legend = "Time step",
+                                             class = "myDateRow"))
+              ),
+              ## Update View & tab2_type -------------------------------------
               hr(), 
               fluidRow(
                 column(6,
@@ -233,7 +299,7 @@ musica_ui <- function(x) {
                                                label = "Difference",
                                                value = FALSE)))
                     ))),
-              ## variable --------------------------------------------
+              ## models 2 --------------------------------------------
               hidden(
                 div(id = "tab2_selected_output2",
                     fluidRow(
@@ -252,7 +318,7 @@ musica_ui <- function(x) {
               fluidRow(
                 column(6, 
                        selectInput("tab2_var", label = "Variable",
-                                   choices = var_with_dim(x[[1]],"time"),
+                                   choices = sort(var_with_dim(x[[1]],"time")),
                                    selected = "Qg")),
                 column(6,
                        hidden(
@@ -279,10 +345,18 @@ musica_ui <- function(x) {
               get_range_input("tab2","y"),
               get_range_input("tab2","fill"),
               # end subset options
-              selectInput("tab2_facet", label = "facet",
-                          choices = NULL,
-                          multiple = TRUE,
-                          selected = NULL),
+              div(id = "tab2_facet", 
+                  fluidRow(
+                    column(8,
+                           selectInput("tab2_facet", label = "facet",
+                                       choices = NULL,
+                                       multiple = TRUE,
+                                       selected = NULL)),
+                    column(4,
+                           numericInput("tab2_nrow_facet", 
+                                        label = "rows",
+                                        value = 1)
+                    ))),
               hidden(div(
                 id = "tab2_x",
                 selectizeInput("tab2_x", label = "x",

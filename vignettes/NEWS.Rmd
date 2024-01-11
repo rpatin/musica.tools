@@ -12,6 +12,11 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.0.9
+  * Added options to deactivate each dygraph
+  * Added option to adjust number of facet rows
+  * Added option to add year to the timeframe
+  
 ### 0.0.8
   * Revamped shiny app to be more flexible with the static graphics tab
 

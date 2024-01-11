@@ -43,8 +43,20 @@ musica_server <- function(x) {
     
     ### time Tab1 ------------------------------------------------------------
     
-    #### datemin Tab1 ------------------------------------------------------------
+    #### datemin Tab1 --------------------------------------------------------
     
+    ##### year --------------------------------------------------------#
+    observeEvent(input$tab1_datemin_year_left, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin - 24*3600*365,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_datemin_year_right, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin + 24*3600*365,
+                        timeFormat = "%F")
+    })   
+    ##### month --------------------------------------------------------#
     observeEvent(input$tab1_datemin_month_left, {
       updateSliderInput(session, "tab1_datemin", 
                         value = input$tab1_datemin - 24*3600*30,
@@ -54,7 +66,8 @@ musica_server <- function(x) {
       updateSliderInput(session, "tab1_datemin", 
                         value = input$tab1_datemin + 24*3600*30,
                         timeFormat = "%F")
-    })    
+    })   
+    ##### week -------------------------------------------------------#
     observeEvent(input$tab1_datemin_week_left, {
       updateSliderInput(session, "tab1_datemin", 
                         value = input$tab1_datemin - 24*3600*7,
@@ -65,6 +78,7 @@ musica_server <- function(x) {
                         value = input$tab1_datemin + 24*3600*7,
                         timeFormat = "%F")
     })    
+    ##### day --------------------------------------------------------#
     observeEvent(input$tab1_datemin_day_left, {
       updateSliderInput(session, "tab1_datemin", 
                         value = input$tab1_datemin - 24*3600,
@@ -75,14 +89,26 @@ musica_server <- function(x) {
                         value = input$tab1_datemin + 24*3600,
                         timeFormat = "%F")
     })    
+    ##### tab2_datemin --------------------------------------------------------#
     observeEvent(input$tab1_datemin, {
       updateSliderInput(session, "tab2_datemin",
                         value = input$tab1_datemin)
     })
     
     
-    #### datemax Tab1 ------------------------------------------------------------
-    
+    #### datemax Tab1 ---------------------------------------------------------
+    ##### year --------------------------------------------------------#
+    observeEvent(input$tab1_datemax_year_left, {
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax - 24*3600*365,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_datemax_year_right, {
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax + 24*3600*365,
+                        timeFormat = "%F")
+    })    
+    ##### month --------------------------------------------------------#
     observeEvent(input$tab1_datemax_month_left, {
       updateSliderInput(session, "tab1_datemax", 
                         value = input$tab1_datemax - 24*3600*30,
@@ -93,6 +119,7 @@ musica_server <- function(x) {
                         value = input$tab1_datemax + 24*3600*30,
                         timeFormat = "%F")
     })    
+    ##### week --------------------------------------------------------#
     observeEvent(input$tab1_datemax_week_left, {
       updateSliderInput(session, "tab1_datemax", 
                         value = input$tab1_datemax - 24*3600*7,
@@ -103,6 +130,7 @@ musica_server <- function(x) {
                         value = input$tab1_datemax + 24*3600*7,
                         timeFormat = "%F")
     })    
+    ##### day --------------------------------------------------------#
     observeEvent(input$tab1_datemax_day_left, {
       updateSliderInput(session, "tab1_datemax", 
                         value = input$tab1_datemax - 24*3600,
@@ -113,6 +141,7 @@ musica_server <- function(x) {
                         value = input$tab1_datemax + 24*3600,
                         timeFormat = "%F")
     })    
+    ##### tab2_datemax --------------------------------------------------------#
     observeEvent(input$tab1_datemax, {
       updateSliderInput(session, "tab2_datemax",
                         value = input$tab1_datemax)
@@ -192,38 +221,59 @@ musica_server <- function(x) {
     
     ### tab1_df1 ---------------------------------------------------
     
-    tab1_df1 <- eventReactive(input$tab1_UpdateView, {
-      get_variable_comparison(x = x[input$tab1_selected_output],
-                              varname = input$tab1_var1,
-                              time_range = c(input$tab1_datemin, input$tab1_datemax),
-                              list.soil.level = input$tab1_nsoil1,
-                              list.air.level = input$tab1_nair1,
-                              list.species.level = input$tab1_nspecies1,
-                              list.veg.level = input$tab1_nveg1,
-                              list.leafage.level = input$tab1_nleafage1,
-                              diffmodels = input$tab1_diffmodels1) 
+    tab1_df1 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if(input$tab1_plotvar1) {
+        return(
+          get_variable_comparison(x = x[input$tab1_selected_output],
+                                  varname = input$tab1_var1,
+                                  time_range = c(input$tab1_datemin, input$tab1_datemax),
+                                  list.soil.level = input$tab1_nsoil1,
+                                  list.air.level = input$tab1_nair1,
+                                  list.species.level = input$tab1_nspecies1,
+                                  list.veg.level = input$tab1_nveg1,
+                                  list.leafage.level = input$tab1_nleafage1,
+                                  diffmodels = input$tab1_diffmodels1))
+      } else {
+        return(NULL)
+      }
     })
     ### tab1_df2 ---------------------------------------------------
-    tab1_df2 <- eventReactive(input$tab1_UpdateView, {
-      get_variable_comparison(x[input$tab1_selected_output],input$tab1_var2,
-                              time_range = c(input$tab1_datemin, input$tab1_datemax),
-                              list.soil.level = input$tab1_nsoil2,
-                              list.air.level = input$tab1_nair2,
-                              list.species.level = input$tab1_nspecies2,
-                              list.veg.level = input$tab1_nveg2,
-                              list.leafage.level = input$tab1_nleafage2,
-                              diffmodels = input$tab1_diffmodels2)
+    tab1_df2 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if(input$tab1_plotvar2) {
+        return(
+          get_variable_comparison(x[input$tab1_selected_output],input$tab1_var2,
+                                  time_range = c(input$tab1_datemin, input$tab1_datemax),
+                                  list.soil.level = input$tab1_nsoil2,
+                                  list.air.level = input$tab1_nair2,
+                                  list.species.level = input$tab1_nspecies2,
+                                  list.veg.level = input$tab1_nveg2,
+                                  list.leafage.level = input$tab1_nleafage2,
+                                  diffmodels = input$tab1_diffmodels2))
+      } else {
+        return(NULL)
+      }
     })
     ### tab1_df3 ---------------------------------------------------
-    tab1_df3 <- eventReactive(input$tab1_UpdateView, {
-      get_variable_comparison(x[input$tab1_selected_output],input$tab1_var3,
-                              time_range = c(input$tab1_datemin, input$tab1_datemax),
-                              list.soil.level = input$tab1_nsoil3,
-                              list.air.level = input$tab1_nair3,
-                              list.species.level = input$tab1_nspecies3,
-                              list.veg.level = input$tab1_nveg3,
-                              list.leafage.level = input$tab1_nleafage3,
-                              diffmodels = input$tab1_diffmodels3)
+    tab1_df3 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if(input$tab1_plotvar3) {
+        return(
+          get_variable_comparison(x[input$tab1_selected_output],input$tab1_var3,
+                                  time_range = c(input$tab1_datemin, input$tab1_datemax),
+                                  list.soil.level = input$tab1_nsoil3,
+                                  list.air.level = input$tab1_nair3,
+                                  list.species.level = input$tab1_nspecies3,
+                                  list.veg.level = input$tab1_nveg3,
+                                  list.leafage.level = input$tab1_nleafage3,
+                                  diffmodels = input$tab1_diffmodels3))
+      } else {
+        return(NULL)
+      }
     })
     
     
@@ -231,29 +281,53 @@ musica_server <- function(x) {
     
     
     ### tab1_dygraph1 -------------------------------------------------------
-    output$tab1_dygraph1 <- renderDygraph({
-      dygraph_comparison(tab1_df1(),
-                         main.title = tab1_main.title1(),
-                         pixwidth = 600, 
-                         pixheight = 40,
-                         diffmodels = input$tab1_diffmodels1)
+    tab1_dygraph1 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if (input$tab1_plotvar1) {
+        return(
+          dygraph_comparison(tab1_df1(),
+                             main.title = tab1_main.title1(),
+                             pixwidth = 600, 
+                             pixheight = 40,
+                             diffmodels = input$tab1_diffmodels1))
+      } else {
+        return(NULL)
+      }
     })
+    output$tab1_dygraph1 <- renderDygraph({tab1_dygraph1()})
     ### tab1_dygraph2 -------------------------------------------------------
-    output$tab1_dygraph2 <- renderDygraph({
-      dygraph_comparison(tab1_df2(),
-                         main.title = tab1_main.title2(),
-                         pixwidth = 600, 
-                         pixheight = 40,
-                         diffmodels = input$tab1_diffmodels2)
+    tab1_dygraph2 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if (input$tab1_plotvar2) {
+        return(
+          dygraph_comparison(tab1_df2(),
+                             main.title = tab1_main.title2(),
+                             pixwidth = 600, 
+                             pixheight = 40,
+                             diffmodels = input$tab1_diffmodels2))
+      } else {
+        return(NULL)
+      }
     })
+    output$tab1_dygraph2 <- renderDygraph(tab1_dygraph2())
     ### tab1_dygraph3 -------------------------------------------------------
-    output$tab1_dygraph3 <- renderDygraph({
-      dygraph_comparison(tab1_df3(),
-                         main.title = tab1_main.title3(),
-                         pixwidth = 600, 
-                         pixheight = 40,
-                         diffmodels = input$tab1_diffmodels3)
+    tab1_dygraph3 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if (input$tab1_plotvar3) {
+        return(
+          dygraph_comparison(tab1_df3(),
+                             main.title = tab1_main.title3(),
+                             pixwidth = 600, 
+                             pixheight = 40,
+                             diffmodels = input$tab1_diffmodels3))
+      } else {
+        return(NULL)
+      }
     })
+    output$tab1_dygraph3 <- renderDygraph(tab1_dygraph3())
     
     # Tab 2 ---------------------------------------------------------------
     ## input Tab2 ------------------------------------------------------------
@@ -262,6 +336,16 @@ musica_server <- function(x) {
     
     #### datemin Tab2 ------------------------------------------------------
     
+    ##### year ---------------------------------------------------------------#
+    observeEvent(input$tab2_datemin_year_left, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin - 365*24*3600)
+    })
+    observeEvent(input$tab2_datemin_year_right, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin + 365*24*3600)
+    })
+    ##### month ---------------------------------------------------------------#
     observeEvent(input$tab2_datemin_month_left, {
       updateSliderInput(session, "tab2_datemin",
                         value = input$tab2_datemin - 30*24*3600)
@@ -270,6 +354,7 @@ musica_server <- function(x) {
       updateSliderInput(session, "tab2_datemin",
                         value = input$tab2_datemin + 30*24*3600)
     })
+    ##### week ---------------------------------------------------------------#
     observeEvent(input$tab2_datemin_week_left, {
       updateSliderInput(session, "tab2_datemin",
                         value = input$tab2_datemin - 7*24*3600)
@@ -278,6 +363,7 @@ musica_server <- function(x) {
       updateSliderInput(session, "tab2_datemin",
                         value = input$tab2_datemin + 7*24*3600)
     })
+    ##### day ---------------------------------------------------------------#
     observeEvent(input$tab2_datemin_day_left, {
       updateSliderInput(session, "tab2_datemin",
                         value = input$tab2_datemin - 24*3600)
@@ -286,7 +372,7 @@ musica_server <- function(x) {
       updateSliderInput(session, "tab2_datemin",
                         value = input$tab2_datemin + 24*3600)
     })
-    
+    ##### time ---------------------------------------------------------------#
     observeEvent(input$tab2_timemin_left, {
       updateSliderInput(session, "tab2_datemin", 
                         value = input$tab2_datemin - 1800)
@@ -298,6 +384,16 @@ musica_server <- function(x) {
     
     #### datemax Tab2 ------------------------------------------------------
     
+    ##### year ---------------------------------------------------------------#
+    observeEvent(input$tab2_datemax_year_left, {
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax - 365*24*3600)
+    })
+    observeEvent(input$tab2_datemax_year_right, {
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax + 365*24*3600)
+    })    
+    ##### month ---------------------------------------------------------------#
     observeEvent(input$tab2_datemax_month_left, {
       updateSliderInput(session, "tab2_datemax",
                         value = input$tab2_datemax - 30*24*3600)
@@ -306,6 +402,7 @@ musica_server <- function(x) {
       updateSliderInput(session, "tab2_datemax",
                         value = input$tab2_datemax + 30*24*3600)
     })
+    ##### week ---------------------------------------------------------------#
     observeEvent(input$tab2_datemax_week_left, {
       updateSliderInput(session, "tab2_datemax",
                         value = input$tab2_datemax - 7*24*3600)
@@ -314,6 +411,7 @@ musica_server <- function(x) {
       updateSliderInput(session, "tab2_datemax",
                         value = input$tab2_datemax + 7*24*3600)
     })
+    ##### day ---------------------------------------------------------------#
     observeEvent(input$tab2_datemax_day_left, {
       updateSliderInput(session, "tab2_datemax",
                         value = input$tab2_datemax - 24*3600)
@@ -322,7 +420,7 @@ musica_server <- function(x) {
       updateSliderInput(session, "tab2_datemax",
                         value = input$tab2_datemax + 24*3600)
     })
-    
+    ##### time ---------------------------------------------------------------#
     observeEvent(input$tab2_timemax_left, {
       updateSliderInput(session, "tab2_datemax", 
                         value = input$tab2_datemax - 1800)
@@ -402,7 +500,7 @@ musica_server <- function(x) {
         input$tab2_var
       }, {
         if (input$tab2_type %in% c("scatterplot_var")) {
-          avail.var <- var_with_same_dim(x, input$tab2_var)
+          avail.var <- sort(var_with_same_dim(x, input$tab2_var))
           updateSelectizeInput(session, "tab2_var2",
                                choices = avail.var)
           if (!(input$tab2_var2 %in% avail.var)) {
@@ -496,7 +594,7 @@ musica_server <- function(x) {
       }
     })
     
-
+    
     ### x, y, colors, linetype, shape, fill ------------------------------------
     
     
@@ -657,21 +755,21 @@ musica_server <- function(x) {
                                  "scatterplot_model") &
           input$tab2_scatterplot_points & 
           length(discrete.dim) > 0) {
-          shape.choices <- discrete.dim
-          default.dim.shape <- str_subset(default.dim,
-                                          paste0(shape.choices, 
-                                                 collapse = "|"))
-          if (length(default.dim.shape) > 0) {
-            if (is.null(input$tab2_shape) || 
-                !(input$tab2_shape %in% shape.choices)) {
-              shape <- first(default.dim.shape)
-            } else {
-              shape <- input$tab2_shape
-            }
-            default.dim <- str_subset(default.dim, shape, negate = TRUE)
+        shape.choices <- discrete.dim
+        default.dim.shape <- str_subset(default.dim,
+                                        paste0(shape.choices, 
+                                               collapse = "|"))
+        if (length(default.dim.shape) > 0) {
+          if (is.null(input$tab2_shape) || 
+              !(input$tab2_shape %in% shape.choices)) {
+            shape <- first(default.dim.shape)
           } else {
-            shape <- NULL
+            shape <- input$tab2_shape
           }
+          default.dim <- str_subset(default.dim, shape, negate = TRUE)
+        } else {
+          shape <- NULL
+        }
       } else {
         shape.hide <- TRUE
         shape <- shape.choices <- NULL
@@ -910,7 +1008,8 @@ musica_server <- function(x) {
                       yrange = c(input$tab2_ymin, input$tab2_ymax),
                       fillrange = c(input$tab2_fillmin, input$tab2_fillmax),
                       diffmodels = input$tab2_diffmodels,
-                      bin2d = !input$tab2_scatterplot_points)
+                      bin2d = !input$tab2_scatterplot_points,
+                      nrow.facet = input$tab2_nrow_facet)
     })
     output$tab2_plot <- 
       renderPlot(tab2_plot())
