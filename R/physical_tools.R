@@ -69,8 +69,8 @@ lat_heat_vap <- function(tk_air) {
 ##' 
 
 mol2kg_water_ratio <- function(wair) {
-  mol_weight_air = 28.966e-03
-  mol_weight_h2o = 18.016e-03
+  mol_weight_air <- 28.966e-03
+  mol_weight_h2o <- 18.016e-03
   wair*mol_weight_h2o/mol_weight_air
 }
 
@@ -103,9 +103,9 @@ mol2kg_water_ratio <- function(wair) {
 ##' 
 
 e_air <- function(q_air, pressure) {
-  mol_weight_air = 28.966e-03
-  mol_weight_h2o = 18.016e-03
-  c0 = mol_weight_h2o/mol_weight_air
+  mol_weight_air <-  28.966e-03
+  mol_weight_h2o <-  18.016e-03
+  c0 <- mol_weight_h2o/mol_weight_air
   pressure * q_air/(c0)
 }
 
@@ -149,4 +149,44 @@ e_air_sat <- function(tk_air) {
   tp_00 <-  273.15
   diff_tk <-  tk_air - tp_00
   eta + (alfa + (beta + (psi + mu*diff_tk)*diff_tk)*diff_tk)*diff_tk
+}
+
+
+# convert.units ---------------------------------------------
+# from e_air_sat in mo_musica_utils.f90
+##' @name e_air_sat
+##' @author Remi Lemaire-Patin
+##' 
+##' @title Computes saturated air water vapour pressure (Pa)
+##'
+##' @description This function computes saturated air water vapour pressure (Pa)
+##'   from air temperature (K). This empirical formula is accurate at 0.1%
+##'   between -25 degC and +35 degC The main advantage is that it it is
+##'   invertible.
+##' 
+##' 
+##' @param tk_air a \code{numeric}, temperature in Kelvin
+##' 
+##' @return
+##' 
+##' A \code{numeric}
+##' 
+##' @family Tools
+##' 
+##'   
+##' @examples
+##' mol2kg_water_ratio(0.03)
+##' 
+##' @export
+##' 
+##' 
+
+convert.units <- function(values, from, to, dt = NULL) {
+  if (from == "mmol/m2/dt" &
+      to == "kg/m2/s") {
+    stopifnot(!is.null(dt))
+    mol_weight_h2o = 18.016e-03 #kg/mol
+    values <- values/dt*1e-3*mol_weight_h2o
+  }
+  return(values)
 }

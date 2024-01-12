@@ -29,6 +29,7 @@
 ##' library(ncdf4)
 ##' 
 ##' @importFrom dplyr filter rename
+##' @importFrom ncdf4 ncvar_get
 ##' @export
 ##' 
 ##' 
@@ -74,8 +75,10 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
       "n_veg_layer" = "nveg",
       "n_species_max" = "nspecies",
       "n_leaf_age" = "nleafage")
+  dev_jerome <- FALSE
   for (this.old in names(old_conversion)) {
     if (any(colnames(df) == this.old)) {
+      dev_jerome <- TRUE
       df <- 
         rename(df, !!sym(old_conversion[this.old]) := sym(this.old))
     }
@@ -87,6 +90,21 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   attr(df, "dimname") <- unlist(list_dimname)
   attr(df, "nvar") <- 1
   attr(df, "models") <- NULL
+  
+  if (dev_jerome) {
+    if (varname == "root_uptake") {
+      # conversion from mmol/m2/dt to kg/m2/s
+      time_value <- get_dim_value(x, "n_time")
+      dt <- 
+        difftime(time_value[2], time_value[1], units = "secs") %>% 
+        as.numeric()
+      df$root_uptake <- convert.units(df$root_uptake, 
+                                      from = "mmol/m2/dt", 
+                                      to = "kg/m2/s",
+                                      dt = dt)
+      attr(df, "units") <- "kg/m2/s"
+    }
+  }
   
   if ("nsoil" %in% list_dimname & 
       !(varname %in% c("z_soil", "dz_soil"))) {
