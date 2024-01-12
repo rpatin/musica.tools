@@ -43,6 +43,27 @@ musica_ui <- function(x) {
                    sidebarPanel(
                      ## Input ----------------------------------------------
                      ### time range ----------------------------------------------
+                     HTML("<b>Time Window</b>"),
+                     fluidRow(
+                       column(6,
+                              add_changedate_button(id = "tab1_window_year",
+                                                    legend = "Year",
+                                                    class = "myDateRow")),
+                       column(6,
+                              add_changedate_button(id = "tab1_window_month",
+                                                    legend = "Month",
+                                                    class = "myDateRow")),
+                     ),
+                     fluidRow(
+                       column(6,
+                              add_changedate_button(id = "tab1_window_week",
+                                                    legend = "Week",
+                                                    class = "myDateRow")),
+                       column(6,
+                              add_changedate_button(id = "tab1_window_day",
+                                                    legend = "Day",
+                                                    class = "myDateRow"))
+                     ),
                      sliderInput("tab1_datemin", label = "Start Date",
                                  min = get_time_range(x)[1],
                                  max = get_time_range(x)[2],
@@ -193,6 +214,29 @@ musica_ui <- function(x) {
             sidebarPanel(
               ## Input --------------------------------------------------
               ## time range --------------------------------------------
+              HTML("<b>Time Window</b>"),
+              fluidRow(
+                column(4,
+                       add_changedate_button(id = "tab2_window_year",
+                                             legend = "Year",
+                                             class = "myDateRow")),
+                column(4,
+                       add_changedate_button(id = "tab2_window_month",
+                                             legend = "Month",
+                                             class = "myDateRow")),
+                column(4)
+              ),
+              fluidRow(
+                column(4,
+                       add_changedate_button(id = "tab2_window_week",
+                                             legend = "Week",
+                                             class = "myDateRow")),
+                column(4,
+                       add_changedate_button(id = "tab2_window_day",
+                                             legend = "Day",
+                                             class = "myDateRow")),
+                column(4)
+              ),
               sliderInput("tab2_datemin", label = "Start Date",
                           min = get_time_range(x)[1],
                           max = get_time_range(x)[2],

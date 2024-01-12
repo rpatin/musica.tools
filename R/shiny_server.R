@@ -43,6 +43,77 @@ musica_server <- function(x) {
     
     ### time Tab1 ------------------------------------------------------------
     
+    #### date window Tab1 ----------------------------------------------------
+    
+    ##### year --------------------------------------------------------#
+    observeEvent(input$tab1_window_year_left, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin - 24*3600*365,
+                        timeFormat = "%F")
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax - 24*3600*365,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_window_year_right, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin + 24*3600*365,
+                        timeFormat = "%F")
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax + 24*3600*365,
+                        timeFormat = "%F")
+    })   
+    ##### month --------------------------------------------------------#
+    observeEvent(input$tab1_window_month_left, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin - 24*3600*30,
+                        timeFormat = "%F")
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax - 24*3600*30,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_window_month_right, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin + 24*3600*30,
+                        timeFormat = "%F")
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax + 24*3600*30,
+                        timeFormat = "%F")
+    })   
+    ##### week -------------------------------------------------------#
+    observeEvent(input$tab1_window_week_left, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin - 24*3600*7,
+                        timeFormat = "%F")
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax - 24*3600*7,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_window_week_right, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin + 24*3600*7,
+                        timeFormat = "%F")
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax + 24*3600*7,
+                        timeFormat = "%F")
+    })    
+    ##### day --------------------------------------------------------#
+    observeEvent(input$tab1_window_day_left, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin - 24*3600,
+                        timeFormat = "%F")
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax - 24*3600,
+                        timeFormat = "%F")
+    })
+    observeEvent(input$tab1_window_day_right, {
+      updateSliderInput(session, "tab1_datemin", 
+                        value = input$tab1_datemin + 24*3600,
+                        timeFormat = "%F")
+      updateSliderInput(session, "tab1_datemax", 
+                        value = input$tab1_datemax + 24*3600,
+                        timeFormat = "%F")
+    })   
+    
     #### datemin Tab1 --------------------------------------------------------
     
     ##### year --------------------------------------------------------#
@@ -333,6 +404,61 @@ musica_server <- function(x) {
     ## input Tab2 ------------------------------------------------------------
     
     ### DateTime Tab2 ------------------------------------------------------
+    
+    #### Date window Tab2 ------------------------------------------------------
+    
+    ##### year ---------------------------------------------------------------#
+    observeEvent(input$tab2_window_year_left, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin - 365*24*3600)
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax - 365*24*3600)
+    })
+    observeEvent(input$tab2_window_year_right, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin + 365*24*3600)
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax + 365*24*3600)
+    })
+    ##### month ---------------------------------------------------------------#
+    observeEvent(input$tab2_window_month_left, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin - 30*24*3600)
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax - 30*24*3600)
+    })
+    observeEvent(input$tab2_window_month_right, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin + 30*24*3600)
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax + 30*24*3600)
+    })
+    ##### week ---------------------------------------------------------------#
+    observeEvent(input$tab2_window_week_left, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin - 7*24*3600)
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax - 7*24*3600)
+    })
+    observeEvent(input$tab2_window_week_right, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin + 7*24*3600)
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax + 7*24*3600)
+    })
+    ##### day ---------------------------------------------------------------#
+    observeEvent(input$tab2_window_day_left, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin - 24*3600)
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax - 24*3600)
+    })
+    observeEvent(input$tab2_window_day_right, {
+      updateSliderInput(session, "tab2_datemin",
+                        value = input$tab2_datemin + 24*3600)
+      updateSliderInput(session, "tab2_datemax",
+                        value = input$tab2_datemax + 24*3600)
+    })
     
     #### datemin Tab2 ------------------------------------------------------
     
