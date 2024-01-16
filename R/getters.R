@@ -205,11 +205,15 @@ varname must be among ", paste0(names(x$var), collapes = " ; "))
 ##' 
 
 get_two_variables <- function(x, varnames, time_range, ...) {
-  time_range <- .check_get_two_variables(
+  args <- .check_get_two_variables(
     x = x,
     varnames = varnames,
     time_range = time_range
   )
+  for (argi in names(args)) { 
+    assign(x = argi, value = args[[argi]]) 
+  }
+  rm(args)
   df1 <- get_variable_comparison(x, varnames[1], time_range, ...)
   df2 <- get_variable_comparison(x, varnames[2], time_range, ...)
   df <- full_join(df1, df2)
@@ -226,13 +230,24 @@ get_two_variables <- function(x, varnames, time_range, ...) {
   attr(df, "models") <- attr(df1, "models")
   attr(df, "dimname") <- attr(df1, "dimname")
   attr(df, "ndim") <- attr(df1, "ndim")
+  if (remove_model_col) {
+    df$models <- NULL
+    attr(df, "models") <- NULL
+  }
   df
 }
 
 .check_get_two_variables <- function(x, varnames, time_range) {
-  if (!all(sapply(x, function(xx) {inherits(xx,"ncdf4")}))) {
-    stop("x must be a list of ncdf4 object")
+  
+  remove_model_col <- FALSE
+  if (inherits(x, "ncdf4")) {
+    x <- list(x)
+    names(x) <- "single model"
+    remove_model_col <- TRUE
+  } else if (!all(sapply(x, function(xx) {inherits(xx,"ncdf4")}))) {
+    stop("x must be a ncdf4 or a list of ncdf4 object")
   }
+  
   if ( length(varnames) != 2) {
     stop("varnames must be of length 2")
   }
@@ -255,7 +270,12 @@ get_two_variables <- function(x, varnames, time_range, ...) {
          varnames[1], ": ", paste0(unlist(list_dimname1), collapse = " ; "), "\n",
          varnames[2], ": ", paste0(unlist(list_dimname2), collapse = " ; "))
   }
-  time_range
+  list(
+    "x" = x,
+    "varnames" = varnames,
+    "time_range" = time_range,
+    "remove_model_col" = remove_model_col
+  )
 }
 
 # get_all_var ---------------------------------------------------------
