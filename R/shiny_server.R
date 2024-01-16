@@ -2,21 +2,23 @@
 ##' @name musica_server
 ##' @author Remi Lemaire-Patin
 ##' 
-##' @title plot for a single variable
+##' @title Shiny server for \code{\link{shinymusica}}
 ##' 
-##' @description This function plot the output of \code{\link{get_variable}}
+##' @description This function generates a shiny server for \code{\link{shinymusica}}
 ##' 
-##' 
-##' @param df a \code{data.frame} object
+##' @inheritParams shinymusica
 ##' 
 ##' @return
 ##' 
-##' A \code{ggplot} object
+##' A \code{shiny server} object
 ##' 
-##' @family plot
+##' @family shiny
 ##'   
 ##' @examples
 ##' library(ncdf4)
+##' x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+##' x.list <- list("model1" = x, "model2" = x)
+##' x.server <- musica_server(x.list)
 ##' 
 ##' @importFrom shiny shinyServer renderUI selectInput eventReactive reactive
 ##' @importFrom shinyjs reset show hide toggle

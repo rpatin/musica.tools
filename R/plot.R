@@ -2,22 +2,206 @@
 ##' @name ggplot_variable
 ##' @author Remi Lemaire-Patin
 ##' 
-##' @title plot for a single variable
+##' @title plot MuSICA model output
 ##' 
-##' @description This function plot the output of \code{\link{get_variable}}
+##' @description This function is a wrapper around \code{ggplot} to plot the
+##'   output of a MuSICA model or a comparison of model. It can plot the output
+##'   of \code{\link{get_variable}}, \code{\link{get_variable_comparison}} or
+##'   \code{\link{get_two_variables}}. See details for the list of graphics
+##'   available and their options.
 ##' 
-##' 
-##' @param df a \code{data.frame} object
-##' 
+##' @inheritParams get_variable
+##' @param df a \code{data.frame} object, output of \code{\link{get_variable}},
+##'   \code{\link{get_variable_comparison}} or  \code{\link{get_two_variables}}.
+##' @param out.type a \code{character}, type of plot to be returned. See
+##'   details.
+##' @param x (\emph{optional}), x aesthetics used in the plot (see details).
+##' @param y (\emph{optional}), y aesthetics used in the plot (see details).
+##' @param color (\emph{optional}), color aesthetics used in the plot (see
+##'   details).
+##' @param linetype (\emph{optional}), linetype aesthetics used in the plot (see
+##'   details).
+##' @param shape (\emph{optional}), shape aesthetics used in the plot (see
+##'   details).
+##' @param fill (\emph{optional}), fill aesthetics used in the plot (see
+##'   details).
+##' @param facet_formula (\emph{optional}), facet formula (or vector of
+##'   variables) used in the plot, available for all values of \code{out.type}.
+##' @param xrange (\emph{optional}), \code{numeric} vector, used to restrict the
+##'   range of x values on the plot.
+##' @param yrange (\emph{optional}), \code{numeric} vector, used to restrict the
+##'   range of y values on the plot.
+##' @param fillrange (\emph{optional}), \code{numeric} vector, used to subset
+##'   the variable used as fill aesthetics in the plot.
+##' @param bin2d (\emph{optional}, default \code{TRUE}), a \code{boolean}, if
+##'   \code{TRUE}, the code uses \code{geom_bin2d} instead of default
+##'   \code{geom_point}.
+##' @param diffmodels  (\emph{optional}, default \code{FALSE}), a
+##'   \code{boolean}, if \code{TRUE}, indicates that \code{df} contains the
+##'   difference between two models. Plot is then adjusted accordingly
+##' @param nrow.facet (\emph{optional}), a \code{numeric}, number of facet rows
+##'   when argument \code{facet_formula} was provided.
+##' @param format.date (\emph{optional}, default \code{'\%b \%Y'})  a
+##'   \code{character} interpreted as a date format, used  to format date when
+##'   \code{out.type = 'daily_heatmap'}.
 ##' @return
 ##' 
 ##' A \code{ggplot} object
+##' 
+##' @details
+##' The following \code{out.type} values are available:
+##' \itemize{
+##'   \item \code{out.type = "standard"}.
+##'     \itemize{
+##'       \item Standard time-series with \code{geom_line}.
+##'       \item Available additional aesthetic argument: \code{color},
+##'       \code{linetype}.
+##'       \item Available subsetting argument: \code{yrange}.
+##'     }
+##'   \item \code{out.type = "heatmap"}.
+##'     \itemize{
+##'       \item Heatmap plot made with \code{geom_raster}. \code{x} is set to
+##'       \code{time} ; \code{y} is set to one of \code{nsoil}, \code{nair} or
+##'       \code{nveg} ; \code{fill} is set to the current variable.
+##'       \item No additional aesthetic argument available.
+##'       \item Available subsetting argument:  \code{yrange}, \code{fillrange}.
+##'     }
+##'   \item \code{out.type = "daily_heatmap"}.
+##'     \itemize{
+##'       \item Heatmap plot made with \code{geom_raster} to highlight daily
+##'       variations. \code{x} is set to daily time (hours) ; \code{y} is set to
+##'       day of the year ; \code{fill} is set to the current variable.
+##'       \item No additional aesthetic argument available.
+##'       \item Available subsetting argument: \code{fillrange}.
+##'     }
+##'   \item \code{out.type = "boxplot"}.
+##'     \itemize{
+##'       \item Boxplot made with \code{geom_boxplot}.\code{y} is set to the
+##'       current variable.
+##'       \item Available additional aesthetic argument: \code{x}, \code{fill}.
+##'       \item Available subsetting argument: \code{yrange}.
+##'     }
+##'   \item \code{out.type = "density"}.
+##'     \itemize{
+##'       \item Density plot made with \code{geom_density}.\code{x} is set to
+##'       the current variable, \code{y} is set to the density.
+##'       \item Available additional aesthetic argument: \code{color},
+##'       \code{linetype}.
+##'       \item Available subsetting argument: \code{xrange}, \code{yrange}.
+##'     }
+##'   \item \code{out.type = "histogram"}.
+##'     \itemize{
+##'       \item Histogram plot made with \code{geom_histogram}.\code{x} is set
+##'       to the current variable, \code{y} is set to the density.
+##'       \item Available additional aesthetic argument: \code{fill}.
+##'       \item Available subsetting argument: \code{xrange}, \code{yrange}.
+##'     }
+##'   \item \code{out.type = "scatterplot"}.
+##'     \itemize{
+##'       \item Scatterplot made with \code{geom_point} and representing one
+##'       variables against a second variable, or one model against a second
+##'       model. \code{x} is set to the first variable or model, \code{y} is set
+##'       to the second variable or model. 
+##'       \item Available additional aesthetic argument: \code{color},
+##'       \code{shape}.
+##'       \item Available subsetting argument: \code{xrange}, \code{yrange}.
+##'     }
+##'   }
+##' The following additional argument can be given:
+##'   \itemize{
+##'   \item x: column name available in \code{df} for x aesthetics. Available
+##'   for \code{out.type = 'boxplot'}
+##'   \item y: column name available in \code{df} for y aesthetics. Available
+##'   for \code{out.type = 'heatmap'}, but must be \code{'nsoil'}, \code{'nveg'}
+##'   or \code{'nair'}.
+##'   \item color: column name available in \code{df} to
+##'   separate data (points or lines) by color. Available for \code{out.type =
+##'   'standard'}, \code{'density'}, or \code{'scatterplot'}. 
+##'   \item fill: column name available in \code{df} to separate data by fill
+##'   color Available for \code{out.type = 'boxplot'} or \code{'histogram'}.
+##'   \item shape: column name available in \code{df} to separate points by
+##'   shape. Available for \code{'scatterplot'}.
+##'   \item linetype: column name available in \code{df} to separate lines by
+##'   linetype. Available for \code{out.type = 'standard'} or \code{'density'}.
+##'   }
+##' The following additional subsetting arguments can be given:
+##'   \itemize{
+##'     \item xrange: vector with min and max to apply on x axis. Available for
+##'     \code{out.type = 'scatterplot'}, \code{'histogram'} or \code{'density'}.
+##'     \item yrange: vector with min and max to apply on y axis. Available for
+##'     \code{out.type = 'standard'}, \code{'heatmap'}, \code{'boxplot'},
+##'     \code{'density'}, \code{'histogram'} or \code{'scatterplot'}.
+##'     \item fillrange: vector with min and max to apply on fill variable.
+##'     Available for \code{out.type = 'heatmap'}, \code{'daily_heatmap'},
+##'     \code{'boxplot'}, or \code{'histogram'}.
+##'   }
 ##' 
 ##' @family plot
 ##'   
 ##' @examples
 ##' library(ncdf4)
+##' library(dplyr)
+##' x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+##' x.list <- list("model1" = x, "model2" = x)
+##' # Simple plot for a single variable and a single model -------------------------
 ##' 
+##' # Latent heat at flux at reference level
+##' df <- get_variable(x, "Qle")
+##' ggplot_variable(df, out.type = "standard")
+##' ggplot_variable(df, out.type = "standard", yrange = c(-100, 1000))
+##' ggplot_variable(df, out.type = "daily_heatmap")
+##' ggplot_variable(df, out.type = "boxplot")
+##' ggplot_variable(df, out.type = "density")
+##' ggplot_variable(df, out.type = "histogram")
+##' 
+##' # Air temperature
+##' df <- get_variable(x, "Tair_z")
+##' ggplot_variable(df, out.type = "heatmap")
+##' ggplot_variable(df, out.type = "standard", color = "nair")
+##' df %>%
+##'   filter_dim(this.dim = "nair", n.dim.level = 3) %>%
+##' ggplot_variable(out.type = "standard", color = "nair")
+##' ggplot_variable(df, out.type = "boxplot", x = "nair")
+##' 
+##' # Root uptake
+##' df <- get_variable(x, "root_uptake")
+##' ggplot_variable(df, out.type = "heatmap", facet_formula = "~nspecies")
+##' df %>%
+##'   filter_dim(this.dim = "nsoil", n.dim.level = 4) %>%
+##' ggplot_variable(out.type = "standard", color = "nspecies",
+##'                 facet_formula = "~nsoil", nrow.facet = 2)
+##' 
+##' # Plot for two variables and a single model -------------------------
+##' 
+##' df <- get_two_variables(x, c("Qle","Qh"))
+##' ggplot_variable(df, out.type = "scatterplot")
+##' ggplot_variable(df, out.type = "scatterplot", bin2d = FALSE)
+##' df <- get_two_variables(x, c("Tair_z","wair_z"))
+##' ggplot_variable(df, out.type = "scatterplot", bin2d = FALSE, color = "nair")
+##' 
+##' # Plot for a single variables and two models -------------------------
+##' # Only for examples as both models outputs are identical
+##' df <- get_variable_comparison(x.list, "Qle")
+##' ggplot_variable(df, out.type = "standard", color = "models", linetype = "models")
+##' ggplot_variable(df, out.type = "standard", color = "models", facet_formula = "~models")
+##' ggplot_variable(df, out.type = "boxplot", fill = "models")
+##' ggplot_variable(df, out.type = "histogram", fill = "models")
+##' ggplot_variable(df, out.type = "density", color = "models", linetype = "models")
+##' 
+##' df <- get_variable_comparison(x.list, "w_soil")
+##' ggplot_variable(df, out.type = "heatmap", facet_formula = "~models")
+##' ggplot_variable(df, out.type = "heatmap", facet_formula = "~models",
+##'                 fillrange = c(0,1))
+##' 
+##' # Plot for two variables and several models -------------------------
+##' 
+##' df <- get_two_variables(x.list, c("Qle","Qh"))
+##' ggplot_variable(df, out.type = "scatterplot", facet_formula = "~models")
+##' ggplot_variable(df, out.type = "scatterplot", bin2d = FALSE, 
+##'                 color = "models", facet_formula = "~models", shape = "models")
+##' df <- get_two_variables(x.list, c("Tair_z","wair_z"), n.air.level = 4)
+##' ggplot_variable(df, out.type = "scatterplot", bin2d = FALSE, 
+##'                 color = "nair", facet_formula = "~models")
 ##' 
 ##' @importFrom ggplot2 ggplot aes geom_line geom_step xlab ylab facet_wrap 
 ##' scale_color_brewer scale_color_viridis_d theme element_blank theme_dark
@@ -749,22 +933,24 @@ ggplot_variable <- function(df,
 ##' @name ggplot_list_var
 ##' @author Remi Lemaire-Patin
 ##' 
-##' @title plot for a single variable
+##' @title plot for a list of variable
 ##' 
-##' @description This function plot the output of \code{\link{get_variable}}
+##' @description \code{ggplot_list_var} is a wrapper around \code{\link{ggplot_variable}} to produce plots for a list of variables. Plots are aggregated using \code{plot_grid}
 ##' 
-##' 
-##' @param df a \code{data.frame} object
+##' @inheritParams get_variable
+##' @param x a \code{ncdf4} object. Output generated by MuSICA
+##' @param list_var a \code{character vector} of variable names to be plotted
 ##' 
 ##' @return
 ##' 
-##' A \code{ggplot} object
+##' A \code{grid} object with all plots aggregated.
 ##' 
 ##' @family plot
 ##'   
 ##' @examples
 ##' library(ncdf4)
-##' 
+##' x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+##' ggplot_list_var(x, list_var = c("Qle","Qh","Qg"))
 ##' 
 ##' @importFrom cowplot plot_grid
 ##' @export
@@ -798,10 +984,13 @@ ggplot_list_var <- function(x, list_var, time_range, daily_heatmap = TRUE) {
 ##' with an interactive dygraph app
 ##' 
 ##' 
-##' @param df a \code{data.frame} object
+##' @inheritParams get_variable 
+##' @inheritParams ggplot_variable
 ##' @param pixheight height of the \code{dygraph} object in pixel
 ##' @param pixwidth width of the \code{dygraph} object in pixel
 ##' @param axisLabelWidth height of the y axis label
+##' @param group \code{character}, name of the group to synchronize multiple
+##'   dygraphs
 ##' @return
 ##' 
 ##' A \code{dygraph} object
@@ -810,7 +999,9 @@ ggplot_list_var <- function(x, list_var, time_range, daily_heatmap = TRUE) {
 ##'   
 ##' @examples
 ##' library(ncdf4)
-##' 
+##' x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+##' df <- get_variable(x, "Qle")
+##' dygraph_variable(df,  pixwidth = 600)
 ##' 
 ##' @importFrom dygraphs dygraph dyAxis dyHighlight dyLegend
 ##'  dyRangeSelector dyOptions
@@ -889,11 +1080,9 @@ dygraph_variable <- function(df,
 ##' @description This function plot the output of \code{\link{get_variable}}
 ##' with an interactive dygraph app
 ##' 
-##' 
-##' @param df a \code{data.frame} object
-##' @param pixheight height of the \code{dygraph} object in pixel
-##' @param pixwidth width of the \code{dygraph} object in pixel
-##' @param axisLabelWidth height of the y axis label
+##' @inheritParams ggplot_variable
+##' @inheritParams dygraph_variable
+##' @param main.title (\emph{optional}) a \code{character} with plot title prefix
 ##' @return
 ##' 
 ##' A \code{dygraph} object
@@ -902,8 +1091,10 @@ dygraph_variable <- function(df,
 ##'   
 ##' @examples
 ##' library(ncdf4)
-##' 
-##' 
+##' x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+##' x.list <- list("model1" = x, "model2" = x)
+##' df <- get_variable_comparison(x.list, varname = "Qle")
+##' dygraph_comparison(df,  pixwidth = 600)
 ##' @importFrom dygraphs dygraph dyAxis dyHighlight dyLegend
 ##'  dyRangeSelector dyOptions
 ##' @importFrom xts xts
@@ -951,7 +1142,7 @@ dygraph_comparison <- function(df,
   } else {
     stop("unsupported dimension number")
   }
-
+  
   this.main <- main.title
   dygraph.list <- lapply(df.in, function(this.df){
     if (ndim == 1) {
@@ -971,7 +1162,7 @@ dygraph_comparison <- function(df,
       if (!is.null(main.title)) {
         this.main <-  paste0(this.main, " ; ")
       }
-        this.main <-  paste0(this.main,
+      this.main <-  paste0(this.main,
                            "Difference between ", listmodels[1],
                            " and ", listmodels[2])
     } 

@@ -96,7 +96,7 @@ mol2kg_water_ratio <- function(wair) {
 ##' 
 ##'   
 ##' @examples
-##' mol2kg_water_ratio(0.03)
+##' e_air(0.01, pressure = 1e5)
 ##' 
 ##' @export
 ##' 
@@ -132,7 +132,7 @@ e_air <- function(q_air, pressure) {
 ##' 
 ##'   
 ##' @examples
-##' mol2kg_water_ratio(0.03)
+##' e_air_sat(300)
 ##' 
 ##' @export
 ##' 
@@ -153,29 +153,36 @@ e_air_sat <- function(tk_air) {
 
 
 # convert.units ---------------------------------------------
-# from e_air_sat in mo_musica_utils.f90
-##' @name e_air_sat
+##' @name convert.units
 ##' @author Remi Lemaire-Patin
 ##' 
-##' @title Computes saturated air water vapour pressure (Pa)
+##' @title Standard unit conversion
 ##'
-##' @description This function computes saturated air water vapour pressure (Pa)
-##'   from air temperature (K). This empirical formula is accurate at 0.1%
-##'   between -25 degC and +35 degC The main advantage is that it it is
-##'   invertible.
+##' @description This function converts values between specific set of units 
+##' (see Details)
 ##' 
 ##' 
-##' @param tk_air a \code{numeric}, temperature in Kelvin
-##' 
+##' @param values a \code{numeric}, values to be converted
+##' @param from a \code{character}, origin units
+##' @param to a \code{character}, aimed units
+##' @param dt (\emph{optional}) a \code{numeric}, duration of a time step (in s)
+##'   required for some unit conversion
 ##' @return
 ##' 
 ##' A \code{numeric}
+##' 
+##' @details
+##' The corresponding conversion are available
+##' \itemize{
+##'   \item \code{from = "mmol/m2/dt" ; to = "kg/m2/s"}. Require argument \code{dt}
+##' }
+##' 
 ##' 
 ##' @family Tools
 ##' 
 ##'   
 ##' @examples
-##' mol2kg_water_ratio(0.03)
+##' convert.units(900, from = "mmol/m2/dt", to = "kg/m2/s", dt = 1800)
 ##' 
 ##' @export
 ##' 

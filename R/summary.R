@@ -8,7 +8,7 @@
 ##' variables. Report includes interactive time-series plot using \code{dygraphs}
 ##' package for the selection of variables.
 ##' 
-##' 
+##'
 ##' @param x a \code{ncdf4} object
 ##' @param filename a \code{character}, file name to save the report, without
 ##'   extension (automatically added)
@@ -16,7 +16,17 @@
 ##'   variables that can be exported, see Details.
 ##' @param list_var \emph{(optional, ignored if \code{template} argument was
 ##'   given)} a \code{character vector} with list of variables to be exported.
-##' @param ... additional parameters transmitted to \code{\link{dygraph_var}}
+##' @param add_study_site (\emph{optional}, default \code{FALSE}) a
+##'   \code{boolean}, if \code{TRUE} adds a leaflet with location of study site
+##' @param time_range (\emph{optional}) a \code{POSIXct vector} with two values:
+##'   the time range to extract
+##' @param n.soil.level (default \code{5}), a \code{numeric}, number of soil
+##'   level to be kept
+##' @param n.air.level (default \code{5}), a \code{numeric}, number of air level
+##'   to be kept
+##' @param out.dir (default \code{'./'}), a \code{character}, output directory
+##'   to store results
+##' @param ... additional parameters transmitted to \code{\link{dygraph_variable}}
 ##' 
 ##' @return NULL
 ##' 
@@ -24,7 +34,9 @@
 ##'   
 ##' @examples
 ##' library(ncdf4)
-##' 
+##' x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+##' summary_markdown(x, "test_summary", template = "Overview")
+##' file.remove("test_summary.html")
 ##' @importFrom cli cli_alert_warning
 ##' @importFrom rmarkdown render
 ##' @importFrom dplyr first
@@ -74,9 +86,9 @@ summary_markdown <- function(x, filename, template, list_var,
 ##' 
 ##' @description This function render a markdown report for a selection of 
 ##' variables. Report includes static plot for a given selection of variable
-##' 
-##' 
-##' @param ... additional parameters transmitted to \code{\link{ggplot_var}}
+##' @param file.width file width transmitted to \code{pdf()}
+##' @param file.height file height transmitted to \code{pdf()}
+##' @param ... additional parameters transmitted to \code{\link{ggplot_variable}}
 ##' 
 ##' @return NULL
 ##' 
@@ -84,6 +96,9 @@ summary_markdown <- function(x, filename, template, list_var,
 ##'   
 ##' @examples
 ##' library(ncdf4)
+##' x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+##' summary_pdf(x, "test_summary", template = "Overview")
+##' file.remove("test_summary.pdf")
 ##' 
 ##' @inheritParams summary_markdown
 ##' @importFrom cli cli_alert_warning

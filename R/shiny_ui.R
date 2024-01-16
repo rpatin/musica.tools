@@ -2,21 +2,23 @@
 ##' @name musica_ui
 ##' @author Remi Lemaire-Patin
 ##' 
-##' @title plot for a single variable
+##' @title Shiny UI for \code{\link{shinymusica}}
 ##' 
-##' @description This function plot the output of \code{\link{get_variable}}
+##' @description This function generates a shiny UI for \code{\link{shinymusica}}
 ##' 
-##' 
-##' @param df a \code{data.frame} object
+##' @inheritParams shinymusica
 ##' 
 ##' @return
 ##' 
-##' A \code{ggplot} object
+##' A \code{shiny ui} object
 ##' 
-##' @family plot
+##' @family shiny
 ##'   
 ##' @examples
 ##' library(ncdf4)
+##' x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+##' x.list <- list("model1" = x, "model2" = x)
+##' x.ui <- musica_ui(x.list)
 ##' 
 ##' @importFrom shiny shinyUI fluidPage tabsetPanel tabPanel
 ##' sidebarLayout sidebarPanel fluidRow plotOutput checkboxInput
