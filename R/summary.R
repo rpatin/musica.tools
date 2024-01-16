@@ -38,7 +38,6 @@
 ##' summary_markdown(x, "test_summary", template = "Overview")
 ##' file.remove("test_summary.html")
 ##' @importFrom cli cli_alert_warning
-##' @importFrom rmarkdown render
 ##' @importFrom dplyr first
 ##' @importFrom htmltools tagList
 ##' @export
@@ -67,14 +66,15 @@ summary_markdown <- function(x, filename, template, list_var,
   } else {
     markdown.file <- "template_cmp.Rmd"
   }
-  
-  render(
-    input = paste0(system.file(package = "musica.tools"),
-                   "/rmarkdown/", markdown.file),
-    output_file = paste0(filename,".html"),
-    output_dir = out.dir,
-    encoding     = 'UTF-8'
-  )
+  if (requireNamespace("rmarkdown")) {
+    rmarkdown::render(
+      input = paste0(system.file(package = "musica.tools"),
+                     "/rmarkdown/", markdown.file),
+      output_file = paste0(filename,".html"),
+      output_dir = out.dir,
+      encoding     = 'UTF-8'
+    )
+  }
 }
 
 
