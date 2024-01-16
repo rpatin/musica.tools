@@ -35,17 +35,14 @@
 
 ggplot_variable <- function(df,
                             time_range,
-                            format.date = "%b %Y",
                             out.type,
                             x, y, color, linetype, shape, fill, facet_formula,
                             xrange = NULL, yrange = NULL, fillrange = NULL,
-                            bin2d = TRUE, diffmodels = FALSE, nrow.facet = NULL) {
-  # df <- list_value$relative_height
+                            bin2d = TRUE, diffmodels = FALSE, nrow.facet = NULL,
+                            format.date = "%b %Y") {
   args <- .check_ggplot_variable(df = df,
                                  time_range = time_range,
-                                 format.date = format.date,
                                  out.type = out.type,
-                                 bin2d = bin2d,
                                  x = x, y = y,
                                  color = color, linetype = linetype,
                                  fill = fill, shape = shape, 
@@ -54,7 +51,9 @@ ggplot_variable <- function(df,
                                  yrange = yrange,
                                  fillrange = fillrange,
                                  diffmodels = diffmodels, 
-                                 nrow.facet = nrow.facet)
+                                 nrow.facet = nrow.facet,
+                                 bin2d = bin2d,
+                                 format.date = format.date)
   for (argi in names(args)) { 
     assign(x = argi, value = args[[argi]]) 
   }
@@ -420,15 +419,24 @@ ggplot_variable <- function(df,
 }
 
 .check_ggplot_variable <-
-  function(df, time_range, format.date, out.type, bin2d,
+  function(df, time_range, out.type,
            x, y,
            color, linetype, fill, shape, facet_formula,
            xrange, yrange, fillrange,
-           diffmodels, nrow.facet) {
+           diffmodels, nrow.facet,
+           bin2d,
+           format.date) {
     
     if (missing(out.type)) {
       out.type <- "standard"
     }
+    .fun_testIfIn(out.type, values =  c("standard",
+                                        "heatmap",
+                                        "daily_heatmap",
+                                        "boxplot",
+                                        "density",
+                                        "histogram",
+                                        "scatterplot"))
     # variable & out.type check ------------------------------------------
     this_variable <- attr(df, 'var')
     if (length(this_variable) > 1 &
