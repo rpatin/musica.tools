@@ -5,7 +5,7 @@ output: github_document
 
 
 ```{r echo=FALSE, message=FALSE, results="hide"}
-options(Encoding="UTF-8")
+options(Encoding = "UTF-8")
 library(badger)
 ```
 
@@ -22,10 +22,8 @@ Output can then be used to produce a series of generic plots.
 
 # Website
 
-Full documentation for segclust2d is available on this website:
+Full documentation for musica.tools will soon be available on this website:
 [https://rpatin.github.io/musica.tools/](https://rpatin.github.io/musica.tools/)
-
-Three topics are discussed there, and are also available as vignettes in the R package:
 
 # Installation
 

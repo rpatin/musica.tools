@@ -15,11 +15,8 @@ plots.
 
 # Website
 
-Full documentation for segclust2d is available on this website:
-<https://rpatin.github.io/musica.tools/>
-
-Three topics are discussed there, and are also available as vignettes in
-the R package:
+Full documentation for musica.tools will soon be available on this
+website: <https://rpatin.github.io/musica.tools/>
 
 # Installation
 
