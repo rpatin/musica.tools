@@ -1,7 +1,7 @@
 Package: musica.tools
 Type: Package
 Title: Tools to extract and plot MuSICA output
-Version: 0.0.9
+Version: 0.1.0
 Date: 2023-11-23
 Authors@R: c(person("Remi", "Lemaire-Patin", role = c("aut", "cre"), email = "remi.lemaire-patin@inrae.fr"))
 URL: https://github.com/rpatin/musica.tools
@@ -27,17 +27,21 @@ Imports:
     dygraphs,
     ggplot2 (>= 3.4.0),
     gridExtra,
+    grDevices,
     cowplot,
-    scales
-Suggests:
-    knitr,
-    rmarkdown,
-    leaflet,
-    htmltools,
-    devtools,
+    scales,
     shiny,
     shinyWidgets,
     shinyjs,
+    htmltools,
+    rlang,
+    stats
+Suggests:
+    rmarkdown,
+    markdown,
+    knitr,
+    leaflet,
+    devtools,
     svglite
 VignetteBuilder: knitr
 Encoding: UTF-8
