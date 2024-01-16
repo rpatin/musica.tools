@@ -2,45 +2,41 @@
 % Please edit documentation in R/shiny_functions_ui.R
 \name{get_range_input}
 \alias{get_range_input}
-\title{plot for a single variable}
+\title{Generate \code{numericInput} to adjust ranges}
 \usage{
 get_range_input(tab, type)
 }
 \arguments{
-\item{df}{a \code{data.frame} object}
+\item{tab}{a \code{numeric}, 1 or 2 to identify which of the app tab is 
+concerned here.}
+
+\item{type}{a \code{character}, aesthetics for which \code{numericInput} 
+should be displayed. Can be \code{'x'}, \code{'y'} or \code{'fill'}.}
 }
 \value{
-A \code{ggplot} object
+A set of \code{numericInput} object
 }
 \description{
-This function plot the output of \code{\link{get_variable}}
+This function returns two numeric input presented in a 
+\code{fluidRow}. It assigns \code{ID} depending on the given \code{tab} and
+the aesthetic concerned (\code{type}).
 }
 \examples{
-library(ncdf4)
-
-
+get_range_input(1, "fill")
+get_range_input(2, "x")
+get_range_input(2, "y")
 }
 \seealso{
-Other plot: 
+Other shiny: 
 \code{\link{add_changedate_button}()},
-\code{\link{dygraph_comparison}()},
-\code{\link{dygraph_variable}()},
-\code{\link{get_6month}()},
-\code{\link{get_air_level}()},
 \code{\link{get_dynamic_input}()},
 \code{\link{get_main_title}()},
 \code{\link{get_shiny_filename}()},
-\code{\link{get_soil_level}()},
-\code{\link{get_subset_input}()},
-\code{\link{get_time_range}()},
-\code{\link{ggplot_list_var}()},
-\code{\link{ggplot_variable}()},
 \code{\link{musica_server}()},
 \code{\link{musica_ui}()},
-\code{\link{shinymusica}()},
-\code{\link{toggle_subset_input}()}
+\code{\link{shinymusica}()}
 }
 \author{
 Remi Lemaire-Patin
 }
-\concept{plot}
+\concept{shiny}

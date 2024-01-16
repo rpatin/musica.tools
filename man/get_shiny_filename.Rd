@@ -2,45 +2,44 @@
 % Please edit documentation in R/shiny_functions_ui.R
 \name{get_shiny_filename}
 \alias{get_shiny_filename}
-\title{plot for a single variable}
+\title{Generate filename for export}
 \usage{
 get_shiny_filename(var, prefix, suffix, file.format)
 }
 \arguments{
-\item{df}{a \code{data.frame} object}
+\item{var}{a \code{character}, currently selected variable}
+
+\item{prefix}{a \code{character}, prefix to add to the filename}
+
+\item{suffix}{a \code{character}, suffix to add to the filename}
+
+\item{file.format}{a \code{character}, file format}
 }
 \value{
-A \code{ggplot} object
+A \code{character}
 }
 \description{
-This function plot the output of \code{\link{get_variable}}
+This function generate a filename used as a suggestion to
+  export and download the graphics from tab2. The filename is based around
+  the current variable (\code{var}), a \code{prefix}, a \code{suffix} and
+  the selected \code{file.format}.
 }
 \examples{
-library(ncdf4)
-
+get_shiny_filename(var = "Qle", prefix = "LeBray", suffix = "crack_depth_1", file.format = "png")
+get_shiny_filename(var = "Qle", prefix = "", suffix = "", file.format = "png")
 
 }
 \seealso{
-Other plot: 
+Other shiny: 
 \code{\link{add_changedate_button}()},
-\code{\link{dygraph_comparison}()},
-\code{\link{dygraph_variable}()},
-\code{\link{get_6month}()},
-\code{\link{get_air_level}()},
 \code{\link{get_dynamic_input}()},
 \code{\link{get_main_title}()},
 \code{\link{get_range_input}()},
-\code{\link{get_soil_level}()},
-\code{\link{get_subset_input}()},
-\code{\link{get_time_range}()},
-\code{\link{ggplot_list_var}()},
-\code{\link{ggplot_variable}()},
 \code{\link{musica_server}()},
 \code{\link{musica_ui}()},
-\code{\link{shinymusica}()},
-\code{\link{toggle_subset_input}()}
+\code{\link{shinymusica}()}
 }
 \author{
 Remi Lemaire-Patin
 }
-\concept{plot}
+\concept{shiny}

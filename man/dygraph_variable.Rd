@@ -14,13 +14,20 @@ dygraph_variable(
 )
 }
 \arguments{
-\item{df}{a \code{data.frame} object}
+\item{df}{a \code{data.frame} object, output of \code{\link{get_variable}},
+\code{\link{get_variable_comparison}} or  \code{\link{get_two_variables}}.}
 
 \item{pixheight}{height of the \code{dygraph} object in pixel}
 
 \item{pixwidth}{width of the \code{dygraph} object in pixel}
 
 \item{axisLabelWidth}{height of the y axis label}
+
+\item{group}{\code{character}, name of the group to synchronize multiple
+dygraphs}
+
+\item{time_range}{(\emph{optional}) a \code{POSIXct vector} with two values:
+the time range to extract}
 }
 \value{
 A \code{dygraph} object
@@ -31,28 +38,16 @@ with an interactive dygraph app
 }
 \examples{
 library(ncdf4)
-
+x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+df <- get_variable(x, "Qle")
+dygraph_variable(df,  pixwidth = 600)
 
 }
 \seealso{
 Other plot: 
-\code{\link{add_changedate_button}()},
 \code{\link{dygraph_comparison}()},
-\code{\link{get_6month}()},
-\code{\link{get_air_level}()},
-\code{\link{get_dynamic_input}()},
-\code{\link{get_main_title}()},
-\code{\link{get_range_input}()},
-\code{\link{get_shiny_filename}()},
-\code{\link{get_soil_level}()},
-\code{\link{get_subset_input}()},
-\code{\link{get_time_range}()},
 \code{\link{ggplot_list_var}()},
-\code{\link{ggplot_variable}()},
-\code{\link{musica_server}()},
-\code{\link{musica_ui}()},
-\code{\link{shinymusica}()},
-\code{\link{toggle_subset_input}()}
+\code{\link{ggplot_variable}()}
 }
 \author{
 Remi Lemaire-Patin

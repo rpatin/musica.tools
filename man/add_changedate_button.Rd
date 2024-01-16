@@ -2,45 +2,43 @@
 % Please edit documentation in R/shiny_functions_ui.R
 \name{add_changedate_button}
 \alias{add_changedate_button}
-\title{plot for a single variable}
+\title{Generate +/- button to adjust dates}
 \usage{
 add_changedate_button(id, legend, class)
 }
 \arguments{
-\item{df}{a \code{data.frame} object}
+\item{id}{a \code{character}, used to generate the \code{actionButton} 
+\code{id}.}
+
+\item{legend}{a \code{character}, separate the two  \code{actionButton}}
+
+\item{class}{a \code{character}, define the \code{HTML class} used by the
+\code{fluidRow}. This class is then used to format the \code{actionButton}}
 }
 \value{
-A \code{ggplot} object
+\code{HTML} code withe two \code{actionButton}
 }
 \description{
-This function plot the output of \code{\link{get_variable}}
+This function generates two \code{actionButton} organized 
+within a \code{HTML} \code{fluidRow}. The buttons can then be used within 
+the app to adjust the date window.
 }
 \examples{
-library(ncdf4)
+add_changedate_button(id = "datemin", legend = "Month", class = "dateclass")
 
 
 }
 \seealso{
-Other plot: 
-\code{\link{dygraph_comparison}()},
-\code{\link{dygraph_variable}()},
-\code{\link{get_6month}()},
-\code{\link{get_air_level}()},
+Other shiny: 
 \code{\link{get_dynamic_input}()},
 \code{\link{get_main_title}()},
 \code{\link{get_range_input}()},
 \code{\link{get_shiny_filename}()},
-\code{\link{get_soil_level}()},
-\code{\link{get_subset_input}()},
-\code{\link{get_time_range}()},
-\code{\link{ggplot_list_var}()},
-\code{\link{ggplot_variable}()},
 \code{\link{musica_server}()},
 \code{\link{musica_ui}()},
-\code{\link{shinymusica}()},
-\code{\link{toggle_subset_input}()}
+\code{\link{shinymusica}()}
 }
 \author{
 Remi Lemaire-Patin
 }
-\concept{plot}
+\concept{shiny}

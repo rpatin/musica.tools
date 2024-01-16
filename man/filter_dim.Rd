@@ -4,36 +4,49 @@
 \alias{filter_dim}
 \title{Filter a \code{data.frame} dimension}
 \usage{
-filter_dim(df, this.dim, n.dim.level, list_dim = NULL)
+filter_dim(df, this.dim, n.dim.level = NULL, list.dim = NULL)
 }
 \arguments{
 \item{df}{a \code{data.frame}}
 
 \item{this.dim}{a \code{character}, the dimension to filter}
 
-\item{n.dim.level}{a \code{numeric}, the max. number of level to keep. If 
-\code{NULL}, no filtering occur}
+\item{n.dim.level}{a \code{numeric}, the max. number of level to keep.}
+
+\item{list.dim}{a \code{vector}, the specific levels to keep.}
 }
 \value{
 A \code{data.frame}
 }
 \description{
-Extract a proper formatted legend from the attributes stored
-in a \code{data.frame}
+Filter a data frame along dimension \code{this.dim}, either by
+  providing an aimed number of levels (through argument \code{n.dim.level})
+  or by providing the levels to keep (through argument \code{list.dim}). If
+  both \code{n.dim.level} and \code{list.dim} are NULL, then no filtering
+  occurs.
 }
 \examples{
 library(ncdf4)
-
+x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+df <- get_variable(x, "root_uptake")
+filter_dim(df, this.dim = "nsoil", n.dim.level = 4)
+filter_dim(df, this.dim = "nsoil", list.dim = c(1, 5, 10))
+filter_dim(df, this.dim = "nspecies", list.dim = c("pinus_pinaster"))
 }
 \seealso{
 Other Tools: 
 \code{\link{.fun_testIfIn}()},
 \code{\link{attr_legend}()},
+\code{\link{convert.units}()},
 \code{\link{e_air_sat}()},
 \code{\link{e_air}()},
 \code{\link{format_time}()},
+\code{\link{get_6month}()},
+\code{\link{get_air_level}()},
 \code{\link{get_dim_info}()},
 \code{\link{get_dim_value}()},
+\code{\link{get_soil_level}()},
+\code{\link{get_time_range}()},
 \code{\link{lat_heat_vap}()},
 \code{\link{list_dim_allvar}()},
 \code{\link{mol2kg_water_ratio}()},

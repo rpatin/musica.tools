@@ -20,17 +20,23 @@ into a proper POSIXct class
 }
 \examples{
 library(ncdf4)
-
+x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+format_time(x$dim[["time"]]$vals, date0 = x$dim[["time"]]$units)
 }
 \seealso{
 Other Tools: 
 \code{\link{.fun_testIfIn}()},
 \code{\link{attr_legend}()},
+\code{\link{convert.units}()},
 \code{\link{e_air_sat}()},
 \code{\link{e_air}()},
 \code{\link{filter_dim}()},
+\code{\link{get_6month}()},
+\code{\link{get_air_level}()},
 \code{\link{get_dim_info}()},
 \code{\link{get_dim_value}()},
+\code{\link{get_soil_level}()},
+\code{\link{get_time_range}()},
 \code{\link{lat_heat_vap}()},
 \code{\link{list_dim_allvar}()},
 \code{\link{mol2kg_water_ratio}()},

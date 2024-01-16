@@ -8,6 +8,8 @@ get_dim_value(x, dimname)
 }
 \arguments{
 \item{x}{a \code{ncdf4} object}
+
+\item{dimname}{a \code{character} name of a netCDF dimension}
 }
 \value{
 A \code{vector}
@@ -17,17 +19,24 @@ This function extract dimension value from the \code{ncdf4} object
 }
 \examples{
 library(ncdf4)
-
+x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+get_dim_value(x, "time")
+get_dim_value(x, "nsoil")
 }
 \seealso{
 Other Tools: 
 \code{\link{.fun_testIfIn}()},
 \code{\link{attr_legend}()},
+\code{\link{convert.units}()},
 \code{\link{e_air_sat}()},
 \code{\link{e_air}()},
 \code{\link{filter_dim}()},
 \code{\link{format_time}()},
+\code{\link{get_6month}()},
+\code{\link{get_air_level}()},
 \code{\link{get_dim_info}()},
+\code{\link{get_soil_level}()},
+\code{\link{get_time_range}()},
 \code{\link{lat_heat_vap}()},
 \code{\link{list_dim_allvar}()},
 \code{\link{mol2kg_water_ratio}()},

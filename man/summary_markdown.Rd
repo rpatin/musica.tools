@@ -29,7 +29,22 @@ variables that can be exported, see Details.}
 \item{list_var}{\emph{(optional, ignored if \code{template} argument was
 given)} a \code{character vector} with list of variables to be exported.}
 
-\item{...}{additional parameters transmitted to \code{\link{dygraph_var}}}
+\item{add_study_site}{(\emph{optional}, default \code{FALSE}) a
+\code{boolean}, if \code{TRUE} adds a leaflet with location of study site}
+
+\item{time_range}{(\emph{optional}) a \code{POSIXct vector} with two values:
+the time range to extract}
+
+\item{n.soil.level}{(default \code{5}), a \code{numeric}, number of soil
+level to be kept}
+
+\item{n.air.level}{(default \code{5}), a \code{numeric}, number of air level
+to be kept}
+
+\item{out.dir}{(default \code{'./'}), a \code{character}, output directory
+to store results}
+
+\item{...}{additional parameters transmitted to \code{\link{dygraph_variable}}}
 }
 \description{
 This function render a markdown report for a selection of 
@@ -38,7 +53,9 @@ package for the selection of variables.
 }
 \examples{
 library(ncdf4)
-
+x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+summary_markdown(x, "test_summary", template = "Overview")
+file.remove("test_summary.html")
 }
 \seealso{
 Other summary: 

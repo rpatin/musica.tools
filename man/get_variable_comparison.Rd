@@ -22,19 +22,62 @@ get_variable_comparison(
 )
 }
 \arguments{
-\item{x}{a \code{ncdf4} object}
+\item{x}{a list \code{ncdf4} object, named list of MuSICA outputs}
+
+\item{varname}{a \code{character}, the variable to extract}
+
+\item{time_range}{(\emph{optional}) a \code{POSIXct vector} with two values:
+the time range to extract}
+
+\item{n.soil.level}{(\emph{optional}) a \code{numeric}, number of soil layer
+to keep}
+
+\item{list.soil.level}{(\emph{optional})  a \code{vector}, levels of soil layer to
+keep}
+
+\item{n.air.level}{(\emph{optional}) a \code{numeric}, number of air layer
+to keep}
+
+\item{list.air.level}{(\emph{optional}) a \code{vector}, levels of air layer to
+keep}
+
+\item{n.species.level}{(\emph{optional}) a \code{numeric}, number of species
+to keep}
+
+\item{list.species.level}{(\emph{optional}) a \code{vector}, names of species to
+keep}
+
+\item{n.veg.level}{(\emph{optional}) a \code{numeric}, number of vegetation
+layer to keep}
+
+\item{list.veg.level}{(\emph{optional}) a \code{vector}, levels of vegetation
+layer to keep}
+
+\item{n.leafage.level}{(\emph{optional}) a \code{numeric}, number of leaf
+age level to keep}
+
+\item{list.leafage.level}{(\emph{optional}) a \code{vector}, levels of leaf age to
+keep}
+
+\item{diffmodels}{(\emph{optional}, default \code{FALSE}) \code{boolean}, if
+\code{TRUE} return the difference between the first two models considered
+in the list.}
 }
 \value{
 A \code{data.frame}
+x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+x.list <- list("model1" = x, "model2" = x)
+get_variable_comparison(x.list, varname = "Qle")
+get_variable_comparison(x.list, varname = "Qle", diffmodels = TRUE)
+time_range <- get_dim_value(x, "time")[c(1, 335)]
+get_variable_comparison(x.list, varname = "Qle", time_range = time_range)
+get_variable_comparison(x.list, varname = "root_uptake", list.soil.level = c(1,5,10), list.species.level = "pinus_pinaster")
 }
 \description{
-This function extract a variable from a \code{ncdf4} object and
-format it in a nice \code{data.frame}.
-}
-\details{
-\describe{
-Additional Description
-}
+This function extract a variable from a list \code{ncdf4}
+  object and format it in a nice \code{data.frame}. \code{ncdf4} object must
+  be different MuSICA output over the same timeframe. List names will be
+  used as model names.
 }
 \examples{
 library(ncdf4)

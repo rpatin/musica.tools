@@ -8,6 +8,9 @@
 }
 \arguments{
 \item{x}{a scalar value, \code{character} or \code{numeric}}
+
+\item{values}{a \code{vector} (\code{character} or \code{numeric}), list
+of accepted values for \code{x}}
 }
 \value{
 A \code{boolean}
@@ -18,18 +21,26 @@ option or not. Output appropriate error message if the check failed. Original
 code from \code{biomod2} package
 }
 \examples{
-library(ncdf4)
+#  library(ncdf4)
+#  x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+#  .fun_testIfIn("Qle", names(x$var))
+
 
 }
 \seealso{
 Other Tools: 
 \code{\link{attr_legend}()},
+\code{\link{convert.units}()},
 \code{\link{e_air_sat}()},
 \code{\link{e_air}()},
 \code{\link{filter_dim}()},
 \code{\link{format_time}()},
+\code{\link{get_6month}()},
+\code{\link{get_air_level}()},
 \code{\link{get_dim_info}()},
 \code{\link{get_dim_value}()},
+\code{\link{get_soil_level}()},
+\code{\link{get_time_range}()},
 \code{\link{lat_heat_vap}()},
 \code{\link{list_dim_allvar}()},
 \code{\link{mol2kg_water_ratio}()},
