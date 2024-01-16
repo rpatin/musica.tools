@@ -957,7 +957,7 @@ ggplot_variable <- function(df,
 ##' 
 ##' 
 
-ggplot_list_var <- function(x, list_var, time_range, daily_heatmap = TRUE) {
+ggplot_list_var <- function(x, list_var, time_range) {
   list_plot <- list()
   for (this_var in list_var) {
     df.try <- try({ 

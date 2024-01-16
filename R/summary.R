@@ -108,8 +108,7 @@ summary_markdown <- function(x, filename, template, list_var,
 ##' 
 
 summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE, 
-                        time_range, file.width, file.height, 
-                        daily_heatmap = TRUE, ...) {
+                        time_range, file.width, file.height, ...) {
   args <- .check_summary(x = x, 
                          type = "pdf",
                          filename = filename,
@@ -127,7 +126,7 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
       width = file.width,
       height = file.height)
   grid.arrange(
-    ggplot_list_var(x, list_var, time_range, daily_heatmap = daily_heatmap)
+    ggplot_list_var(x, list_var, time_range)
   )
   dev.off()
 }
