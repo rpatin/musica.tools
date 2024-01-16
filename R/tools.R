@@ -363,4 +363,42 @@ var_with_same_dim <- function(x, this.var) {
   })
   list.names <- names(tmp)[tmp]
   str_subset(list.names, this.var, negate = TRUE)
+}get_time_range <- function(musica.list) {
+  if (inherits(musica.list, 'ncdf4')) {
+    return( 
+      range(get_dim_value(musica.list, "time"))
+    )
+  } else {
+    return(
+      range(get_dim_value(musica.list[[1]], "time"))
+    )
+  }
 }
+get_6month <- function(musica.list) {
+  this.range <- get_time_range(musica.list)
+  this.min <- this.range[1]
+  this.max <- min(this.range[2], this.range[1] + 24*3600*180)
+  c(this.min, this.max)
+}
+get_soil_level <- function(x, soil.level) {
+  stopifnot(length(soil.level) == 1)
+  zsoil <- get_variable(x, "z_soil") %>% 
+    filter(nsoil == soil.level) %>% 
+    pull(z_soil)
+  dzsoil <- get_variable(x, "dz_soil") %>% 
+    filter(nsoil == soil.level) %>% 
+    pull(dz_soil)
+  zsoil + c(-dzsoil/2, dzsoil/2)
+}
+get_air_level <- function(x, air.level) {
+  stopifnot(length(air.level) == 1)
+  veget_top <- get_variable(x, "veget_height_top") %>% 
+    pull(veget_height_top) %>% 
+    first()
+  zair <- get_variable(x, "relative_height") %>% 
+    filter(nair == air.level) %>% 
+    pull(relative_height) * veget_top
+  dzair <- get_variable(x, "layer_thickness") %>% 
+    filter(nair == air.level) %>% 
+    pull(layer_thickness)
+  zair + c(-dzair/2, dzair/2)
