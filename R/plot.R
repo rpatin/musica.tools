@@ -214,6 +214,8 @@
 ##' @importFrom dplyr last mutate ungroup group_by select 
 ##' @importFrom tidyr pivot_longer
 ##' @importFrom lubridate hour minute second
+##' @importFrom rlang .data
+##' @importFrom stats na.omit formula
 ##' @export
 ##' 
 

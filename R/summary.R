@@ -103,6 +103,7 @@ summary_markdown <- function(x, filename, template, list_var,
 ##' @inheritParams summary_markdown
 ##' @importFrom cli cli_alert_warning
 ##' @importFrom gridExtra grid.arrange
+##' @importFrom grDevices cm pdf dev.off
 ##' @export
 ##' 
 ##' 
@@ -185,8 +186,8 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
                    "d_vapour_deut_ref")
     )
     
-      list_var <- list_var[list_var %in% list_var_potential]
-
+    list_var <- list_var[list_var %in% list_var_potential]
+    
   } else if ( missing(list_var)) {
     stop("`list_var` required when `template is not provided`")
   } else {

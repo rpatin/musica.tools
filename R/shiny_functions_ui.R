@@ -142,6 +142,7 @@ get_subset_input <- function(x,
 ##' 
 ##' 
 ##' @export
+##' @importFrom shiny updateSelectInput
 
 toggle_subset_input <- function(session, input, index.var, tab, x,
                                 hide = FALSE){
