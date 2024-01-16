@@ -11,6 +11,9 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.1.1 
+  * Added changelog parser and summary
+  
 ### 0.1.0 Alpha version
   * First documentation and examples
   * compliance to R CMD check

@@ -253,3 +253,42 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
     )
   }
 }
+
+
+# summary_changelog ---------------------------------------------------------
+##' @name summary_changelog
+##' @author Remi Lemaire-Patin
+##' 
+##' @title render a html changelog
+##' 
+##' @description This function render a markdown report for the changelog
+##' @param input.file a \code{character}, path to changelog 
+##' @param out.file a \code{character}, path to output file 
+##' @param out.dir (default \code{'./'}), a \code{character}, output directory
+##' @return NULL
+##' 
+##' @family summary
+##'   
+##' @examples
+##' # library(ncdf4)
+##' 
+##' @export
+##' 
+##' 
+
+summary_changelog <- function(input.file, 
+                              out.file = "./MuSICA_changelog.html", 
+                              out.dir = "./") {
+  
+  parsed_changelog <- format_changelog(input.file)
+  if (requireNamespace("rmarkdown") & requireNamespace("DT")) {
+    rmarkdown::render(
+      input = paste0(system.file(package = "musica.tools"),
+                     "/rmarkdown/template_changelog.Rmd"),
+      output_file = out.file,
+      output_dir = out.dir,
+      encoding     = 'UTF-8'
+    )
+  }
+  NULL
+}

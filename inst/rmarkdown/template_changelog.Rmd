@@ -1,0 +1,18 @@
+---
+title: "MuSICA Changelog"
+output: 
+    html_document:
+      css: toc.css
+      toc: yes
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, error = FALSE, warning = FALSE)
+```
+
+# Version 2
+
+```{r, results = 'asis'}
+DT::datatable(parsed_changelog, filter = 'top')
+```
