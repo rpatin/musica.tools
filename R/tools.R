@@ -355,7 +355,10 @@ list_dim_allvar <- function(x) {
 ##' @export
 ##' @importFrom foreach foreach `%do%`
 var_with_same_dim <- function(x, this.var) {
-  list.dim <- list_dim_allvar(x[[1]])
+  if (inherits(x, "list")) {
+    x <- x[[1]]
+  }
+  list.dim <- list_dim_allvar(x)
   aimed.dim <- list.dim[[this.var]]
   tmp <- sapply(list.dim, function(this.dim){
     length(aimed.dim) == length(this.dim) &&
