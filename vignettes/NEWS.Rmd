@@ -9,7 +9,6 @@ vignette: >
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 
-
 ## <i class="fas fa-code"></i> Development updates
 
 ### 0.1.0 Alpha version
@@ -22,7 +21,7 @@ vignette: >
   * Added options to deactivate each dygraph
   * Added option to adjust number of facet rows
   * Added option to add year to the timeframe
-  
+
 ### 0.0.8
   * Revamped shiny app to be more flexible with the static graphics tab
 

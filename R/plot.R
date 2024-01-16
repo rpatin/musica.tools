@@ -612,7 +612,7 @@ ggplot_variable <- function(df,
            diffmodels, nrow.facet,
            bin2d,
            format.date) {
-    
+
     if (missing(out.type)) {
       out.type <- "standard"
     }
