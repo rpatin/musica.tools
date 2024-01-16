@@ -228,30 +228,30 @@ attr_legend <- function(df) {
 
 
 filter_dim <- function(df, this.dim, 
-                       n.dim.level, list_dim = NULL) {
-  if (any(colnames(df) == this.dim) & (!is.null(n.dim.level) | !is.null(list_dim))) {
+                       n.dim.level = NULL, list.dim = NULL) {
+  if (any(colnames(df) == this.dim) & (!is.null(n.dim.level) | !is.null(list.dim))) {
     doFilter <- FALSE
-    if (is.null(list_dim)) {
-      list_dim <- unique(df[, this.dim])
-      n_list_dim <- length(list_dim)
-      if (n_list_dim > n.dim.level) {
+    if (is.null(list.dim)) {
+      list.dim <- unique(df[, this.dim])
+      n.list.dim <- length(list.dim)
+      if (n.list.dim > n.dim.level) {
         doFilter <- TRUE
-        list_dim <- c(list_dim[floor(seq(1, n_list_dim, length.out = n.dim.level))])
+        list.dim <- c(list.dim[floor(seq(1, n.list.dim, length.out = n.dim.level))])
       }
     } else {
-      list_dim <- list_dim[list_dim %in% unique(df[, this.dim])]
+      list.dim <- list.dim[list.dim %in% unique(df[, this.dim])]
       doFilter <- TRUE
     }
     if (doFilter) {
       df <- 
         df %>% 
-        filter(!!sym(this.dim) %in% list_dim)
-      if (length(list_dim) == 1) {
+        filter(!!sym(this.dim) %in% list.dim)
+      if (length(list.dim) == 1) {
         df <- 
           df %>% 
           select(-sym(this.dim))
-        list_dimname <- attr(df, "dimname")
-        attr(df, "dimname") <- list_dimname[-which(list_dimname == this.dim)]
+        list.dimname <- attr(df, "dimname")
+        attr(df, "dimname") <- list.dimname[-which(list.dimname == this.dim)]
       }
     }
   }
