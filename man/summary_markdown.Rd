@@ -59,6 +59,7 @@ file.remove("test_summary.html")
 }
 \seealso{
 Other summary: 
+\code{\link{summary_changelog}()},
 \code{\link{summary_pdf}()}
 }
 \author{

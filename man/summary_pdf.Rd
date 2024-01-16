@@ -53,6 +53,7 @@ file.remove("test_summary.pdf")
 }
 \seealso{
 Other summary: 
+\code{\link{summary_changelog}()},
 \code{\link{summary_markdown}()}
 }
 \author{

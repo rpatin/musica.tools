@@ -32,6 +32,7 @@ Other Tools:
 \code{\link{e_air_sat}()},
 \code{\link{e_air}()},
 \code{\link{filter_dim}()},
+\code{\link{format_changelog}()},
 \code{\link{format_time}()},
 \code{\link{get_6month}()},
 \code{\link{get_air_level}()},
