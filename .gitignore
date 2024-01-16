@@ -6,5 +6,5 @@
 .Rhistory
 musica.tools.Rproj
 load_data.R
-R/template.html
 load_data_myrtille.R
+load_comparison_data.R
