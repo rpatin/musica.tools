@@ -411,11 +411,11 @@ get_variable_comparison <- function(x, varname, time_range = NULL,
       }
       tmp <- 
         tmp %>% 
-        filter_dim("nsoil", n.soil.level, list_dim = list.soil.level) %>% 
-        filter_dim("nair",  n.air.level, list_dim = list.air.level)  %>% 
-        filter_dim("nspecies",  n.species.level, list_dim = list.species.level) %>% 
-        filter_dim("nveg",  n.veg.level, list_dim = list.veg.level) %>% 
-        filter_dim("nleafage",  n.leafage.level, list_dim = list.leafage.level) 
+        filter_dim("nsoil", n.soil.level, list.dim = list.soil.level) %>% 
+        filter_dim("nair",  n.air.level, list.dim = list.air.level)  %>% 
+        filter_dim("nspecies",  n.species.level, list.dim = list.species.level) %>% 
+        filter_dim("nveg",  n.veg.level, list.dim = list.veg.level) %>% 
+        filter_dim("nleafage",  n.leafage.level, list.dim = list.leafage.level) 
     })
     if (!inherits(tmp.try, "try-error")) {
       tmp$models <- names(x)[i]
@@ -425,7 +425,7 @@ get_variable_comparison <- function(x, varname, time_range = NULL,
     }
   }) 
   df <- list.df %>% 
-    do.call('rbind', .) 
+    do.call(what = 'rbind') 
   attr(df, "var") <- varname
   attr(df, "units") <- attr(list.df[[1]], "units")
   attr(df, "longname") <- attr(list.df[[1]], "longname")
