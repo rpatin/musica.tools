@@ -290,5 +290,5 @@ summary_changelog <- function(input.file,
       encoding     = 'UTF-8'
     )
   }
-  NULL
+  invisible(NULL)
 }

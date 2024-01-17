@@ -11,8 +11,21 @@ date: "`r Sys.Date()`"
 knitr::opts_chunk$set(echo = FALSE, error = FALSE, warning = FALSE)
 ```
 
+# Version 3
+
+```{r, results = 'asis'}
+DT::datatable(parsed_changelog$v3, filter = 'top')
+```
+
 # Version 2
 
 ```{r, results = 'asis'}
-DT::datatable(parsed_changelog, filter = 'top')
+DT::datatable(parsed_changelog$v2, filter = 'top')
+```
+
+
+# Authors
+
+```{r, results = 'asis'}
+DT::datatable(parsed_changelog$authors, filter = 'top')
 ```
