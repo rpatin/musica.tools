@@ -129,11 +129,11 @@ musica_ui <- function(x) {
                                  selected = first(names(x))),
                      ### variable1 ----------------------------------------------
                      fluidRow(
-                       column(8,
+                       column(9,
                               selectInput("tab1_var1", label = "1st Variable",
                                           choices = sort(var_with_dim(x[[1]],"time")),
                                           selected = "Qle")),
-                       column(4,
+                       column(3,
                               materialSwitch(
                                 inputId = "tab1_plotvar1",
                                 label = NULL, 
@@ -152,11 +152,11 @@ musica_ui <- function(x) {
                      get_subset_input(x, "nleafage", "tab1_nleafage1"),
                      ### variable2 ----------------------------------------------
                      fluidRow(
-                       column(8,
+                       column(9,
                               selectInput("tab1_var2", label = "2nd Variable",
                                           choices = sort(var_with_dim(x[[1]],"time")),
                                           selected = "Qh")),
-                       column(4,
+                       column(3,
                               materialSwitch(
                                 inputId = "tab1_plotvar2",
                                 label = NULL, 
@@ -175,11 +175,11 @@ musica_ui <- function(x) {
                      get_subset_input(x, "nleafage", "tab1_nleafage2"),
                      ### variable3 ----------------------------------------------
                      fluidRow(
-                       column(8,
+                       column(9,
                               selectInput("tab1_var3", label = "3rd Variable",
                                           choices = sort(var_with_dim(x[[1]],"time")),
                                           selected = "Qg")),
-                       column(4,
+                       column(3,
                               materialSwitch(
                                 inputId = "tab1_plotvar3",
                                 label = NULL, 
@@ -197,14 +197,14 @@ musica_ui <- function(x) {
                      get_subset_input(x, "nveg", "tab1_nveg3"),
                      get_subset_input(x, "nleafage", "tab1_nleafage3"),
                      # actionButton("tab1_StoreValue", icon("floppy-disk")),
-                     width = 2
+                     width = 3
                    ),
                    ## Output ---------------------------------------------------
                    mainPanel(
                      dygraphOutput("tab1_dygraph1", height = "200px"),
                      dygraphOutput("tab1_dygraph2", height = "200px"),
                      dygraphOutput("tab1_dygraph3", height = "200px"),
-                     width = 10
+                     width = 9
                    ),
                    position = "left"
                  )
