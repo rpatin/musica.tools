@@ -1,7 +1,7 @@
 Package: musica.tools
 Type: Package
 Title: Tools to extract and plot MuSICA output
-Version: 0.1.1
+Version: 0.1.2
 Date: 2023-11-23
 Authors@R: c(person("Remi", "Lemaire-Patin", role = c("aut", "cre"), email = "remi.lemaire-patin@inrae.fr"))
 URL: https://github.com/rpatin/musica.tools
@@ -10,7 +10,7 @@ Description: Provides several function to extract MuSICA output from netcdf file
              Output can then be used to produce a series of generic plots.
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.0
 Depends:
     R (>= 4.3.0)
 Imports:

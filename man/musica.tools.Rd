@@ -2,9 +2,22 @@
 % Please edit documentation in R/musica.tools-package.R
 \docType{package}
 \name{musica.tools}
+\alias{musica.tools-package}
 \alias{musica.tools}
 \title{musica.tools: tools to extract and plot MuSICA outputs}
 \description{
 Provides several function to extract MuSICA output from netcdf files.
 Output can then be used to produce a series of generic plots.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/rpatin/musica.tools}
+  \item Report bugs at \url{https://github.com/rpatin/musica.tools/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Remi Lemaire-Patin \email{remi.lemaire-patin@inrae.fr}
+
 }

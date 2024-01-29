@@ -11,6 +11,11 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.1.2
+  * in the shiny app, for heatmap and daily heatmap, facet default to models if possible
+  * fixed bugs with model differences and heatmap/daily_heatmap
+  * small fixes for compliance to new package convention (import and package doc)
+
 ### 0.1.1
   * increased left panel width for shinymusica tab1
 
