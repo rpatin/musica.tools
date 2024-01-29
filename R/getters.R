@@ -455,7 +455,9 @@ get_variable_comparison <- function(x, varname, time_range = NULL,
     df <- df[, -which(colnames(df) %in% keep_attr$models)]
     attr(df, "var") <- "diff"
     for (this.attr in c("units", "longname",
-                        "ndim", "dimname", "nvar", "models")) {
+                        "ndim", "dimname", "nvar", "models",
+                        "z_soil", "dz_soil", "relative_height",
+                        "veget_height_top", "layer_thickness")) {
       attr(df, this.attr) <- keep_attr[[this.attr]]
     }
   } else {
