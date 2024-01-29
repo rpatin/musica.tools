@@ -26,7 +26,7 @@
 ##' @importFrom shinyjs reset show hide toggle
 ##' @importFrom dygraphs renderDygraph
 ##' @importFrom htmltools div
-##' @importFrom lubridate `year<-` year `day<-` day `month<-` month
+##' @importFrom lubridate year<- year day<- day month<- month
 ##' @importFrom cowplot save_plot
 ##' @importFrom stringr str_subset
 ##' @importFrom grDevices cm
