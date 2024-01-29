@@ -736,7 +736,7 @@ musica_server <- function(x) {
     })
     
     
-    ### x, y, colors, linetype, shape, fill ------------------------------------
+    ### x, y, colors, linetype, shape, fill, facet ------------------
     
     
     observeEvent({
@@ -942,9 +942,14 @@ musica_server <- function(x) {
       
       ### tab2_facet  -------------------------------------
       
-      if (length(avail.dim) > 0) {
-        if (all(input$tab2_facet %in% discrete.dim)) {
+      if (length(discrete.dim) > 0) {
+        if (!is.null(input$tab2_facet) &&
+            all(input$tab2_facet %in% discrete.dim)) {
           facet <- input$tab2_facet
+        } else if ("models" %in% discrete.dim &&
+                   input$tab2_type %in% c("heatmap", 
+                                          "daily_heatmap")) {
+          facet <- "models" 
         } else {
           facet <- NULL
         }
