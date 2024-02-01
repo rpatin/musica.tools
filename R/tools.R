@@ -239,7 +239,7 @@ attr_legend <- function(df) {
 ##' filter_dim(df, this.dim = "nsoil", n.dim.level = 4)
 ##' filter_dim(df, this.dim = "nsoil", list.dim = c(1, 5, 10))
 ##' filter_dim(df, this.dim = "nspecies", list.dim = c("pinus_pinaster"))
-##' @importFrom rlang sym `!!`
+##' @importFrom rlang sym !!
 ##' @export
 
 
@@ -367,7 +367,7 @@ list_dim_allvar <- function(x) {
 ##' var_with_same_dim(x, this.var = "Qle")
 ##' var_with_same_dim(x, this.var = "transpir")
 ##' @export
-##' @importFrom foreach foreach `%do%`
+##' @importFrom foreach foreach %do%
 
 var_with_same_dim <- function(x, this.var) {
   if (inherits(x, "list")) {
