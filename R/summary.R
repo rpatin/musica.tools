@@ -265,6 +265,8 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
 ##' @param input.file a \code{character}, path to changelog 
 ##' @param out.file a \code{character}, path to output file 
 ##' @param out.dir (default \code{'./'}), a \code{character}, output directory
+##' @param sidebar.toc (default \code{FALSE}) whether a sidebar toc should be generated
+##'   or not
 ##' @return NULL
 ##' 
 ##' @family summary
@@ -278,13 +280,18 @@ summary_pdf <- function(x, filename, template, list_var, add_study_site = FALSE,
 
 summary_changelog <- function(input.file, 
                               out.file = "./MuSICA_changelog.html", 
-                              out.dir = "./") {
+                              out.dir = "./",
+                              sidebar.toc = FALSE) {
   
   parsed_changelog <- format_changelog(input.file)
   if (requireNamespace("rmarkdown") & requireNamespace("DT")) {
+    file.md <-  paste0(system.file(package = "musica.tools"),
+                       "/rmarkdown/",
+                       ifelse(sidebar.toc,
+                              "template_changelog.Rmd",
+                              "template_changelog_notoc.Rmd"))
     rmarkdown::render(
-      input = paste0(system.file(package = "musica.tools"),
-                     "/rmarkdown/template_changelog.Rmd"),
+      input = file.md,
       output_file = out.file,
       output_dir = out.dir,
       encoding     = 'UTF-8'

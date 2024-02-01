@@ -21,7 +21,7 @@
 ##' library(ncdf4)
 ##' @export
 ##' 
-##' @importFrom stringr str_detect str_subset str_remove str_trim str_split
+##' @importFrom stringr str_detect str_subset str_remove str_trim str_split 
 ##' @importFrom lubridate parse_date_time
 
 format_changelog <- function(filename) {

@@ -13,6 +13,7 @@ vignette: >
 
 ### 0.1.3
   * Added changelog parser and summary
+  * Added option to remove changelog sidebar toc
   
 ### 0.1.2
   * in the shiny app, for heatmap and daily heatmap, facet default to models if possible
