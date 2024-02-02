@@ -1108,7 +1108,7 @@ dygraph_variable <- function(df,
 ##' 
 
 dygraph_comparison <- function(df,
-                               pixheight = 150, pixwidth = 1500,
+                               pixheight = NULL, pixwidth = NULL,
                                axisLabelWidth = 75,
                                group = "Overview",
                                time_range,

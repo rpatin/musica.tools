@@ -6,8 +6,8 @@
 \usage{
 dygraph_comparison(
   df,
-  pixheight = 150,
-  pixwidth = 1500,
+  pixheight = NULL,
+  pixwidth = NULL,
   axisLabelWidth = 75,
   group = "Overview",
   time_range,
