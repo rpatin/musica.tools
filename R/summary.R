@@ -68,8 +68,8 @@ summary_markdown <- function(x, filename, template, list_var,
   }
   if (requireNamespace("rmarkdown")) {
     rmarkdown::render(
-      input = paste0(system.file(package = "musica.tools"),
-                     "/rmarkdown/", markdown.file),
+      input = system.file(package = "musica.tools",
+                          paste0("/rmarkdown/", markdown.file)),
       output_file = paste0(filename,".html"),
       output_dir = out.dir,
       encoding     = 'UTF-8'
