@@ -28,7 +28,7 @@
 ##' @importFrom shinyjs useShinyjs hidden
 ##' @importFrom shinyWidgets awesomeRadio materialSwitch
 ##' @importFrom dygraphs dygraphOutput
-##' @importFrom htmltools tags hr
+##' @importFrom htmltools tags hr includeCSS
 ##' @export
 ##' 
 ##' 
