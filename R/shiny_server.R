@@ -364,8 +364,8 @@ musica_server <- function(x) {
         return(
           dygraph_comparison(tab1_df1(),
                              main.title = tab1_main.title1(),
-                             pixwidth = 600, 
-                             pixheight = 40,
+                             # pixwidth = 600, 
+                             # pixheight = 40,
                              diffmodels = input$tab1_diffmodels1))
       } else {
         return(NULL)

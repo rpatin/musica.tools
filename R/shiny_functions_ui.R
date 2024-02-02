@@ -362,9 +362,9 @@ add_changedate_button <- function(id, legend, class)
   fluidRow(class = class,
            actionButton(paste0(id, "_left"),
                         icon("minus"),
-                        style = 'padding:4px; font-size:70%'),
+                        class = "changedate_button"),
            legend,
            actionButton(paste0(id, "_right"),
                         icon("plus"),
-                        style = 'padding:4px; font-size:70%'))
+                        class = "changedate_button"))
 }

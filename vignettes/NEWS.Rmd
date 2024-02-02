@@ -11,6 +11,11 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.1.4
+  * shiny app now use a separate css file
+  * improved readability of the app. Graphics, regenerate and export button have
+  now a fixed position. Left sidebar has now a scroll bar.
+  
 ### 0.1.3
   * get_variable_comparison return models as a factor, allowing facet to be plot 
   in the correct order.
