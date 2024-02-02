@@ -189,11 +189,29 @@ e_air_sat <- function(tk_air) {
 ##' 
 
 convert.units <- function(values, from, to, dt = NULL) {
+
+## mmol/m2/dt to kg/m2/s ---------------------------------------------------
+  
   if (from == "mmol/m2/dt" &
       to == "kg/m2/s") {
     stopifnot(!is.null(dt))
     mol_weight_h2o = 18.016e-03 #kg/mol
     values <- values/dt*1e-3*mol_weight_h2o
   }
+  
+  ## kg/m2/s to mm/dt ---------------------------------------------------
+  if (from == "kg/m2/s" &
+      to == "mm/dt") {
+    stopifnot(!is.null(dt))
+    values <- values*dt
+  }
+  
+  ## mm/dt to kg/m2/s ---------------------------------------------------
+  if (from == "mm/dt" &
+      to == "kg/m2/s") {
+    stopifnot(!is.null(dt))
+    values <- values/dt
+  }
+  
   return(values)
 }

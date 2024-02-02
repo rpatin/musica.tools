@@ -11,6 +11,9 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.1.5
+  * added conversion mm/dt to or from kg/m2/s
+
 ### 0.1.4
   * shiny app now use a separate css file
   * improved readability of the app. Graphics, regenerate and export button have
