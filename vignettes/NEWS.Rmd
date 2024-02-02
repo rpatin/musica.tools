@@ -11,6 +11,10 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.1.3
+  * get_variable_comparison return models as a factor, allowing facet to be plot 
+  in the correct order.
+  
 ### 0.1.2
   * in the shiny app, for heatmap and daily heatmap, facet default to models if possible
   * fixed bugs with model differences and heatmap/daily_heatmap

@@ -441,7 +441,8 @@ get_variable_comparison <- function(x, varname, time_range = NULL,
   attr(df, "veget_height_top") <- attr(list.df[[1]], "veget_height_top")
   attr(df, "layer_thickness") <- attr(list.df[[1]], "layer_thickness")
   df <- df %>% 
-    select("models", everything())
+    select("models", everything()) %>% 
+    mutate(models = factor(models, levels = names(x)))
   if (diffmodels) {
     keep_attr <- attributes(df)
     df <- 
