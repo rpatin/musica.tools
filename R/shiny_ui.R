@@ -466,6 +466,7 @@ musica_ui <- function(x) {
                                            I('function() { this.setValue(""); }')))
                       )),
                       hr(), 
+                      ## export option ---------------------------------------
                       selectInput("tab2_file_format", "File Format",
                                   choices = c("png","pdf","svg","jpeg"),
                                   selected = "png"),
@@ -473,12 +474,12 @@ musica_ui <- function(x) {
                         column(6,
                                numericInput("tab2_width", "Fig. width (cm)",
                                             min = 0, 
-                                            value = 16,
+                                            value = 20,
                                             width = "100%")),
                         column(6,
                                numericInput("tab2_height", "Fig. height (cm)",
                                             min = 0, 
-                                            value = 12,
+                                            value = 16,
                                             width = "100%"))),
                       width = 3
                     ),
