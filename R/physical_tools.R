@@ -188,9 +188,9 @@ e_air_sat <- function(tk_air) {
 ##' 
 ##' 
 
-convert.units <- function(values, from, to, dt = NULL) {
-
-## mmol/m2/dt to kg/m2/s ---------------------------------------------------
+convert.units <- function(values, from, to, dt = NULL, Tair) {
+  mol_weight_h2o = 18.016e-03
+  ## mmol/m2/dt to kg/m2/s ---------------------------------------------------
   
   if (from == "mmol/m2/dt" &
       to == "kg/m2/s") {
@@ -211,6 +211,21 @@ convert.units <- function(values, from, to, dt = NULL) {
       to == "kg/m2/s") {
     stopifnot(!is.null(dt))
     values <- values/dt
+  }
+  
+  
+  ## kg/m2/s to W/m2 ---------------------------------------------------
+  if (from == "kg/m2/s" &
+      to == "W/m2") {
+    stopifnot(!missing(Tair))
+    values <- values*lat_heat_vap(Tair)
+  }
+  
+  ## kg/m2/s to W/m2 ---------------------------------------------------
+  if (from == "mmol/m2/s" &
+      to == "W/m2") {
+    stopifnot(!missing(Tair))
+    values <- values*1e-3*mol_weight_h2o*lat_heat_vap(Tair)
   }
   
   return(values)
