@@ -92,12 +92,13 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   attr(df, "models") <- NULL
   
   if (dev_jerome) {
+    time_value <- get_dim_value(x, "n_time")
+    dt <- 
+      difftime(time_value[2], time_value[1], units = "secs") %>% 
+      as.numeric()
+    df$time <- df$time + dt
     if (varname == "root_uptake") {
       # conversion from mmol/m2/dt to kg/m2/s
-      time_value <- get_dim_value(x, "n_time")
-      dt <- 
-        difftime(time_value[2], time_value[1], units = "secs") %>% 
-        as.numeric()
       df$root_uptake <- convert.units(df$root_uptake, 
                                       from = "mmol/m2/dt", 
                                       to = "kg/m2/s",
