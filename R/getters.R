@@ -54,21 +54,9 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   if (return.colnames) {
     return(unlist(list_dimname))
   }
+  df <-
+      get_variable_raw(x, varname, list_dimname = list_dimname)
   
-  list_dimvalue <-
-    lapply(list_dimname, 
-           function(this_dimname) {
-             get_dim_value(x, this_dimname)
-           })
-  
-  df <- expand.grid(list_dimvalue)
-  colnames(df) <- unlist(list_dimname)
-  matvalue <- ncvar_get(x, varname)
-  df[ , varname] <- as.vector(matvalue)
-  which.NA <- which(df[ , varname] == -9999)
-  if (length(which.NA) > 0) {
-    df[which.NA, varname ] <- NA
-  }
   
   # rename dev_jerome column names
   old_conversion <- 
@@ -87,6 +75,14 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
         rename(df, !!sym(old_conversion[this.old]) := sym(this.old))
     }
   }
+  
+  if (!is.null(time_range)) {
+    df <- 
+      df %>% 
+      filter(time >= time_range[1],
+             time <= time_range[2])
+  }
+  
   attr(df, "units") <- x$var[[varname]]$units
   attr(df, "longname") <- x$var[[varname]]$longname
   attr(df, "var") <- varname
@@ -106,6 +102,15 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
                                       from = "mmol/m2/dt", 
                                       to = "kg/m2/s",
                                       dt = dt)
+      attr(df, "units") <- "kg/m2/s"
+    } else if (varname == "transpir") {
+      df_Tair <- get_variable_raw(x, "Tair_z") %>% 
+        filter(n_air_layer == max(n_air_layer)) %>% 
+        right_join(df, keep = FALSE, by = c("n_time" = "time"))
+      df$transpir <- convert.units(df$transpir, 
+                                      from = "mmol/m2/s", 
+                                      to = "kg/m2/s",
+                                      Tair = df_Tair$Tair_z)
       attr(df, "units") <- "kg/m2/s"
     }
   }
@@ -139,12 +144,7 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
     }
   }
   
-  if (!is.null(time_range)) {
-    df <- 
-      df %>% 
-      filter(time >= time_range[1],
-             time <= time_range[2])
-  }
+
   df
 }
 
@@ -482,4 +482,30 @@ get_variable_comparison <- function(x, varname, time_range = NULL,
     varname = varname,
     diffmodels = diffmodels
   )
+}
+
+# get_variable_raw --------------------------------------------------------
+get_variable_raw <- function(x, varname, list_dimname) {
+  if (missing(list_dimname) || is.null(list_dimname)) {
+    list_dimname <- 
+      lapply(x$var[[varname]]$dimids,           
+             function(thisid) {
+               dfdim$dimname[which(dfdim$id == thisid)]
+             })
+  }
+  list_dimvalue <-
+    lapply(list_dimname, 
+           function(this_dimname) {
+             get_dim_value(x, this_dimname)
+           })
+  
+  df <- expand.grid(list_dimvalue)
+  colnames(df) <- unlist(list_dimname)
+  matvalue <- ncvar_get(x, varname)
+  df[ , varname] <- as.vector(matvalue)
+  which.NA <- which(df[ , varname] == -9999)
+  if (length(which.NA) > 0) {
+    df[which.NA, varname ] <- NA
+  }
+  df
 }

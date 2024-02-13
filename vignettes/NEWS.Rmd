@@ -13,6 +13,8 @@ vignette: >
 
 ### 0.1.5
   * added conversion mm/dt to or from kg/m2/s
+  * added automatic conversion for transpiration in MuSICA v2 output files
+  * added get_variable_raw to avoid code repetition in get_variable
 
 ### 0.1.4
   * shiny app now use a separate css file
