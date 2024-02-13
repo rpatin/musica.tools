@@ -107,7 +107,6 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
       df_Tair <- get_variable_raw(x, "Tair_z") %>% 
         filter(n_air_layer == max(n_air_layer)) %>% 
         right_join(df, keep = FALSE, by = c("n_time" = "time"))
-      browser()
       df$transpir <- convert.units(df$transpir, 
                                       from = "mmol/m2/s", 
                                       to = "kg/m2/s",
