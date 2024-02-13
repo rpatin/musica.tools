@@ -13,6 +13,7 @@ vignette: >
 
 ### 0.1.5
   * added conversion mm/dt to or from kg/m2/s
+  * added conversion mmol/m2/s to from kg/m2/s
   * added automatic conversion for transpiration in MuSICA v2 output files
   * added get_variable_raw to avoid code repetition in get_variable
 
