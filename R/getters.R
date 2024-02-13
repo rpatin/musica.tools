@@ -487,6 +487,7 @@ get_variable_comparison <- function(x, varname, time_range = NULL,
 # get_variable_raw --------------------------------------------------------
 get_variable_raw <- function(x, varname, list_dimname) {
   if (missing(list_dimname) || is.null(list_dimname)) {
+    dfdim <- get_dim_info(x)
     list_dimname <- 
       lapply(x$var[[varname]]$dimids,           
              function(thisid) {
