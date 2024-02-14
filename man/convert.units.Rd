@@ -4,7 +4,7 @@
 \alias{convert.units}
 \title{Standard unit conversion}
 \usage{
-convert.units(values, from, to, dt = NULL)
+convert.units(values, from, to, dt = NULL, Tair)
 }
 \arguments{
 \item{values}{a \code{numeric}, values to be converted}
