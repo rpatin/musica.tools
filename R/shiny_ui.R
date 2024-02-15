@@ -319,7 +319,7 @@ musica_ui <- function(x) {
                       ## Update View & tab2_type -------------------------------------
                       hr(), 
                       fluidRow(
-                        column(9,
+                        column(8,
                                selectInput("tab2_type", label = "Plot type",
                                            choices = c("standard",
                                                        "daily_heatmap",
@@ -330,11 +330,16 @@ musica_ui <- function(x) {
                                                        "scatterplot_model",
                                                        "scatterplot_var"),
                                            selected = "standard")),
-                        column(3,
+                        column(4,
                                hidden(div(
                                  id = "tab2_scatterplot_points",
                                  checkboxInput("tab2_scatterplot_points", 
                                                label = "Points",
+                                               value = FALSE))),
+                               hidden(div(
+                                 id = "tab2_heatmap_layer",
+                                 checkboxInput("tab2_heatmap_layer", 
+                                               label = "Real Height",
                                                value = FALSE)))
                         ),
                       ),
@@ -486,7 +491,7 @@ musica_ui <- function(x) {
                     ## Output ---------------------------------------------------
                     mainPanel(
                       fluidPage(
-                      plotOutput("tab2_plot", height = "80vh")
+                        plotOutput("tab2_plot", height = "80vh")
                       ),
                       fluidPage(
                         height = "10vh",

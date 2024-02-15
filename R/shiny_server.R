@@ -589,6 +589,11 @@ musica_server <- function(x) {
         hide("tab2_scatterplot_points")
         shinyjs::show("tab2_selected_output")
       }
+      if (input$tab2_type == "heatmap") {
+        shinyjs::show("tab2_heatmap_layer")
+      } else {
+        hide("tab2_heatmap_layer")
+      }
     })
     ### Selected Models -------------------------------------------------------
     
@@ -1132,10 +1137,16 @@ musica_server <- function(x) {
       })
     
     ### tab2_plot -----------------------------------------------------------
-    
     tab2_plot <- eventReactive({
       input$tab2_UpdateView 
     }, {
+      # if (input$tab2_type == "heatmap") {
+      #   shinyOptions("shiny.useragg" = FALSE,
+      #                "shiny.usecairo" = FALSE)
+      # } else {
+      #   shinyOptions("shiny.useragg" = TRUE,
+      #                "shiny.usecairo" = TRUE)
+      # }
       
       if (input$tab2_type %in% c("scatterplot_model",
                                  "scatterplot_var")) {
@@ -1143,21 +1154,22 @@ musica_server <- function(x) {
       } else {
         this.type <- input$tab2_type
       }
-      ggplot_variable(tab2_df(),
-                      out.type = this.type,
-                      x = input$tab2_x,
-                      y = input$tab2_y,
-                      shape = input$tab2_shape,
-                      fill = input$tab2_fill,
-                      color = input$tab2_color,
-                      linetype = input$tab2_linetype,
-                      facet_formula = input$tab2_facet,
-                      xrange = c(input$tab2_xmin, input$tab2_xmax),
-                      yrange = c(input$tab2_ymin, input$tab2_ymax),
-                      fillrange = c(input$tab2_fillmin, input$tab2_fillmax),
-                      diffmodels = input$tab2_diffmodels,
-                      bin2d = !input$tab2_scatterplot_points,
-                      nrow.facet = input$tab2_nrow_facet)
+        ggplot_variable(tab2_df(),
+                        out.type = this.type,
+                        x = input$tab2_x,
+                        y = input$tab2_y,
+                        shape = input$tab2_shape,
+                        fill = input$tab2_fill,
+                        color = input$tab2_color,
+                        linetype = input$tab2_linetype,
+                        facet_formula = input$tab2_facet,
+                        xrange = c(input$tab2_xmin, input$tab2_xmax),
+                        yrange = c(input$tab2_ymin, input$tab2_ymax),
+                        fillrange = c(input$tab2_fillmin, input$tab2_fillmax),
+                        diffmodels = input$tab2_diffmodels,
+                        bin2d = !input$tab2_scatterplot_points,
+                        layer.y = !input$tab2_heatmap_layer,
+                        nrow.facet = input$tab2_nrow_facet)
     })
     output$tab2_plot <- 
       renderPlot(tab2_plot())
