@@ -55,8 +55,7 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
     return(unlist(list_dimname))
   }
   df <-
-      get_variable_raw(x, varname, list_dimname = list_dimname)
-  
+    get_variable_raw(x, varname, list_dimname = list_dimname)
   
   # rename dev_jerome column names
   old_conversion <- 
@@ -92,11 +91,13 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   attr(df, "models") <- NULL
   
   if (dev_jerome) {
-    time_value <- get_dim_value(x, "n_time")
-    dt <- 
-      difftime(time_value[2], time_value[1], units = "secs") %>% 
-      as.numeric()
-    df$time <- df$time + dt
+    if ("n_time" %in% unlist(list_dimname)) {
+      time_value <- get_dim_value(x, "n_time")
+      dt <- 
+        difftime(time_value[2], time_value[1], units = "secs") %>% 
+        as.numeric()
+      df$time <- df$time + dt
+    }
     if (varname == "root_uptake") {
       # conversion from mmol/m2/dt to kg/m2/s
       df$root_uptake <- convert.units(df$root_uptake, 
@@ -109,9 +110,9 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
         filter(n_air_layer == max(n_air_layer)) %>% 
         right_join(df, keep = FALSE, by = c("n_time" = "time"))
       df$transpir <- convert.units(df$transpir, 
-                                      from = "mmol/m2/s", 
-                                      to = "kg/m2/s",
-                                      Tair = df_Tair$Tair_z)
+                                   from = "mmol/m2/s", 
+                                   to = "kg/m2/s",
+                                   Tair = df_Tair$Tair_z)
       
       attr(df, "units") <- "kg/m2/s"
     }
@@ -119,7 +120,7 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   
   if ("nsoil" %in% list_dimname & 
       !(varname %in% c("z_soil", "dz_soil"))) {
-    if ("z_soil" %in% names(x$var)) {
+    if ("z_soil" %in% names(x$var) & varname != "z_soil") {
       attr(df, "z_soil") <- 
         get_variable(x, "z_soil") 
     }
@@ -146,7 +147,7 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
     }
   }
   
-
+  
   df
 }
 
