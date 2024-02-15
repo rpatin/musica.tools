@@ -11,6 +11,9 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.1.8
+  * added unit conversion for q_h2o_soil_liq in v2 output
+  
 ### 0.1.7
   * heatmap can now use real height/depth value instead of the number of layer.
   * `grDevices` is now the default graphic devices in the shiny app for better 
