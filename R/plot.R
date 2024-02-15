@@ -36,6 +36,9 @@
 ##' @param bin2d (\emph{optional}, default \code{TRUE}), a \code{boolean}, if
 ##'   \code{TRUE}, the code uses \code{geom_bin2d} instead of default
 ##'   \code{geom_point}.
+##' @param layer.y (\emph{optional}, default \code{TRUE}), a \code{boolean}, if
+##'   \code{TRUE}, the code uses the layer index as y scale when \code{out.type
+##'   = 'heatmap'}. Else it will use depth or height.
 ##' @param diffmodels  (\emph{optional}, default \code{FALSE}), a
 ##'   \code{boolean}, if \code{TRUE}, indicates that \code{df} contains the
 ##'   difference between two models. Plot is then adjusted accordingly
@@ -224,7 +227,8 @@ ggplot_variable <- function(df,
                             out.type,
                             x, y, color, linetype, shape, fill, facet_formula,
                             xrange = NULL, yrange = NULL, fillrange = NULL,
-                            bin2d = TRUE, diffmodels = FALSE, nrow.facet = NULL,
+                            bin2d = TRUE, layer.y = TRUE,
+                            diffmodels = FALSE, nrow.facet = NULL,
                             format.date = "%b %Y") {
   args <- .check_ggplot_variable(df = df,
                                  time_range = time_range,
@@ -239,6 +243,7 @@ ggplot_variable <- function(df,
                                  diffmodels = diffmodels, 
                                  nrow.facet = nrow.facet,
                                  bin2d = bin2d,
+                                 layer.y = TRUE,
                                  format.date = format.date)
   for (argi in names(args)) { 
     assign(x = argi, value = args[[argi]]) 
@@ -340,118 +345,190 @@ ggplot_variable <- function(df,
              "nair" = 0,
              0.5
       )
-    g <-
-      ggplot(df) +
-      geom_raster(aes(x = time,
-                      y = .data[[y]],
-                      fill = .data[[this_variable]]),
-                  vjust = vjust) +
-      scale_y_continuous(breaks = breaks_pretty(n = 10)) +
-      scale_fill_viridis_c(str_wrap(this.legend.fill, width = 15),
-                           option = "D", direction = -1,
-                           limits = fillrange) +
-      ylab(y) +
-      xlab(NULL)
     
-    if (y %in% c("nsoil","nair","nveg")) {
-      if (y == "nsoil") {
-        z_soil <- attr(df, "z_soil")
-        dz_soil <- attr(df, "dz_soil")
-        bottom_soil <- z_soil$z_soil + 0.5*dz_soil$dz_soil
-        if (!is.null(yrange)) {
-          keep_levels <- findInterval(x = yrange, vec = 100*c(0,bottom_soil))
-          keep_levels[1] <- max(keep_levels[1], 1)
-          keep_levels[2] <- min(keep_levels[2], length(z_soil$z_soil))
-          z_soil <- z_soil[seq(keep_levels[1], keep_levels[2]),]
-          dz_soil <- dz_soil[seq(keep_levels[1], keep_levels[2]),]
+    ## plot layer as dimension -----------------------------------------
+    if (layer.y) {
+      g <-
+        ggplot(df) +
+        geom_raster(aes(x = time,
+                        y = .data[[y]],
+                        fill = .data[[this_variable]]),
+                    vjust = vjust) +
+        scale_y_continuous(breaks = breaks_pretty(n = 10)) +
+        scale_fill_viridis_c(str_wrap(this.legend.fill, width = 15),
+                             option = "D", direction = -1,
+                             limits = fillrange) +
+        ylab(y) +
+        xlab(NULL)
+      
+      if (y %in% c("nsoil","nair","nveg")) {
+        if (y == "nsoil") {
+          z_soil <- attr(df, "z_soil")
+          dz_soil <- attr(df, "dz_soil")
           bottom_soil <- z_soil$z_soil + 0.5*dz_soil$dz_soil
-          yrange <- keep_levels 
-          if (first(keep_levels) == 1) {
-            yrange[1] <- 0
+          if (!is.null(yrange)) {
+            keep_levels <- findInterval(x = yrange, vec = 100*c(0,bottom_soil))
+            keep_levels[1] <- max(keep_levels[1], 1)
+            keep_levels[2] <- min(keep_levels[2], length(z_soil$z_soil))
+            z_soil <- z_soil[seq(keep_levels[1], keep_levels[2]),]
+            dz_soil <- dz_soil[seq(keep_levels[1], keep_levels[2]),]
+            bottom_soil <- z_soil$z_soil + 0.5*dz_soil$dz_soil
+            yrange <- keep_levels 
+            if (first(keep_levels) == 1) {
+              yrange[1] <- 0
+            }
           }
-        }
-        y_levels <-
-          breaks_pretty(n = 10)(z_soil$nsoil) %>% 
-          as.integer() %>% 
-          unique()
-        if (first(y_levels) == 0) {
-          y_labels <- c(0, bottom_soil[y_levels[-1]])
-        } else if (first(y_levels) < first(z_soil$nsoil)) {
-          y_levels <- y_levels[-1]
-          y_labels <- bottom_soil[which(z_soil$nsoil %in% y_levels)]
-        } else {
-          y_labels <- bottom_soil[which(z_soil$nsoil %in% y_levels)]
-        }
-        if (last(y_levels) > last(z_soil$nsoil)) {
-          y_levels <- y_levels[-length(y_levels)]
-        }
-        y_labels <- na.omit(y_labels)
-        y_labels <- round(y_labels*100, digits = 1) # in cm
-        y_units <- "Depth (cm)"
-        
-        g <- g +
-          scale_y_reverse(y_units,
-                          breaks = y_levels,
-                          labels = y_labels) 
-        if (!is.null(yrange)) {
+          y_levels <-
+            breaks_pretty(n = 10)(z_soil$nsoil) %>% 
+            as.integer() %>% 
+            unique()
+          if (first(y_levels) == 0) {
+            y_labels <- c(0, bottom_soil[y_levels[-1]])
+          } else if (first(y_levels) < first(z_soil$nsoil)) {
+            y_levels <- y_levels[-1]
+            y_labels <- bottom_soil[which(z_soil$nsoil %in% y_levels)]
+          } else {
+            y_labels <- bottom_soil[which(z_soil$nsoil %in% y_levels)]
+          }
+          if (last(y_levels) > last(z_soil$nsoil)) {
+            y_levels <- y_levels[-length(y_levels)]
+          }
+          y_labels <- na.omit(y_labels)
+          y_labels <- round(y_labels*100, digits = 1) # in cm
+          y_units <- "Depth (cm)"
+          
           g <- g +
-            coord_cartesian(ylim = rev(yrange))
-        }
-        
-      } else if (y %in% c("nair","nveg")) {
-        veget_top <- attr(df, "veget_height_top") %>% 
-          pull(veget_height_top) %>% 
-          first()
-        zair <- attr(df, "relative_height") %>% 
-          mutate(height = relative_height * veget_top)
-        dzair <- attr(df, "layer_thickness") 
-        top_air <- zair$height + dzair$layer_thickness/2
-        
-        if (!is.null(yrange)) {
-          keep_levels <- findInterval(x = yrange, vec = c(0,top_air))
-          keep_levels[1] <- max(keep_levels[1], 1)
-          keep_levels[2] <- min(keep_levels[2], length(zair$height))
-          yrange <- keep_levels 
-          if (first(keep_levels) == 1) {
-            yrange[1] <- 0
+            scale_y_reverse(y_units,
+                            breaks = y_levels,
+                            labels = y_labels) 
+          if (!is.null(yrange)) {
+            g <- g +
+              coord_cartesian(ylim = rev(yrange))
           }
+          
+        } else if (y %in% c("nair","nveg")) {
+          veget_top <- attr(df, "veget_height_top") %>% 
+            pull(veget_height_top) %>% 
+            first()
+          zair <- attr(df, "relative_height") %>% 
+            mutate(height = relative_height * veget_top)
+          dzair <- attr(df, "layer_thickness") 
+          top_air <- zair$height + dzair$layer_thickness/2
+          
+          if (!is.null(yrange)) {
+            keep_levels <- findInterval(x = yrange, vec = c(0,top_air))
+            keep_levels[1] <- max(keep_levels[1], 1)
+            keep_levels[2] <- min(keep_levels[2], length(zair$height))
+            yrange <- keep_levels 
+            if (first(keep_levels) == 1) {
+              yrange[1] <- 0
+            }
+          }
+          y_levels <- breaks_pretty(n = 8)(zair$nair) %>% 
+            as.integer() %>% 
+            unique()
+          y_veg <- which.min(abs(top_air - veget_top))
+          if (!(y_veg %in% y_levels)) {
+            y_levels <- sort(c(y_levels,y_veg))
+          }
+          if (first(y_levels) == 0) {
+            y_labels <- c(0, top_air[y_levels[-1]])
+          } else if (first(y_levels) < first(zair$nair)) {
+            y_levels <- y_levels[-1]
+            y_labels <- top_air[which(zair$nair %in% y_levels)]
+          } else {
+            y_labels <- top_air[which(zair$nair %in% y_levels)]
+          }
+          if (last(y_levels) > last(zair$nair)) {
+            y_levels <- y_levels[-length(y_levels)]
+          }
+          y_labels <- na.omit(y_labels)
+          y_labels <- round(y_labels, digits = 1) # in m
+          
+          y_units <- "Height (m)"
+          g <- g +
+            geom_hline(yintercept = y_veg, linetype = "dashed")
+          g <- g +
+            scale_y_continuous(y_units,
+                               breaks = y_levels,
+                               labels = y_labels)
+          g <- g +
+            coord_cartesian(ylim = yrange) 
+          
+          
         }
-        y_levels <- breaks_pretty(n = 8)(zair$nair) %>% 
-          as.integer() %>% 
-          unique()
-        y_veg <- which.min(abs(top_air - veget_top))
-        if (!(y_veg %in% y_levels)) {
-          y_levels <- sort(c(y_levels,y_veg))
+      }
+    } else {
+      ## plot real y dimension -----------------------------------------
+      if (y %in% c("nsoil","nair","nveg")) {
+        if (y == "nsoil") {
+          z_soil <- attr(df, "z_soil")
+          this.ylab <- attr_legend(z_soil)
+          dz_soil <- attr(df, "dz_soil")
+          bottom_soil <- z_soil$z_soil + 0.5*dz_soil$dz_soil
+          top_soil <- z_soil$z_soil - 0.5*dz_soil$dz_soil
+          df_z <- data.frame(nsoil = z_soil$nsoil,
+                                 bottom = bottom_soil,
+                                 top = top_soil)
+          reverse_scale <- TRUE
+          y_veg <- NULL
+        } else if (y %in% c("nair","nveg")) {
+          veget_top <- attr(df, "veget_height_top") %>% 
+            pull(veget_height_top) %>% 
+            first()
+          zair <- attr(df, "relative_height") %>% 
+            mutate(height = relative_height * veget_top)
+          this.ylab <- "Height (m)"
+          dzair <- attr(df, "layer_thickness") 
+          top_air <- zair$height + dzair$layer_thickness/2
+          bottom_air <- zair$height - dzair$layer_thickness/2
+          df_z <- data.frame(tmpcol = zair$nair,
+                             bottom = bottom_air,
+                             top = top_air)
+          colnames(df_z)[1] <- y
+          y_veg <- which.min(abs(top_air - veget_top))
+          reverse_scale <- FALSE
         }
-        if (first(y_levels) == 0) {
-          y_labels <- c(0, top_air[y_levels[-1]])
-        } else if (first(y_levels) < first(zair$nair)) {
-          y_levels <- y_levels[-1]
-          y_labels <- top_air[which(zair$nair %in% y_levels)]
+        dt <- max(difftime(df$time[-1], df$time[-length(df$time)]))
+        df <- 
+          df %>% 
+          left_join(df_z) %>% 
+          mutate(time_begin = time - dt/2,
+                 time_end = time + dt/2)
+        
+        g <-
+          ggplot(df) +
+          geom_rect(aes(xmin = time_begin,
+                        xmax = time_end,
+                        ymin = bottom,
+                        ymax = top,
+                        fill = .data[[this_variable]])) +
+          scale_y_continuous(breaks = breaks_pretty(n = 10)) +
+          scale_fill_viridis_c(str_wrap(this.legend.fill, width = 15),
+                               option = "D", direction = -1,
+                               limits = fillrange) +
+          ylab(this.ylab) +
+          xlab(NULL)
+        
+        if (reverse_scale) {
+          g <- 
+            g +
+            scale_y_reverse() +
+            coord_cartesian(ylim = rev(yrange))
         } else {
-          y_labels <- top_air[which(zair$nair %in% y_levels)]
+          g <- 
+            g +
+            coord_cartesian(ylim = yrange)
         }
-        if (last(y_levels) > last(zair$nair)) {
-          y_levels <- y_levels[-length(y_levels)]
+        
+        if (!is.null(y_veg)) {
+          g <- g +
+            geom_hline(yintercept = y_veg, linetype = "dashed")
         }
-        y_labels <- na.omit(y_labels)
-        y_labels <- round(y_labels, digits = 1) # in m
-        
-        y_units <- "Height (m)"
-        g <- g +
-          geom_hline(yintercept = y_veg, linetype = "dashed")
-        g <- g +
-          scale_y_continuous(y_units,
-                             breaks = y_levels,
-                             labels = y_labels)
-        g <- g +
-          coord_cartesian(ylim = yrange) 
-        
-        
       }
     }
   } else if (out.type == "boxplot") {
-    # boxplot -----------------------------------------------------------
+    ### boxplot -----------------------------------------------------------
     g <-
       ggplot(df) 
     
@@ -486,7 +563,7 @@ ggplot_variable <- function(df,
       coord_cartesian(ylim = yrange) +
       xlab(NULL)
   } else if (out.type == "scatterplot") {
-    # scatterplot -----------------------------------------------------------
+    ### scatterplot -------------------------------------------------------
     skip_ylab <- TRUE
     g <-
       ggplot(df) 
@@ -533,7 +610,7 @@ ggplot_variable <- function(df,
     
   } else if (out.type == "density") {
     
-    # density -----------------------------------------------------------------
+    ### density -----------------------------------------------------------
     
     g <- 
       ggplot(df)
@@ -558,7 +635,7 @@ ggplot_variable <- function(df,
       coord_cartesian(xlim = xrange, ylim = yrange) 
   } else if (out.type == "histogram") {
     
-    # histogram ---------------------------------------------------------------
+    ### histogram ---------------------------------------------------------
     g <- ggplot(df)
     if (is.null(fill)) {
       g <- g +
@@ -574,7 +651,7 @@ ggplot_variable <- function(df,
   }
   
   
-  # Return ------------------------------------------------------------------
+  ### Return ---------------------------------------------------------------
   if (!is.null(this.title)) {
     g <- g + 
       ggtitle(str_wrap(this.title, width = 100))
@@ -610,9 +687,9 @@ ggplot_variable <- function(df,
            color, linetype, fill, shape, facet_formula,
            xrange, yrange, fillrange,
            diffmodels, nrow.facet,
-           bin2d,
+           bin2d, layer.y,
            format.date) {
-
+    
     if (missing(out.type)) {
       out.type <- "standard"
     }
@@ -872,6 +949,8 @@ ggplot_variable <- function(df,
                                   paste0(facet_formula, collapse = "|"),
                                   negate = TRUE)
     }
+    
+    
     # Remaining dimension
     
     # if (out.type %in% c("standard","heatmap", "daily_heatmap","histogram") &
