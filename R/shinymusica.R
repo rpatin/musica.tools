@@ -31,5 +31,9 @@
 
 
 shinymusica <- function(x) {
+  # shinyOptions("shiny.useragg" = FALSE,
+  #              "shiny.usecairo" = FALSE)
+  options("shiny.useragg" = FALSE)
+  options("shiny.usecairo" = FALSE)
   shinyApp(musica_ui(x), musica_server(x))
 }

@@ -1188,9 +1188,16 @@ musica_server <- function(x) {
     output$tab2_download <- downloadHandler(
       filename = function() { tab2_filename() },
       content = function(file) {
+        if (input$tab2_type == "heatmap" & 
+            input$tab2_file_format == "png") {
+          this.device <- grDevices::png
+        } else {
+          this.device <- NULL
+        }
         save_plot(file, tab2_plot(), 
                   base_width = tab2_width()/cm(1), 
-                  base_height = tab2_height()/cm(1))
+                  base_height = tab2_height()/cm(1),
+                  device = this.device)
       }
     )
   }) #end shinyserver
