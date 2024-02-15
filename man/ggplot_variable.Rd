@@ -19,6 +19,7 @@ ggplot_variable(
   yrange = NULL,
   fillrange = NULL,
   bin2d = TRUE,
+  layer.y = TRUE,
   diffmodels = FALSE,
   nrow.facet = NULL,
   format.date = "\%b \%Y"
@@ -65,6 +66,10 @@ the variable used as fill aesthetics in the plot.}
 \item{bin2d}{(\emph{optional}, default \code{TRUE}), a \code{boolean}, if
 \code{TRUE}, the code uses \code{geom_bin2d} instead of default
 \code{geom_point}.}
+
+\item{layer.y}{(\emph{optional}, default \code{TRUE}), a \code{boolean}, if
+\code{TRUE}, the code uses the layer index as y scale when \code{out.type
+= 'heatmap'}. Else it will use depth or height.}
 
 \item{diffmodels}{(\emph{optional}, default \code{FALSE}), a
 \code{boolean}, if \code{TRUE}, indicates that \code{df} contains the

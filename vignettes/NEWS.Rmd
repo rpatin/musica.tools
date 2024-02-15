@@ -11,6 +11,12 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.1.7
+  * heatmap can now use real height/depth value instead of the number of layer.
+  * `grDevices` is now the default graphic devices in the shiny app for better 
+  rendering of `geom_tile` plots.
+  * fixed bug with time-independent variable in MuSICA v2 output.
+
 ### 0.1.6
   * properly format variable with empty units
 
