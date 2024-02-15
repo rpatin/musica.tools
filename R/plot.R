@@ -405,7 +405,6 @@ ggplot_variable <- function(df,
             g <- g +
               coord_cartesian(ylim = rev(yrange))
           }
-          
         } else if (y %in% c("nair","nveg")) {
           veget_top <- attr(df, "veget_height_top") %>% 
             pull(veget_height_top) %>% 
@@ -468,8 +467,10 @@ ggplot_variable <- function(df,
           bottom_soil <- z_soil$z_soil + 0.5*dz_soil$dz_soil
           top_soil <- z_soil$z_soil - 0.5*dz_soil$dz_soil
           df_z <- data.frame(nsoil = z_soil$nsoil,
-                                 bottom = bottom_soil,
-                                 top = top_soil)
+                             bottom = bottom_soil,
+                             top = top_soil,
+                             y = z_soil$z_soil,
+                             height = dz_soil$dz_soil*1.01)
           reverse_scale <- TRUE
           y_veg <- NULL
         } else if (y %in% c("nair","nveg")) {
@@ -484,7 +485,9 @@ ggplot_variable <- function(df,
           bottom_air <- zair$height - dzair$layer_thickness/2
           df_z <- data.frame(tmpcol = zair$nair,
                              bottom = bottom_air,
-                             top = top_air)
+                             top = top_air,
+                             y = zair$height,
+                             height = dzair$layer_thickness*1.01)
           colnames(df_z)[1] <- y
           y_veg <- which.min(abs(top_air - veget_top))
           reverse_scale <- FALSE
@@ -494,14 +497,20 @@ ggplot_variable <- function(df,
           df %>% 
           left_join(df_z) %>% 
           mutate(time_begin = time - dt/2,
-                 time_end = time + dt/2)
+                 time_end = time + dt/2,
+                 width = as.numeric(dt)*1.01)
         
         g <-
           ggplot(df) +
-          geom_rect(aes(xmin = time_begin,
-                        xmax = time_end,
-                        ymin = bottom,
-                        ymax = top,
+          # geom_rect(aes(xmin = time_begin,
+          #               xmax = time_end,
+          #               ymin = bottom,
+          #               ymax = top,
+          #               fill = .data[[this_variable]])) +
+          geom_tile(aes(x = time,
+                        y = y,
+                        width = width,
+                        height = height,
                         fill = .data[[this_variable]])) +
           scale_y_continuous(breaks = breaks_pretty(n = 10)) +
           scale_fill_viridis_c(str_wrap(this.legend.fill, width = 15),
