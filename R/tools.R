@@ -168,7 +168,12 @@ format_time <- function(time, date0) {
 attr_legend <- function(df) {
   this.units <- attr(df,"units")
   this.longname <- attr(df, "longname")
-  if (!is.null(this.units) && this.units != "") {
+  if (length(this.units) == 2) {
+    this.units <- ifelse(this.units == "", "-", this.units)
+    return( 
+      paste0(this.longname, " (", this.units,")") 
+      )
+  } else if (!is.null(this.units) && this.units != "") {
     return(
       paste0(this.longname, " (", this.units,")")
     )
