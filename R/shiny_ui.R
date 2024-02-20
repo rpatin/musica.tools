@@ -197,6 +197,53 @@ musica_ui <- function(x) {
                              get_subset_input(x, "nspecies", "tab1_nspecies3"),
                              get_subset_input(x, "nveg", "tab1_nveg3"),
                              get_subset_input(x, "nleafage", "tab1_nleafage3"),
+                             ### variable4 ----------------------------------------------
+                             fluidRow(
+                               column(9,
+                                      selectInput("tab1_var4", label = "4th Variable",
+                                                  choices = sort(var_with_dim(x[[1]],"time")),
+                                                  selected = "Qg")),
+                               column(3,
+                                      materialSwitch(
+                                        inputId = "tab1_plotvar4",
+                                        label = NULL, 
+                                        value = FALSE,
+                                        status = "primary"
+                                      ),
+                                      hidden(
+                                        div(id = "tab1_diffmodels4",
+                                            checkboxInput("tab1_diffmodels4", 
+                                                          label = "Diff",
+                                                          value = FALSE))))),
+                             get_subset_input(x, "nsoil", "tab1_nsoil4"),
+                             get_subset_input(x, "nair", "tab1_nair4"),
+                             get_subset_input(x, "nspecies", "tab1_nspecies4"),
+                             get_subset_input(x, "nveg", "tab1_nveg4"),
+                             get_subset_input(x, "nleafage", "tab1_nleafage4"),
+                             ### variable4 ----------------------------------
+                             fluidRow(
+                               column(9,
+                                      selectInput("tab1_var5", label = "5th Variable",
+                                                  choices = sort(var_with_dim(x[[1]],"time")),
+                                                  selected = "Qg")),
+                               column(3,
+                                      materialSwitch(
+                                        inputId = "tab1_plotvar5",
+                                        label = NULL, 
+                                        value = FALSE,
+                                        status = "primary"
+                                      ),
+                                      hidden(
+                                        div(id = "tab1_diffmodels5",
+                                            checkboxInput("tab1_diffmodels5", 
+                                                          label = "Diff",
+                                                          value = FALSE))))),
+                             get_subset_input(x, "nsoil", "tab1_nsoil5"),
+                             get_subset_input(x, "nair", "tab1_nair5"),
+                             get_subset_input(x, "nspecies", "tab1_nspecies5"),
+                             get_subset_input(x, "nveg", "tab1_nveg5"),
+                             get_subset_input(x, "nleafage", "tab1_nleafage5"),
+                             
                              # actionButton("tab1_StoreValue", icon("floppy-disk")),
                              width = 3
                            ),
@@ -204,12 +251,26 @@ musica_ui <- function(x) {
                            mainPanel(
                              fluidPage(
                                height = "90vh",
-                               dygraphOutput("tab1_dygraph1",
-                                             height = "29vh"),
-                               dygraphOutput("tab1_dygraph2", 
-                                             height = "29vh"),
-                               dygraphOutput("tab1_dygraph3",
-                                             height = "29vh")
+                               fluidRow(
+                                 dygraphOutput("tab1_dygraph1",
+                                               height = "16vh")
+                               ),
+                               fluidRow(
+                                 dygraphOutput("tab1_dygraph2", 
+                                               height = "16vh"),
+                               ),
+                               fluidRow(
+                                 dygraphOutput("tab1_dygraph3",
+                                               height = "16vh")
+                               ),
+                               fluidRow(
+                                 dygraphOutput("tab1_dygraph4",
+                                               height = "16vh")
+                               ),
+                               fluidRow(
+                                 dygraphOutput("tab1_dygraph5",
+                                               height = "16vh")
+                               )
                              ),
                              fluidPage(
                                height = "10vh",

@@ -231,13 +231,19 @@ musica_server <- function(x) {
         shinyjs::show("tab1_diffmodels1")
         shinyjs::show("tab1_diffmodels2")
         shinyjs::show("tab1_diffmodels3")
+        shinyjs::show("tab1_diffmodels4")
+        shinyjs::show("tab1_diffmodels5")
       } else {
         reset("tab1_diffmodels1")
         reset("tab1_diffmodels2")
         reset("tab1_diffmodels3")
+        reset("tab1_diffmodels4")
+        reset("tab1_diffmodels5")
         hide("tab1_diffmodels1")
         hide("tab1_diffmodels2")
         hide("tab1_diffmodels3")
+        hide("tab1_diffmodels4")
+        hide("tab1_diffmodels5")
       }
     })
     ### Subset Tab1 ------------------------------------------------------------
@@ -260,6 +266,20 @@ musica_server <- function(x) {
       input$tab1_var3
     }, {
       toggle_subset_input(session, input, index.var = 3, x,
+                          tab = "tab1")
+    })
+    
+    observeEvent({
+      input$tab1_var4
+    }, {
+      toggle_subset_input(session, input, index.var = 4, x,
+                          tab = "tab1")
+    })
+    
+    observeEvent({
+      input$tab1_var5
+    }, {
+      toggle_subset_input(session, input, index.var = 5, x,
                           tab = "tab1")
     })
     ## reactive title Tab1 ---------------------------------------------------
@@ -292,6 +312,26 @@ musica_server <- function(x) {
                      this.species = input$tab1_nspecies3,
                      this.veg = input$tab1_nveg3,
                      this.leaf = input$tab1_nleafage3)
+    })
+    
+    tab1_main.title4 <- eventReactive(input$tab1_UpdateView,{
+      get_main_title(x,
+                     this.var = input$tab1_var4,
+                     this.soil = input$tab1_nsoil4,
+                     this.air = input$tab1_nair4,
+                     this.species = input$tab1_nspecies4,
+                     this.veg = input$tab1_nveg4,
+                     this.leaf = input$tab1_nleafage4)
+    })
+    
+    tab1_main.title5 <- eventReactive(input$tab1_UpdateView,{
+      get_main_title(x,
+                     this.var = input$tab1_var5,
+                     this.soil = input$tab1_nsoil5,
+                     this.air = input$tab1_nair5,
+                     this.species = input$tab1_nspecies5,
+                     this.veg = input$tab1_nveg5,
+                     this.leaf = input$tab1_nleafage5)
     })
     ## reactive data Tab1 ---------------------------------------------------
     
@@ -351,7 +391,44 @@ musica_server <- function(x) {
         return(NULL)
       }
     })
+    ### tab1_df4 ---------------------------------------------------
     
+    tab1_df4 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if(input$tab1_plotvar4) {
+        return(
+          get_variable_comparison(x[input$tab1_selected_output],input$tab1_var4,
+                                  time_range = c(input$tab1_datemin, input$tab1_datemax),
+                                  list.soil.level = input$tab1_nsoil4,
+                                  list.air.level = input$tab1_nair4,
+                                  list.species.level = input$tab1_nspecies4,
+                                  list.veg.level = input$tab1_nveg4,
+                                  list.leafage.level = input$tab1_nleafage4,
+                                  diffmodels = input$tab1_diffmodels4))
+      } else {
+        return(NULL)
+      }
+    })
+    ### tab1_df5 ---------------------------------------------------
+    
+    tab1_df5 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if(input$tab1_plotvar5) {
+        return(
+          get_variable_comparison(x[input$tab1_selected_output],input$tab1_var5,
+                                  time_range = c(input$tab1_datemin, input$tab1_datemax),
+                                  list.soil.level = input$tab1_nsoil5,
+                                  list.air.level = input$tab1_nair5,
+                                  list.species.level = input$tab1_nspecies5,
+                                  list.veg.level = input$tab1_nveg5,
+                                  list.leafage.level = input$tab1_nleafage5,
+                                  diffmodels = input$tab1_diffmodels5))
+      } else {
+        return(NULL)
+      }
+    })
     
     ## output Tab1 -------------------------------------------------------
     
@@ -404,6 +481,40 @@ musica_server <- function(x) {
       }
     })
     output$tab1_dygraph3 <- renderDygraph(tab1_dygraph3())
+    
+    ### tab1_dygraph4 -------------------------------------------------------
+    tab1_dygraph4 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if (input$tab1_plotvar4) {
+        return(
+          dygraph_comparison(tab1_df4(),
+                             main.title = tab1_main.title4(),
+                             pixwidth = 600, 
+                             pixheight = 40,
+                             diffmodels = input$tab1_diffmodels4))
+      } else {
+        return(NULL)
+      }
+    })
+    output$tab1_dygraph4 <- renderDygraph(tab1_dygraph4())
+    
+    ### tab1_dygraph5 -------------------------------------------------------
+    tab1_dygraph5 <- eventReactive({
+      input$tab1_UpdateView
+    }, {
+      if (input$tab1_plotvar5) {
+        return(
+          dygraph_comparison(tab1_df5(),
+                             main.title = tab1_main.title5(),
+                             pixwidth = 600, 
+                             pixheight = 40,
+                             diffmodels = input$tab1_diffmodels5))
+      } else {
+        return(NULL)
+      }
+    })
+    output$tab1_dygraph5 <- renderDygraph(tab1_dygraph5())
     
     # Tab 2 ---------------------------------------------------------------
     ## input Tab2 ------------------------------------------------------------
@@ -1154,22 +1265,22 @@ musica_server <- function(x) {
       } else {
         this.type <- input$tab2_type
       }
-        ggplot_variable(tab2_df(),
-                        out.type = this.type,
-                        x = input$tab2_x,
-                        y = input$tab2_y,
-                        shape = input$tab2_shape,
-                        fill = input$tab2_fill,
-                        color = input$tab2_color,
-                        linetype = input$tab2_linetype,
-                        facet_formula = input$tab2_facet,
-                        xrange = c(input$tab2_xmin, input$tab2_xmax),
-                        yrange = c(input$tab2_ymin, input$tab2_ymax),
-                        fillrange = c(input$tab2_fillmin, input$tab2_fillmax),
-                        diffmodels = input$tab2_diffmodels,
-                        bin2d = !input$tab2_scatterplot_points,
-                        layer.y = !input$tab2_heatmap_layer,
-                        nrow.facet = input$tab2_nrow_facet)
+      ggplot_variable(tab2_df(),
+                      out.type = this.type,
+                      x = input$tab2_x,
+                      y = input$tab2_y,
+                      shape = input$tab2_shape,
+                      fill = input$tab2_fill,
+                      color = input$tab2_color,
+                      linetype = input$tab2_linetype,
+                      facet_formula = input$tab2_facet,
+                      xrange = c(input$tab2_xmin, input$tab2_xmax),
+                      yrange = c(input$tab2_ymin, input$tab2_ymax),
+                      fillrange = c(input$tab2_fillmin, input$tab2_fillmax),
+                      diffmodels = input$tab2_diffmodels,
+                      bin2d = !input$tab2_scatterplot_points,
+                      layer.y = !input$tab2_heatmap_layer,
+                      nrow.facet = input$tab2_nrow_facet)
     })
     output$tab2_plot <- 
       renderPlot(tab2_plot())
