@@ -11,6 +11,9 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.1.9
+  * added unit conversion for q_h2o_soil, q_h2o_soil_vap, q_h2o_soil_cracks in v2 output
+  
 ### 0.1.8
   * added unit conversion for q_h2o_soil_liq in v2 output
   

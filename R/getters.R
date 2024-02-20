@@ -98,7 +98,9 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
         as.numeric()
       df$time <- df$time + dt
     }
-    if (varname %in% c("root_uptake", "q_h2o_soil_liq")) {
+    if (varname %in% c("root_uptake", 
+                       "q_h2o_soil", "q_h2o_soil_liq", "q_h2o_soil_vap",
+                       "q_h2o_soil_cracks")) {
       # conversion from mmol/m2/dt to kg/m2/s
       df[,varname] <- convert.units(df[,varname], 
                                       from = "mmol/m2/dt", 
