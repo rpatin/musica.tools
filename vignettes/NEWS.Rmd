@@ -11,6 +11,9 @@ vignette: >
 
 ## <i class="fas fa-code"></i> Development updates
 
+### 0.1.11
+  * Adjusted graphic height for dygraphs
+
 ### 0.1.10 (2024/02/20)
   * Increased number of dygraphs panel from 3 to 5.
 

@@ -4,8 +4,12 @@
 }
 
 .dygraph-label {
-  font-size: 0.7em;
+  font-size: 0.9em;
 }
+
+/*.dygraph-axis-label-y {
+    font-size: 0.5em;
+}*/
 
 .selectize-input {
   height = 40px;

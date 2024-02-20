@@ -220,7 +220,7 @@ musica_ui <- function(x) {
                              get_subset_input(x, "nspecies", "tab1_nspecies4"),
                              get_subset_input(x, "nveg", "tab1_nveg4"),
                              get_subset_input(x, "nleafage", "tab1_nleafage4"),
-                             ### variable4 ----------------------------------
+                             ### variable5 ----------------------------------
                              fluidRow(
                                column(9,
                                       selectInput("tab1_var5", label = "5th Variable",
@@ -253,23 +253,23 @@ musica_ui <- function(x) {
                                height = "90vh",
                                fluidRow(
                                  dygraphOutput("tab1_dygraph1",
-                                               height = "16vh")
+                                               height = "18vh")
                                ),
                                fluidRow(
                                  dygraphOutput("tab1_dygraph2", 
-                                               height = "16vh"),
+                                               height = "18vh"),
                                ),
                                fluidRow(
                                  dygraphOutput("tab1_dygraph3",
-                                               height = "16vh")
+                                               height = "18vh")
                                ),
                                fluidRow(
                                  dygraphOutput("tab1_dygraph4",
-                                               height = "16vh")
+                                               height = "18vh")
                                ),
                                fluidRow(
                                  dygraphOutput("tab1_dygraph5",
-                                               height = "16vh")
+                                               height = "18vh")
                                )
                              ),
                              fluidPage(
