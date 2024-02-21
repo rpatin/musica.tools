@@ -1270,7 +1270,7 @@ dygraph_comparison <- function(df,
     this_dygraph <- 
       this_dygraph %>% 
       dyOptions(colors = brewer_pal(palette = "Set2")(ncol(this.xts))) %>% 
-      dyOptions("sigFigs" = TRUE)
+      dyOptions("sigFigs" = 3)
     
     this_dygraph <- 
       this_dygraph %>% 
