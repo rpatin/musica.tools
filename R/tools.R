@@ -72,7 +72,7 @@ get_dim_value <- function(x, dimname) {
     return_values <- format_time(return_values, date0 = x$dim[[dimname]]$units)
   }
   
-  if (dimname %in% c("n_time")) { #then it is dev_jerome
+  if (dimname %in% c("n_time", 'ntime')) { #then it is dev_jerome or master before jan 2019
     return_values <- ncvar_get(x, "time")
     return_values <- format_time(return_values, date0 = x$var[["time"]]$units)
   }

@@ -56,7 +56,7 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   }
   df <-
     get_variable_raw(x, varname, list_dimname = list_dimname)
-  
+
   # rename dev_jerome column names
   old_conversion <- 
     c("n_time" = "time",
@@ -74,6 +74,19 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
         rename(df, !!sym(old_conversion[this.old]) := sym(this.old))
     }
   }
+  
+  # rename column names from version before jan 2019
+  new_conversion <- 
+    c("ntime" = "time")
+  old_master <- FALSE
+  for (this.old in names(new_conversion)) {
+    if (any(colnames(df) == this.old)) {
+      old_master <- TRUE
+      df <- 
+        rename(df, !!sym(new_conversion[this.old]) := sym(this.old))
+    }
+  }
+  
   
   if (!is.null(time_range)) {
     df <- 
