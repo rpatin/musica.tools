@@ -26,6 +26,10 @@
 ##'   to be kept
 ##' @param out.dir (default \code{'./'}), a \code{character}, output directory
 ##'   to store results
+##' @param obs (default \code{NULL}), a \code{data.frame}, with corresponding
+##'   observations
+##' @param summary.title (default \code{"MuSICA Output Summary"}), a
+##'   \code{character}, used as title for markdown summary
 ##' @param ... additional parameters transmitted to \code{\link{dygraph_variable}}
 ##' 
 ##' @return NULL
@@ -47,7 +51,9 @@
 summary_markdown <- function(x, filename, template, list_var, 
                              add_study_site = FALSE, time_range, 
                              n.soil.level = 5, n.air.level = 5,
-                             out.dir = "./", ...) {
+                             out.dir = "./", obs = NULL, 
+                             summary.title = "MuSICA Output Summary",
+                             ...) {
   args <- .check_summary(x = x, 
                          type = "markdown",
                          filename = filename,
@@ -62,7 +68,11 @@ summary_markdown <- function(x, filename, template, list_var,
   rm(args)
   
   if (inherits(x, "ncdf4")) {
-    markdown.file <- "template.Rmd"
+    if (is.null(obs)) {
+      markdown.file <- "template.Rmd"
+    } else {
+      markdown.file <- "template_obs.Rmd"
+    }
   } else {
     markdown.file <- "template_cmp.Rmd"
   }

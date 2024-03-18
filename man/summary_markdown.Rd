@@ -14,6 +14,8 @@ summary_markdown(
   n.soil.level = 5,
   n.air.level = 5,
   out.dir = "./",
+  obs = NULL,
+  summary.title = "MuSICA Output Summary",
   ...
 )
 }
@@ -43,6 +45,12 @@ to be kept}
 
 \item{out.dir}{(default \code{'./'}), a \code{character}, output directory
 to store results}
+
+\item{obs}{(default \code{NULL}), a \code{data.frame}, with corresponding
+observations}
+
+\item{summary.title}{(default \code{"MuSICA Output Summary"}), a
+\code{character}, used as title for markdown summary}
 
 \item{...}{additional parameters transmitted to \code{\link{dygraph_variable}}}
 }

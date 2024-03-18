@@ -1,0 +1,50 @@
+```{r}
+pixheight <- 250
+pixwidth  <- 1500
+axisLabelWidth <- 75
+
+df.try <- try({ 
+  df <-
+    get_variable(x, this_var, time_range = NULL)
+  
+  this_variable <- last(colnames(df))
+  this_ylab <- attr_legend(df)
+  set_hover <- FALSE
+  if (ncol(df) > 2) {
+    if (ncol(df) == 3) {
+      set_hover <- TRUE
+      df <- pivot_wider(df,
+                        names_from = colnames(df)[1],
+                        names_prefix = paste0(colnames(df)[1],"_"),
+                        values_from = last(colnames(df)))
+    } else {
+      stop("unsupported dimension number")
+    }
+  }
+  this_obs <- paste0(this_var,"_obs")
+  sub.obs <-
+    select(obs, time, {{this_var}}) %>% 
+    rename({{this_obs}}:=  {{this_var}})
+  
+  df <- left_join(df, sub.obs, by = join_by(time))
+  this.xts <- xts(df[, -which(colnames(df) == "time")],
+                  order.by = df$time)
+  this_dygraph <-
+    dygraph(this.xts, 
+            group = "templateGroup",
+            height = pixheight,
+            width = pixwidth) %>% 
+    dyAxis("y", label = this_ylab,
+           axisLabelWidth = axisLabelWidth) %>%
+    dyLegend(hideOnMouseOut = TRUE,
+             show = "onmouseover")
+  if (this_var == last(list_var)) {
+    this_dygraph <-
+      this_dygraph %>% dyRangeSelector()
+  }
+})
+if (!inherits(df.try, "try-error")) {
+  this_dygraph
+}
+```
+

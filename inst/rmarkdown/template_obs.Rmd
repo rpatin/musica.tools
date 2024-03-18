@@ -1,0 +1,47 @@
+---
+title: "`r summary.title`"
+output: 
+    html_document:
+      css: toc.css
+      toc: yes
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, error = FALSE, warning = FALSE)
+```
+
+
+
+```{r, results = 'asis'}
+if (!missing(template)) {
+  cat("\n\n#",template,"\n")
+}
+```
+
+
+```{r, results = 'asis'}
+res <- lapply(list_var, function(this_var) {
+  knitr::knit_child(
+    'template_obs_child.Rmd', envir = environment(), quiet = TRUE
+  )
+})
+cat(unlist(res), sep = '\n')
+```
+
+
+```{r, results = 'asis'}
+if (add_study_site) {
+    cat("\n\n# Study Site\n")
+  
+dflat <- get_variable(x, "latitude")
+dflon <- get_variable(x, "longitude")
+m <- leaflet::leaflet() %>%
+  leaflet::addTiles() %>%  # Add default OpenStreetMap map tiles
+  leaflet::addMarkers(lng = dflon$longitude, 
+                      lat = dflat$latitude, 
+                      popup = "Study Site")
+m  # Print the map
+}
+```
+
