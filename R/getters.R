@@ -56,7 +56,10 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   }
   df <-
     get_variable_raw(x, varname, list_dimname = list_dimname)
-
+  
+  if ("x" %in% colnames(df)) df$x <- NULL
+  if ("y" %in% colnames(df)) df$y <- NULL
+  
   # rename dev_jerome column names
   old_conversion <- 
     c("n_time" = "time",
@@ -517,7 +520,7 @@ get_variable_raw <- function(x, varname, list_dimname) {
            function(this_dimname) {
              get_dim_value(x, this_dimname)
            })
-  
+
   df <- expand.grid(list_dimvalue)
   colnames(df) <- unlist(list_dimname)
   matvalue <- ncvar_get(x, varname)
