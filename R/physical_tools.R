@@ -222,6 +222,12 @@ convert.units <- function(values, from, to, dt = NULL, Tair) {
     values <- values/dt
   }
   
+  ## kg/m2/s to kg/m2/dt ---------------------------------------------------
+  if (from == "kg/m2/s" &
+      to == "kg/m2/dt") {
+    stopifnot(!is.null(dt))
+    values <- values*dt
+  }
   
   ## kg/m2/s to W/m2 ---------------------------------------------------
   if (from == "kg/m2/s" &
