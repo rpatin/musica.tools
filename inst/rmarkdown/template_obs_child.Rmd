@@ -5,7 +5,7 @@ axisLabelWidth <- 75
 
 df.try <- try({ 
   df <-
-    get_variable(x, this_var, time_range = NULL)
+    get_variable(x, this_var, time_range = time_range)
   
   this_variable <- last(colnames(df))
   this_ylab <- attr_legend(df)
@@ -24,7 +24,7 @@ df.try <- try({
   this_obs <- paste0(this_var,"_obs")
   sub.obs <-
     select(obs, time, {{this_var}}) %>% 
-    rename({{this_obs}}:=  {{this_var}})
+    rename({{this_obs}} :=  {{this_var}})
   
   df <- left_join(df, sub.obs, by = join_by(time))
   this.xts <- xts(df[, -which(colnames(df) == "time")],

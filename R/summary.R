@@ -49,7 +49,7 @@
 ##' 
 
 summary_markdown <- function(x, filename, template, list_var, 
-                             add_study_site = FALSE, time_range, 
+                             add_study_site = FALSE, time_range = NULL, 
                              n.soil.level = 5, n.air.level = 5,
                              out.dir = "./", obs = NULL, 
                              summary.title = "MuSICA Output Summary",
