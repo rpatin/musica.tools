@@ -236,7 +236,14 @@ convert.units <- function(values, from, to, dt = NULL, Tair) {
     values <- values*lat_heat_vap(Tair)
   }
   
-  ## kg/m2/s to W/m2 ---------------------------------------------------
+  ## W/m2 to kg/m2/s ---------------------------------------------------
+  if (from == "W/m2" &
+      to == "kg/m2/s") {
+    stopifnot(!missing(Tair))
+    values <- values/lat_heat_vap(Tair)
+  }
+  
+  ## mmol/m2/s to W/m2 ---------------------------------------------------
   if (from == "mmol/m2/s" &
       to == "W/m2") {
     stopifnot(!missing(Tair))

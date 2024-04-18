@@ -1,7 +1,7 @@
 Package: musica.tools
 Type: Package
 Title: Tools to extract and plot MuSICA output
-Version: 0.1.12
+Version: 0.1.13
 Date: 2023-11-23
 Authors@R: c(person("Remi", "Lemaire-Patin", role = c("aut", "cre"), email = "remi.lemaire-patin@inrae.fr"))
 URL: https://github.com/rpatin/musica.tools
