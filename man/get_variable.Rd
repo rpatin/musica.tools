@@ -36,6 +36,7 @@ get_variable(x, "Qle", time_range = time_range)
 \seealso{
 Other getters: 
 \code{\link{get_all_var}()},
+\code{\link{get_timeline}()},
 \code{\link{get_two_variables}()},
 \code{\link{get_variable_comparison}()}
 }

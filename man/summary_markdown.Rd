@@ -10,7 +10,7 @@ summary_markdown(
   template,
   list_var,
   add_study_site = FALSE,
-  time_range,
+  time_range = NULL,
   n.soil.level = 5,
   n.air.level = 5,
   out.dir = "./",

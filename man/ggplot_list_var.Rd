@@ -30,7 +30,8 @@ ggplot_list_var(x, list_var = c("Qle","Qh","Qg"))
 Other plot: 
 \code{\link{dygraph_comparison}()},
 \code{\link{dygraph_variable}()},
-\code{\link{ggplot_variable}()}
+\code{\link{ggplot_variable}()},
+\code{\link{plot_timeline}()}
 }
 \author{
 Remi Lemaire-Patin

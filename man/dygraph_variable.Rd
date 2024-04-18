@@ -47,7 +47,8 @@ dygraph_variable(df,  pixwidth = 600)
 Other plot: 
 \code{\link{dygraph_comparison}()},
 \code{\link{ggplot_list_var}()},
-\code{\link{ggplot_variable}()}
+\code{\link{ggplot_variable}()},
+\code{\link{plot_timeline}()}
 }
 \author{
 Remi Lemaire-Patin

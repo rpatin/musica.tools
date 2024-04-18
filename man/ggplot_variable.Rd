@@ -250,7 +250,8 @@ ggplot_variable(df, out.type = "scatterplot", bin2d = FALSE,
 Other plot: 
 \code{\link{dygraph_comparison}()},
 \code{\link{dygraph_variable}()},
-\code{\link{ggplot_list_var}()}
+\code{\link{ggplot_list_var}()},
+\code{\link{plot_timeline}()}
 }
 \author{
 Remi Lemaire-Patin

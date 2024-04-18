@@ -23,6 +23,7 @@ get_all_var(x)
 }
 \seealso{
 Other getters: 
+\code{\link{get_timeline}()},
 \code{\link{get_two_variables}()},
 \code{\link{get_variable_comparison}()},
 \code{\link{get_variable}()}

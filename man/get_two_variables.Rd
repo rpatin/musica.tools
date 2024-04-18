@@ -37,6 +37,7 @@ get_two_variables(x.list, varnames = c("h_soil","w_soil"))
 \seealso{
 Other getters: 
 \code{\link{get_all_var}()},
+\code{\link{get_timeline}()},
 \code{\link{get_variable_comparison}()},
 \code{\link{get_variable}()}
 }
