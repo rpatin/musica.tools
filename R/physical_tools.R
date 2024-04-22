@@ -195,7 +195,6 @@ convert.units <- function(values, from, to, dt = NULL, Tair) {
   
   if (from == "mmol/m2/s" &
       to == "kg/m2/s") {
-    stopifnot(!is.null(Tair))
     values <- values*1e-3*mol_weight_h2o
   }
   

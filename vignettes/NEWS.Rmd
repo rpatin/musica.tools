@@ -10,6 +10,9 @@ vignette: >
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 
 ## <i class="fas fa-code"></i> Development updates
+### 0.1.14
+  * Removed unnecessary check in conversion for mmol/m2/s to kg/m2/s
+
 ### 0.1.13
   * Add unit conversion kg/m2/s to kg/m2/dt
   * Add get_timeline and plot_timeline 
