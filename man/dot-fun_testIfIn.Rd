@@ -31,8 +31,8 @@ code from \code{biomod2} package
 Other Tools: 
 \code{\link{attr_legend}()},
 \code{\link{convert.units}()},
-\code{\link{e_air_sat}()},
 \code{\link{e_air}()},
+\code{\link{e_air_sat}()},
 \code{\link{filter_dim}()},
 \code{\link{format_time}()},
 \code{\link{get_6month}()},

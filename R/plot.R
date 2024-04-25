@@ -340,27 +340,26 @@ ggplot_variable <- function(df,
     }
     vjust <- 
       switch(y,
-             "nsoil" = 1,
-             "nveg" = 0,
-             "nair" = 0,
-             0.5
+             "nsoil" = -0.5,
+             "nveg" = -0.5,
+             "nair" = -0.5,
+             -0.5
       )
-    
+
     ## plot layer as dimension -----------------------------------------
     if (layer.y) {
       g <-
         ggplot(df) +
-        geom_raster(aes(x = time,
-                        y = .data[[y]],
-                        fill = .data[[this_variable]]),
-                    vjust = vjust) +
+        geom_tile(aes(x = time,
+                        y = .data[[y]]+vjust,
+                        fill = .data[[this_variable]])) +
         scale_y_continuous(breaks = breaks_pretty(n = 10)) +
         scale_fill_viridis_c(str_wrap(this.legend.fill, width = 15),
                              option = "D", direction = -1,
                              limits = fillrange) +
         ylab(y) +
         xlab(NULL)
-      
+      g
       if (y %in% c("nsoil","nair","nveg")) {
         if (y == "nsoil") {
           z_soil <- attr(df, "z_soil")

@@ -10,6 +10,11 @@ vignette: >
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 
 ## <i class="fas fa-code"></i> Development updates
+### 0.1.15 
+  * Heatmap now use geom_tile instead of geom_raster as the latter appeared 
+  to have limits on the number of data possible to use in the x axis 
+  (bug from 25/04/2024)
+  
 ### 0.1.14
   * Removed unnecessary check in conversion for mmol/m2/s to kg/m2/s
 

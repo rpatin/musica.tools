@@ -25,8 +25,8 @@ get_all_var(x)
 Other getters: 
 \code{\link{get_timeline}()},
 \code{\link{get_two_variables}()},
-\code{\link{get_variable_comparison}()},
-\code{\link{get_variable}()}
+\code{\link{get_variable}()},
+\code{\link{get_variable_comparison}()}
 }
 \author{
 Remi Lemaire-Patin

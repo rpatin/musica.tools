@@ -28,8 +28,8 @@ library(ncdf4)
 Other getters: 
 \code{\link{get_all_var}()},
 \code{\link{get_two_variables}()},
-\code{\link{get_variable_comparison}()},
-\code{\link{get_variable}()}
+\code{\link{get_variable}()},
+\code{\link{get_variable_comparison}()}
 }
 \author{
 Remi Lemaire-Patin

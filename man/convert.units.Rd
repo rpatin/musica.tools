@@ -37,8 +37,8 @@ convert.units(900, from = "mmol/m2/dt", to = "kg/m2/s", dt = 1800)
 Other Tools: 
 \code{\link{.fun_testIfIn}()},
 \code{\link{attr_legend}()},
-\code{\link{e_air_sat}()},
 \code{\link{e_air}()},
+\code{\link{e_air_sat}()},
 \code{\link{filter_dim}()},
 \code{\link{format_time}()},
 \code{\link{get_6month}()},
