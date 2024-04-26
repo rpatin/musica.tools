@@ -350,7 +350,7 @@ ggplot_variable <- function(df,
     if (layer.y) {
       g <-
         ggplot(df) +
-        geom_tile(aes(x = time,
+        geom_raster(aes(x = time,
                         y = .data[[y]]+vjust,
                         fill = .data[[this_variable]])) +
         scale_y_continuous(breaks = breaks_pretty(n = 10)) +
@@ -506,7 +506,7 @@ ggplot_variable <- function(df,
           #               ymin = bottom,
           #               ymax = top,
           #               fill = .data[[this_variable]])) +
-          geom_tile(aes(x = time,
+          geom_raster(aes(x = time,
                         y = y,
                         width = width,
                         height = height,
