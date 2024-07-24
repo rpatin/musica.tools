@@ -37,18 +37,7 @@ get_timeline <- function(x, varnames, time_range = NULL) {
     mutate(has.values = !is.na(values) & !is.nan(values),
            has.values = as.numeric(has.values)) %>% 
     arrange(variable, time)
-  split.obs <- split(long.obs, long.obs$variable)
-  df.timeline <- lapply(split.obs, function(df){
-    this.rle <- rle(df$has.values)
-    this.end <- cumsum(this.rle$lengths)
-    this.begin <- c(1, this.end[1:(length(this.end) - 1)])
-    this.end <- this.end[which(this.rle$values == 1)]
-    this.begin <- this.begin[which(this.rle$values == 1)]
-    data.frame(variable = first(df$variable),
-               time_begin = df$time[this.begin],
-               time_end = df$time[this.end])
-  }) %>% 
-    data.table::rbindlist()
+  df.timeline <- get_timeline_df(long.obs)
   df.timeline
 }
 
@@ -92,4 +81,43 @@ plot_timeline <- function(df,
           axis.text.x = element_text(angle = 90, vjust = 0.5)) +
     ylab(NULL)
   
+}
+
+# get_timeline_df ---------------------------------------------------------
+##' @name get_timeline_df
+##' @author Remi Lemaire-Patin
+##' 
+##' @title get a timeline 
+##' 
+##' @description This function produce a timeline data.frame to feed 
+##' \code{\link{plot_timeline}}
+##' 
+##' 
+##' @param df a \code{data.frame} object,  with columns \code{time}
+##'   (\code{POSIXct}), \code{variable} (\code{character)}) and
+##'   \code{has.values} (\code{1} or \code{0})
+##' @return
+##' 
+##' A \code{data.frame} object 
+##' 
+##' @family getters
+##'
+##' @examples
+##' library(ncdf4)
+##' @export
+
+get_timeline_df <- function(df) {
+  split.obs <- split(df, df$variable)
+  df.timeline <- lapply(split.obs, function(this.df){
+    this.rle <- rle(this.df$has.values)
+    this.end <- cumsum(this.rle$lengths)
+    this.begin <- c(1, this.end[1:(length(this.end) - 1)])
+    this.end <- this.end[which(this.rle$values == 1)]
+    this.begin <- this.begin[which(this.rle$values == 1)]
+    data.frame(variable = first(this.df$variable),
+               time_begin = this.df$time[this.begin],
+               time_end = this.df$time[this.end])
+  }) %>% 
+    data.table::rbindlist()
+  df.timeline
 }
