@@ -227,7 +227,7 @@ ggplot_variable <- function(df,
                             out.type,
                             x, y, color, linetype, shape, fill, facet_formula,
                             xrange = NULL, yrange = NULL, fillrange = NULL,
-                            bin2d = TRUE, layer.y = TRUE,
+                            bin2d = TRUE, layer.y = TRUE, soil.wtdepth = NULL,
                             diffmodels = FALSE, nrow.facet = NULL,
                             format.date = "%b %Y") {
   args <- .check_ggplot_variable(df = df,
@@ -244,6 +244,7 @@ ggplot_variable <- function(df,
                                  nrow.facet = nrow.facet,
                                  bin2d = bin2d,
                                  layer.y = TRUE,
+                                 soil.wtdepth = soil.wtdepth,
                                  format.date = format.date)
   for (argi in names(args)) { 
     assign(x = argi, value = args[[argi]]) 
@@ -345,13 +346,13 @@ ggplot_variable <- function(df,
              "nair" = -0.5,
              -0.5
       )
-
+    
     ## plot layer as dimension -----------------------------------------
     if (layer.y) {
       g <-
         ggplot(df) +
         geom_raster(aes(x = time,
-                        y = .data[[y]]+vjust,
+                        y = .data[[y]] + vjust,
                         fill = .data[[this_variable]])) +
         scale_y_continuous(breaks = breaks_pretty(n = 10)) +
         scale_fill_viridis_c(str_wrap(this.legend.fill, width = 15),
@@ -395,6 +396,27 @@ ggplot_variable <- function(df,
           y_labels <- na.omit(y_labels)
           y_labels <- round(y_labels*100, digits = 1) # in cm
           y_units <- "Depth (cm)"
+          
+          ### add wtdepth if need be --------------------
+          if (soil.wtdepth) {
+            dfwtdepth <- 
+              attr(df, 'wtdepth') %>% 
+              mutate(depth = sapply(WTDEPTH, function(this.depth) {
+                which.min(abs(z_soil$z_soil + this.depth))
+              })) 
+            
+            if (!missing(time_range)) {
+              dfwtdepth <- 
+                dfwtdepth %>% 
+                filter(time >= time_range[1],
+                       time <= time_range[2])
+            }
+
+            g <- g + 
+              geom_line(data = dfwtdepth,
+                        aes(x = time, y = depth), 
+                        size = 0.5, color = "white")
+          }
           
           g <- g +
             scale_y_reverse(y_units,
@@ -498,7 +520,6 @@ ggplot_variable <- function(df,
           mutate(time_begin = time - dt/2,
                  time_end = time + dt/2,
                  width = as.numeric(dt)*1.01)
-        
         g <-
           ggplot(df) +
           # geom_rect(aes(xmin = time_begin,
@@ -506,7 +527,7 @@ ggplot_variable <- function(df,
           #               ymin = bottom,
           #               ymax = top,
           #               fill = .data[[this_variable]])) +
-          geom_raster(aes(x = time,
+          geom_tile(aes(x = time,
                         y = y,
                         width = width,
                         height = height,
@@ -517,7 +538,20 @@ ggplot_variable <- function(df,
                                limits = fillrange) +
           ylab(this.ylab) +
           xlab(NULL)
-        
+        if (y == "nsoil" && soil.wtdepth) {
+          dfwtdepth <- 
+            attr(df, 'wtdepth')
+          if (!missing(time_range)) {
+            dfwtdepth <- 
+              dfwtdepth %>% 
+              filter(time >= time_range[1],
+                     time <= time_range[2])
+          }
+          g <- g + 
+            geom_line(data = dfwtdepth,
+                      aes(x = time, y = -WTDEPTH), 
+                      size = 0.5, color = "white")
+        }
         if (reverse_scale) {
           g <- 
             g +
@@ -695,7 +729,7 @@ ggplot_variable <- function(df,
            color, linetype, fill, shape, facet_formula,
            xrange, yrange, fillrange,
            diffmodels, nrow.facet,
-           bin2d, layer.y,
+           bin2d, layer.y, soil.wtdepth,
            format.date) {
     
     if (missing(out.type)) {
@@ -959,7 +993,7 @@ ggplot_variable <- function(df,
     }
     
     
-    # Remaining dimension
+    # Remaining dimension -------------------------------------------
     
     # if (out.type %in% c("standard","heatmap", "daily_heatmap","histogram") &
     #     length(potential_dim) > 0) {
@@ -999,6 +1033,14 @@ ggplot_variable <- function(df,
     if (is.null(nrow.facet)) {
       if (out.type %in% c("heatmap", "daily_heatmap")) {
         nrow.facet <- 1
+      }
+    }
+    
+    if (y == "nsoil" & (is.null(soil.wtdepth) || soil.wtdepth)) {
+      if ("wtdepth" %in% names(attributes(df))) {
+        soil.wtdepth <- TRUE
+      } else {
+        soil.wtdepth <- FALSE
       }
     }
     

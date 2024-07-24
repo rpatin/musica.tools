@@ -138,13 +138,23 @@ get_variable <- function(x, varname, time_range, return.colnames = FALSE) {
   
   if ("nsoil" %in% list_dimname & 
       !(varname %in% c("z_soil", "dz_soil"))) {
-    if ("z_soil" %in% names(x$var) & varname != "z_soil") {
+    if ("z_soil" %in% list_allvar(x) & varname != "z_soil") {
       attr(df, "z_soil") <- 
         get_variable(x, "z_soil") 
     }
     if ("dz_soil" %in% names(x$var)) {
       attr(df, "dz_soil") <- 
         get_variable(x, "dz_soil")
+    }
+    if ("WTDEPTH" %in% list_allvar(x)) {
+      tmp_wtdepth <- get_variable(x, "WTDEPTH")
+      if (!is.null(time_range)) {
+        tmp_wtdepth <- 
+          tmp_wtdepth %>% 
+          filter(time >= time_range[1],
+                 time <= time_range[2])
+      }
+      attr(df, "wtdepth") <- tmp_wtdepth
     }
   }
   
@@ -250,6 +260,7 @@ get_two_variables <- function(x, varnames, time_range, ...) {
   attr(df, "nvar") <- 2
   attr(df, "z_soil") <- attr(df1, "z_soil")
   attr(df, "dz_soil") <- attr(df1, "dz_soil")
+  attr(df, "wtdepth") <- attr(df1, "wtdepth")
   attr(df, "relative_height") <- attr(df1, "relative_height")
   attr(df, "veget_height_top") <- attr(df1, "veget_height_top")
   attr(df, "layer_thickness") <- attr(df1, "layer_thickness")
@@ -461,6 +472,15 @@ get_variable_comparison <- function(x, varname, time_range = NULL,
   attr(df, "relative_height") <- attr(list.df[[1]], "relative_height")
   attr(df, "veget_height_top") <- attr(list.df[[1]], "veget_height_top")
   attr(df, "layer_thickness") <- attr(list.df[[1]], "layer_thickness")
+  if (!is.null(attr(list.df[[1]], 'wtdepth'))) {
+    attr(df, "wtdepth") <- 
+      lapply(seq_along(names(x)), function(i) {
+        attr(list.df[[i]], "wtdepth") %>% 
+          mutate(models = names(x)[i])
+    }) %>% 
+      do.call('rbind', .)
+  }
+  
   df <- df %>% 
     select("models", everything()) %>% 
     mutate(models = factor(models, levels = names(x)))
@@ -571,3 +591,4 @@ get_version <- function(x) {
    ncdf4::ncatt_get(this.x, varid = 0)$version
  })  
 }
+
