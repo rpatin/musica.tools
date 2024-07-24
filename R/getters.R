@@ -531,3 +531,43 @@ get_variable_raw <- function(x, varname, list_dimname) {
   }
   df
 }
+
+
+
+# get_version ---------------------------------------------------------
+##' @name get_version
+##' @author Remi Lemaire-Patin
+##' 
+##' @title Get MuSICA version number
+##' 
+##' @description This function retrieve MuSICA version number from a single
+##' \code{ncdf4} object or a list of \code{ncdf4} object.
+##' 
+##' @param x a \code{ncdf4} object or a list \code{ncdf4} object. (Named list of) 
+##' MuSICA outputs
+##' @return
+##' 
+##' A \code{character vector}
+##' @family getters
+##' 
+##'   
+##' @examples
+##' library(ncdf4)
+##' x <- nc_open(system.file("extdata", "musica_out_2006_demo.nc", package = "musica.tools"))
+##' x.list <- list("model1" = x, "model2" = x)
+##' @export
+##' @importFrom ncdf4 ncatt_get
+##' 
+
+get_version <- function(x) {
+  if (!inherits(x, "ncdf4") & !all(sapply(x, inherits, what = "ncdf4"))) {
+   stop("x must be a ncdf4 object or a list of ncdf4 object")
+ }
+  
+ if (inherits(x, "ncdf4")) {
+   x <- list(x)
+ }
+ sapply(x, function(this.x){
+   ncdf4::ncatt_get(this.x, varid = 0)$version
+ })  
+}
