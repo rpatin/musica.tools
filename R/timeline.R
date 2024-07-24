@@ -118,6 +118,6 @@ get_timeline_df <- function(df) {
                time_begin = this.df$time[this.begin],
                time_end = this.df$time[this.end])
   }) %>% 
-    data.table::rbindlist()
+    do.call('rbind', .)
   df.timeline
 }
