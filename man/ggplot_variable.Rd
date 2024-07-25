@@ -20,6 +20,7 @@ ggplot_variable(
   fillrange = NULL,
   bin2d = TRUE,
   layer.y = TRUE,
+  soil.wtdepth = NULL,
   diffmodels = FALSE,
   nrow.facet = NULL,
   format.date = "\%b \%Y"

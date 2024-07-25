@@ -40,6 +40,7 @@ Other Tools:
 \code{\link{get_dim_value}()},
 \code{\link{get_time_range}()},
 \code{\link{lat_heat_vap}()},
+\code{\link{list_allvar}()},
 \code{\link{list_dim_allvar}()},
 \code{\link{mol2kg_water_ratio}()},
 \code{\link{var_with_dim}()},

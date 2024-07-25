@@ -10,6 +10,11 @@ vignette: >
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 
 ## <i class="fas fa-code"></i> Development updates
+### 0.1.17
+  * added option to plot Water Table Depth on soil heatmaps  
+  * added several tool function: get_version, get_species_list, 
+  list_allvar, get_timeline_df
+
 ### 0.1.16
   * Default graphical device set to ragg for the shiny app to allow plotting 
   heatmap with geom_raster and more than 2^15-1 data on the x scale on some system.
