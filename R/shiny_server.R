@@ -702,8 +702,10 @@ musica_server <- function(x) {
       }
       if (input$tab2_type == "heatmap") {
         shinyjs::show("tab2_heatmap_layer")
+        shinyjs::show("tab2_heatmap_wtdepth")
       } else {
         hide("tab2_heatmap_layer")
+        hide("tab2_heatmap_wtdepth")
       }
     })
     ### Selected Models -------------------------------------------------------
@@ -1280,6 +1282,7 @@ musica_server <- function(x) {
                       diffmodels = input$tab2_diffmodels,
                       bin2d = !input$tab2_scatterplot_points,
                       layer.y = !input$tab2_heatmap_layer,
+                      soil.wtdepth = input$tab2_heatmap_wtdepth,
                       nrow.facet = input$tab2_nrow_facet)
     })
     output$tab2_plot <- 

@@ -401,6 +401,11 @@ musica_ui <- function(x) {
                                  id = "tab2_heatmap_layer",
                                  checkboxInput("tab2_heatmap_layer", 
                                                label = "Real Height",
+                                               value = FALSE))),
+                               hidden(div(
+                                 id = "tab2_heatmap_wtdepth",
+                                 checkboxInput("tab2_heatmap_wtdepth", 
+                                               label = "Water Table",
                                                value = FALSE)))
                         ),
                       ),
