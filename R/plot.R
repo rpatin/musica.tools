@@ -1036,7 +1036,7 @@ ggplot_variable <- function(df,
       }
     }
     
-    if (y == "nsoil" & (is.null(soil.wtdepth) || soil.wtdepth)) {
+    if (y == "nsoil" && (is.null(soil.wtdepth) || soil.wtdepth)) {
       if ("wtdepth" %in% names(attributes(df))) {
         soil.wtdepth <- TRUE
       } else {

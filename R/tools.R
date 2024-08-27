@@ -614,5 +614,8 @@ get_air_level <- function(x, air.level) {
 
 get_species_list <- function(x) {
   list_species <- ncatt_get(x, varid = 0)
-  list_species[-length(list_species)]
+  if (last(names(list_species)) == "version") {
+    list_species <- list_species[-length(list_species)]
+  }
+  list_species
 }
